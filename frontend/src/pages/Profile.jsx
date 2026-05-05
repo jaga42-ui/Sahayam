@@ -354,6 +354,7 @@ const Profile = () => {
               )}
             </div>
 
+            <div className="text-center pt-6 md:pt-8 px-4">
               <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.1em] md:tracking-[0.2em] italic leading-relaxed text-dusty-lavender">
                 "A community is only as strong as its willingness to protect one another."
               </p>
