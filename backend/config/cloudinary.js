@@ -1,5 +1,5 @@
 const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinaryStorage = require('multer-storage-cloudinary');
 const multer = require('multer');
 
 // Connect to your Cloudinary account
@@ -9,14 +9,12 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Set up the Cloud Engine
-const storage = new CloudinaryStorage({
+// Set up the Cloud Engine for v2.2.1
+const storage = cloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'hopelink_uploads', // This creates a neat folder in your Cloudinary dashboard
-    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
-    transformation: [{ width: 800, height: 800, crop: 'limit' }] // Auto-compresses massive images!
-  }
+  folder: 'hopelink_uploads',
+  allowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
+  transformation: [{ width: 800, height: 800, crop: 'limit' }]
 });
 
 const upload = multer({ storage });
