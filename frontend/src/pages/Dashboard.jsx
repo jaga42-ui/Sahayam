@@ -115,7 +115,7 @@ const getCategoryMeta = (category) =>
   CATEGORY_META[category?.toLowerCase()] || CATEGORY_META.general;
 
 const SkeletonCard = () => (
-  <div className="relative h-[430px] overflow-hidden rounded-[2rem] border border-dusty-lavender/20 bg-white/40 p-5 shadow-[0_18px_50px_rgba(41,82,74,0.08)] backdrop-blur-2xl">
+  <div className="relative h-[430px] overflow-hidden rounded-[2rem] border border-dusty-lavender/20 bg-surface/40 p-5 shadow-[0_18px_50px_rgba(41,82,74,0.08)] backdrop-blur-2xl">
     <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent z-10" />
     <div className="flex flex-col gap-4 opacity-70">
       <div className="flex items-center gap-3">
@@ -652,7 +652,7 @@ const Dashboard = () => {
                   initial={{ y: -20, opacity: 0, scale: 0.96 }}
                   animate={{ y: 0, opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, y: -20, scale: 0.96 }}
-                  className="pointer-events-auto flex items-center gap-3 rounded-full border border-blazing-flame/30 bg-white/90 px-5 py-3 text-pine-teal shadow-2xl backdrop-blur-xl"
+                  className="pointer-events-auto flex items-center gap-3 rounded-full border border-blazing-flame/30 bg-surface/90 px-5 py-3 text-pine-teal shadow-2xl backdrop-blur-xl"
                 >
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blazing-flame/10">
                     <FaRunning className="text-blazing-flame" />
@@ -671,7 +671,7 @@ const Dashboard = () => {
                 <MotionDiv
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-3 hidden items-center gap-2 rounded-full border border-pine-teal/15 bg-white/60 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm backdrop-blur-xl sm:inline-flex"
+                  className="mb-3 hidden items-center gap-2 rounded-full border border-pine-teal/15 bg-surface/60 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm backdrop-blur-xl sm:inline-flex"
                 >
                   <span className="relative flex h-2 w-2">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blazing-flame opacity-75"></span>
@@ -706,7 +706,7 @@ const Dashboard = () => {
                 initial={{ opacity: 0, scale: 0.96 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.12, type: "spring", stiffness: 220 }}
-                className="grid w-full grid-cols-2 gap-2 rounded-2xl border border-dusty-lavender/30 bg-white/50 p-1.5 shadow-sm backdrop-blur-xl sm:flex sm:w-auto sm:rounded-[1.5rem] sm:border-white/70 sm:bg-white/65 sm:p-2 sm:shadow-[0_18px_45px_rgba(41,82,74,0.1)]"
+                className="grid w-full grid-cols-2 gap-2 rounded-2xl border border-dusty-lavender/30 bg-surface/50 p-1.5 shadow-sm backdrop-blur-xl sm:flex sm:w-auto sm:rounded-[1.5rem] sm:border-surface/70 sm:bg-surface/65 sm:p-2 sm:shadow-[0_18px_45px_rgba(41,82,74,0.1)]"
               >
                 <MotionButton
                   whileHover={{ y: -2 }}
@@ -727,7 +727,7 @@ const Dashboard = () => {
                     whileHover={{ y: -2 }}
                     whileTap={{ scale: 0.96 }}
                     onClick={switchRole}
-                    className="hidden min-h-12 items-center justify-center gap-2 rounded-2xl border border-dusty-lavender/20 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm transition-all hover:border-pine-teal/30 sm:flex md:px-5"
+                    className="hidden min-h-12 items-center justify-center gap-2 rounded-2xl border border-dusty-lavender/20 bg-surface px-4 py-3 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm transition-all hover:border-pine-teal/30 sm:flex md:px-5"
                   >
                     <FaUsers className="text-sm text-dark-raspberry" />
                     {isDonor ? "Receiver" : "Donor"}
@@ -738,7 +738,7 @@ const Dashboard = () => {
                   whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={enableNotifications}
-                  className="hidden min-h-12 items-center justify-center gap-2 rounded-2xl border border-dusty-lavender/20 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm transition-all hover:border-blazing-flame/30 sm:flex md:px-5"
+                  className="hidden min-h-12 items-center justify-center gap-2 rounded-2xl border border-dusty-lavender/20 bg-surface px-4 py-3 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm transition-all hover:border-blazing-flame/30 sm:flex md:px-5"
                 >
                   <FaBell className="text-sm text-blazing-flame" />
                   Alerts
@@ -748,7 +748,7 @@ const Dashboard = () => {
                   whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={toggleDarkMode}
-                  className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-dusty-lavender/20 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm transition-all hover:border-dusty-lavender/40 sm:flex md:px-5"
+                  className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-dusty-lavender/20 bg-surface px-4 py-3 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm transition-all hover:border-dusty-lavender/40 sm:flex md:px-5"
                 >
                   {isDarkMode ? <FaSun className="text-sm text-[#ffd700]" /> : <FaMoon className="text-sm text-dusty-lavender" />}
                   {isDarkMode ? 'Light' : 'Dark'}
@@ -785,7 +785,7 @@ const Dashboard = () => {
                     hidden: { opacity: 0, y: 16 },
                     show: { opacity: 1, y: 0 },
                   }}
-                  className={`group relative overflow-hidden rounded-[1.5rem] border ${stat.border} bg-white/65 p-4 shadow-[0_14px_35px_rgba(41,82,74,0.07)] backdrop-blur-xl hover:scale-105 hover:shadow-[0_20px_40px_rgba(41,82,74,0.12)] transition-all duration-300 cursor-default`}
+                  className={`group relative overflow-hidden rounded-[1.5rem] border ${stat.border} bg-surface/65 p-4 shadow-[0_14px_35px_rgba(41,82,74,0.07)] backdrop-blur-xl hover:scale-105 hover:shadow-[0_20px_40px_rgba(41,82,74,0.12)] transition-all duration-300 cursor-default`}
                 >
                   <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-white to-transparent opacity-80" />
                   <div className="absolute -right-6 -bottom-6 opacity-5 group-hover:opacity-10 group-hover:scale-150 transition-all duration-500">
@@ -847,7 +847,7 @@ const Dashboard = () => {
             </div>
           </MotionDiv>
 
-          <div className="sticky top-0 z-30 -mx-4 mb-5 border-y border-dusty-lavender/30 bg-pearl-beige/95 px-4 py-2.5 backdrop-blur-xl sm:mb-6 md:static md:mx-0 md:rounded-[1.5rem] md:border md:bg-white/50">
+          <div className="sticky top-0 z-30 -mx-4 mb-5 border-y border-dusty-lavender/30 bg-pearl-beige/95 px-4 py-2.5 backdrop-blur-xl sm:mb-6 md:static md:mx-0 md:rounded-[1.5rem] md:border md:bg-surface/50">
             <div className="flex gap-2 overflow-x-auto no-scrollbar">
               {FILTER_OPTIONS.map((option) => {
                 const FilterIcon = option.icon;
@@ -862,7 +862,7 @@ const Dashboard = () => {
                     className={`flex shrink-0 items-center gap-1.5 rounded-xl border px-3 py-2 text-[9px] font-black uppercase tracking-widest transition-all sm:gap-2 sm:rounded-2xl sm:px-4 sm:py-2.5 sm:text-[10px] ${
                       isActive
                         ? "border-pine-teal bg-pine-teal text-white shadow-lg shadow-pine-teal/20"
-                        : "border-dusty-lavender/20 bg-white/50 text-dusty-lavender shadow-sm hover:border-pine-teal/20 hover:text-pine-teal sm:border-white/70 sm:bg-white/65"
+                        : "border-dusty-lavender/20 bg-surface/50 text-dusty-lavender shadow-sm hover:border-pine-teal/20 hover:text-pine-teal sm:border-surface/70 sm:bg-surface/65"
                     }`}
                   >
                     <FilterIcon className="text-xs sm:text-sm" />
@@ -883,7 +883,7 @@ const Dashboard = () => {
             <MotionDiv
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
-              className="rounded-[2rem] border border-dashed border-pine-teal/20 bg-white/55 px-6 py-20 text-center shadow-[0_18px_45px_rgba(41,82,74,0.08)] backdrop-blur-xl"
+              className="rounded-[2rem] border border-dashed border-pine-teal/20 bg-surface/55 px-6 py-20 text-center shadow-[0_18px_45px_rgba(41,82,74,0.08)] backdrop-blur-xl"
             >
               <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-3xl border border-pine-teal/10 bg-pine-teal/10 text-pine-teal">
                 <FaBoxOpen className="text-3xl" />
@@ -933,10 +933,10 @@ const Dashboard = () => {
                       exit="exit"
                       whileHover={{ y: -6 }}
                       key={item._id}
-                      className={`group relative flex min-h-[430px] flex-col overflow-hidden rounded-[2rem] border bg-white/70 p-4 shadow-[0_18px_45px_rgba(41,82,74,0.08)] backdrop-blur-2xl transition-shadow duration-300 hover:shadow-[0_24px_60px_rgba(41,82,74,0.16)] ${
+                      className={`group relative flex min-h-[430px] flex-col overflow-hidden rounded-[2rem] border bg-surface/70 p-4 shadow-[0_18px_45px_rgba(41,82,74,0.08)] backdrop-blur-2xl transition-shadow duration-300 hover:shadow-[0_24px_60px_rgba(41,82,74,0.16)] ${
                         item.isEmergency
                           ? "border-blazing-flame/40"
-                          : "border-white/70"
+                          : "border-surface/70"
                       }`}
                     >
                       <div className="dashboard-card-sheen absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/70 to-transparent" />
@@ -956,7 +956,7 @@ const Dashboard = () => {
                               `https://ui-avatars.com/api/?name=${avatarName}&background=e8dab2&color=29524a`
                             }
                             alt="User"
-                            className="h-11 w-11 shrink-0 rounded-2xl border border-white/70 object-cover shadow-sm"
+                            className="h-11 w-11 shrink-0 rounded-2xl border border-surface/70 object-cover shadow-sm"
                           />
                           <div className="min-w-0">
                             <p className="flex items-center gap-1 truncate text-sm font-black tracking-tight text-pine-teal">
@@ -985,7 +985,7 @@ const Dashboard = () => {
                               SOS
                             </span>
                           ) : (
-                            <span className="shrink-0 rounded-xl border border-white/70 bg-white/80 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-pine-teal shadow-sm">
+                            <span className="shrink-0 rounded-xl border border-surface/70 bg-surface/80 px-3 py-1.5 text-[9px] font-black uppercase tracking-widest text-pine-teal shadow-sm">
                               {meta.label}
                             </span>
                           )}
@@ -1033,7 +1033,7 @@ const Dashboard = () => {
                               {item.quantity}
                             </span>
                           )}
-                          <span className="rounded-lg border border-dusty-lavender/15 bg-white/65 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-dusty-lavender">
+                          <span className="rounded-lg border border-dusty-lavender/15 bg-surface/65 px-2.5 py-1 text-[9px] font-black uppercase tracking-widest text-dusty-lavender">
                             {item.status || "active"}
                           </span>
                         </div>
@@ -1083,7 +1083,7 @@ const Dashboard = () => {
                           item.status === "fulfilled" ? (
                             <button
                               disabled
-                              className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-white/70 bg-white/60 py-3.5 text-[10px] font-black uppercase tracking-widest text-dusty-lavender shadow-sm"
+                              className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-surface/70 bg-surface/60 py-3.5 text-[10px] font-black uppercase tracking-widest text-dusty-lavender shadow-sm"
                             >
                               <FaCheckCircle />
                               Completed
@@ -1102,8 +1102,8 @@ const Dashboard = () => {
                                 disabled={!item.requestedBy?.length}
                                 className={`flex flex-[2] items-center justify-center gap-2 rounded-2xl border py-3.5 text-[10px] font-black uppercase tracking-widest shadow-sm transition-all ${
                                   item.requestedBy?.length > 0
-                                    ? "border-pine-teal/20 bg-white text-pine-teal hover:border-pine-teal/40"
-                                    : "cursor-not-allowed border-white/60 bg-white/50 text-dusty-lavender"
+                                    ? "border-pine-teal/20 bg-surface text-pine-teal hover:border-pine-teal/40"
+                                    : "cursor-not-allowed border-surface/60 bg-surface/50 text-dusty-lavender"
                                 }`}
                               >
                                 <FaUsers />
@@ -1114,7 +1114,7 @@ const Dashboard = () => {
                                 whileTap={{ scale: 0.94 }}
                                 onClick={() => handleDeletePost(item._id)}
                                 aria-label="Delete post"
-                                className="flex w-12 items-center justify-center rounded-2xl border border-white/70 bg-white text-blazing-flame shadow-sm transition-all hover:border-blazing-flame/40"
+                                className="flex w-12 items-center justify-center rounded-2xl border border-surface/70 bg-surface text-blazing-flame shadow-sm transition-all hover:border-blazing-flame/40"
                               >
                                 <FaTrash className="text-sm" />
                               </MotionButton>
@@ -1123,7 +1123,7 @@ const Dashboard = () => {
                         ) : item.status === "fulfilled" ? (
                           <button
                             disabled
-                            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-white/70 bg-white/60 py-3.5 text-[10px] font-black uppercase tracking-widest text-dusty-lavender shadow-sm"
+                            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-surface/70 bg-surface/60 py-3.5 text-[10px] font-black uppercase tracking-widest text-dusty-lavender shadow-sm"
                           >
                             <FaLock />
                             Closed
@@ -1143,7 +1143,7 @@ const Dashboard = () => {
                         ) : alreadyReq ? (
                           <button
                             disabled
-                            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-pine-teal/20 bg-white py-3.5 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm"
+                            className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-pine-teal/20 bg-surface py-3.5 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm"
                           >
                             <FaCheck />
                             Sent
@@ -1168,7 +1168,7 @@ const Dashboard = () => {
                               whileTap={{ scale: 0.94 }}
                               onClick={() => handleShare(item)}
                               aria-label="Share post"
-                              className="flex w-12 items-center justify-center rounded-2xl border border-white/70 bg-white text-pine-teal shadow-sm transition-all hover:border-pine-teal/40"
+                              className="flex w-12 items-center justify-center rounded-2xl border border-surface/70 bg-surface text-pine-teal shadow-sm transition-all hover:border-pine-teal/40"
                             >
                               <FaShareAlt className="text-sm" />
                             </MotionButton>
@@ -1189,7 +1189,7 @@ const Dashboard = () => {
                 whileTap={{ scale: 0.96 }}
                 onClick={loadMoreListings}
                 disabled={loadingMore}
-                className="flex items-center gap-3 rounded-full border border-white/70 bg-white/80 px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-pine-teal shadow-xl backdrop-blur-xl disabled:opacity-60"
+                className="flex items-center gap-3 rounded-full border border-surface/70 bg-surface/80 px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-pine-teal shadow-xl backdrop-blur-xl disabled:opacity-60"
               >
                 {loadingMore ? (
                   <FaSpinner className="animate-spin text-lg" />
@@ -1243,7 +1243,7 @@ const Dashboard = () => {
                   </div>
                   <button
                     onClick={() => setShowSOS(false)}
-                    className="rounded-full bg-white/10 p-3 text-white/50 shadow-inner transition-all hover:bg-blazing-flame hover:text-white"
+                    className="rounded-full bg-surface/10 p-3 text-white/50 shadow-inner transition-all hover:bg-blazing-flame hover:text-white"
                   >
                     <FaTimes />
                   </button>
@@ -1253,7 +1253,7 @@ const Dashboard = () => {
                   <button
                     type="button"
                     onClick={startVoiceRecognition}
-                    className={`w-full flex items-center justify-center gap-3 rounded-2xl border py-4 text-xs font-black uppercase tracking-widest text-white shadow-[0_10px_30px_rgba(255,74,28,0.2)] transition-all ${isListening ? "bg-blazing-flame border-blazing-flame animate-pulse shadow-[0_0_40px_rgba(255,74,28,0.6)]" : "bg-white/10 border-blazing-flame/50 hover:bg-blazing-flame/20"}`}
+                    className={`w-full flex items-center justify-center gap-3 rounded-2xl border py-4 text-xs font-black uppercase tracking-widest text-white shadow-[0_10px_30px_rgba(255,74,28,0.2)] transition-all ${isListening ? "bg-blazing-flame border-blazing-flame animate-pulse shadow-[0_0_40px_rgba(255,74,28,0.6)]" : "bg-surface/10 border-blazing-flame/50 hover:bg-blazing-flame/20"}`}
                   >
                     <FaMicrophone className={isListening ? "text-lg animate-bounce" : "text-lg"} />
                     {isListening ? "Listening... Speak Now" : "Panic Mode: Voice SOS"}
@@ -1268,7 +1268,7 @@ const Dashboard = () => {
                       onChange={(e) =>
                         setSosData({ ...sosData, bloodGroup: e.target.value })
                       }
-                      className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-xs font-black uppercase tracking-widest text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all cursor-pointer appearance-none"
+                      className="flex-1 rounded-2xl border border-surface/10 bg-surface/5 px-4 py-4 text-xs font-black uppercase tracking-widest text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all cursor-pointer appearance-none"
                     >
                       <option value="" disabled className="text-black">
                         Blood Type
@@ -1290,7 +1290,7 @@ const Dashboard = () => {
                       onChange={(e) =>
                         setSosData({ ...sosData, quantity: e.target.value })
                       }
-                      className="w-24 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-center text-xs font-black uppercase tracking-widest text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all placeholder-white/30"
+                      className="w-24 rounded-2xl border border-surface/10 bg-surface/5 px-4 py-4 text-center text-xs font-black uppercase tracking-widest text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all placeholder-white/30"
                     />
                   </div>
                   <input
@@ -1300,7 +1300,7 @@ const Dashboard = () => {
                     onChange={(e) =>
                       setSosData({ ...sosData, hospital: e.target.value })
                     }
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm font-bold text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all placeholder-white/30"
+                    className="w-full rounded-2xl border border-surface/10 bg-surface/5 px-5 py-4 text-sm font-bold text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all placeholder-white/30"
                   />
 
                   <div className="flex flex-col sm:flex-row gap-3">
@@ -1311,7 +1311,7 @@ const Dashboard = () => {
                       onChange={(e) =>
                         setSosData({ ...sosData, patientName: e.target.value })
                       }
-                      className="flex-[2] rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm font-bold text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all placeholder-white/30"
+                      className="flex-[2] rounded-2xl border border-surface/10 bg-surface/5 px-5 py-4 text-sm font-bold text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all placeholder-white/30"
                     />
                     <input
                       type="number"
@@ -1320,7 +1320,7 @@ const Dashboard = () => {
                       onChange={(e) =>
                         setSosData({ ...sosData, patientAge: e.target.value })
                       }
-                      className="flex-1 rounded-2xl border border-white/10 bg-white/5 px-4 py-4 text-center text-sm font-bold text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all placeholder-white/30"
+                      className="flex-1 rounded-2xl border border-surface/10 bg-surface/5 px-4 py-4 text-center text-sm font-bold text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all placeholder-white/30"
                     />
                   </div>
 
@@ -1330,7 +1330,7 @@ const Dashboard = () => {
                     onChange={(e) =>
                       setSosData({ ...sosData, roomNumber: e.target.value })
                     }
-                    className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm font-bold text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all placeholder-white/30"
+                    className="w-full rounded-2xl border border-surface/10 bg-surface/5 px-5 py-4 text-sm font-bold text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all placeholder-white/30"
                   />
 
                   <div className="relative">
@@ -1340,13 +1340,13 @@ const Dashboard = () => {
                         readOnly
                         placeholder="Use GPS for accurate location"
                         value={sosData.addressText}
-                        className="min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm font-bold text-white shadow-inner outline-none transition-all placeholder-white/30 cursor-not-allowed opacity-80"
+                        className="min-w-0 flex-1 rounded-2xl border border-surface/10 bg-surface/5 px-5 py-4 text-sm font-bold text-white shadow-inner outline-none transition-all placeholder-white/30 cursor-not-allowed opacity-80"
                       />
                       <button
                         type="button"
                         onClick={handleGetLocation}
                         disabled={isFetchingLocation}
-                        className="flex w-full sm:w-14 py-4 sm:py-0 shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-white shadow-md transition-all hover:bg-blazing-flame hover:border-blazing-flame disabled:opacity-60"
+                        className="flex w-full sm:w-14 py-4 sm:py-0 shrink-0 items-center justify-center rounded-2xl border border-surface/20 bg-surface/10 text-white shadow-md transition-all hover:bg-blazing-flame hover:border-blazing-flame disabled:opacity-60"
                       >
                         {isFetchingLocation ? (
                           <FaSpinner className="animate-spin text-lg" />
@@ -1366,7 +1366,7 @@ const Dashboard = () => {
                     onChange={(e) =>
                       setSosData({ ...sosData, description: e.target.value })
                     }
-                    className="w-full resize-none rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm font-bold text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all placeholder-white/30"
+                    className="w-full resize-none rounded-2xl border border-surface/10 bg-surface/5 px-5 py-4 text-sm font-bold text-white shadow-inner outline-none focus:border-blazing-flame focus:bg-blazing-flame/10 transition-all placeholder-white/30"
                   />
 
                   <MotionButton
@@ -1407,7 +1407,7 @@ const Dashboard = () => {
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
-                className="relative w-full max-w-md rounded-[2rem] border border-white bg-white/90 p-6 shadow-2xl backdrop-blur-2xl sm:p-8"
+                className="relative w-full max-w-md rounded-[2rem] border border-surface bg-surface/90 p-6 shadow-2xl backdrop-blur-2xl sm:p-8"
               >
                 <div className="mb-5 flex items-center justify-between border-b border-dusty-lavender/20 pb-5">
                   <div>
@@ -1431,7 +1431,7 @@ const Dashboard = () => {
                   {requestsModal.donation.requestedBy.map((requester) => (
                     <div
                       key={requester._id}
-                      className="flex items-center justify-between rounded-2xl border border-dusty-lavender/20 bg-white p-4 shadow-sm"
+                      className="flex items-center justify-between rounded-2xl border border-dusty-lavender/20 bg-surface p-4 shadow-sm"
                     >
                       <div className="flex min-w-0 items-center gap-3">
                         <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-pine-teal/20 bg-pine-teal/10 text-sm font-black uppercase text-pine-teal shadow-sm">

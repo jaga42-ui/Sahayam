@@ -7,6 +7,7 @@
   --color-blazing-flame: var(--theme-blazing-flame);
   --color-dark-raspberry: var(--theme-dark-raspberry);
   --color-dusty-lavender: var(--theme-dusty-lavender);
+  --color-surface: var(--theme-surface);
   
   --animate-shimmer: shimmer 1.5s infinite;
   @keyframes shimmer { 100% { transform: translateX(100%); } }
@@ -18,6 +19,7 @@
   --theme-blazing-flame: #ff4a1c;
   --theme-dark-raspberry: #9f1164;
   --theme-dusty-lavender: #846b8a;
+  --theme-surface: #ffffff;
 }
 
 :root.dark {
@@ -26,6 +28,7 @@
   --theme-blazing-flame: #ff6b4a;
   --theme-dark-raspberry: #d43b95;
   --theme-dusty-lavender: #a694ab;
+  --theme-surface: #1e293b;
 }
 
 html,

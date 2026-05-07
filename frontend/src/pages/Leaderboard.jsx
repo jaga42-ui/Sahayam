@@ -8,9 +8,7 @@ import api from '../utils/api';
 const Leaderboard = () => {
   const { user } = useContext(AuthContext);
   const [leaders, setLeaders] = useState([]);
-  const [cityLeaders, setCityLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('heroes'); // 'heroes' | 'cities'
 
   // 👉 PREMIUM LIGHT THEME VARIABLES
   const isDonor = user?.activeRole === 'donor';
@@ -25,12 +23,8 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchLeaders = async () => {
       try {
-        const [userRes, cityRes] = await Promise.all([
-          api.get('/donations/leaderboard'),
-          api.get('/donations/city-leaderboard')
-        ]);
+        const userRes = await api.get('/donations/leaderboard');
         setLeaders(userRes.data);
-        setCityLeaders(cityRes.data);
         setLoading(false);
       } catch (error) { 
         setLoading(false); 
@@ -51,24 +45,10 @@ const Leaderboard = () => {
           <p className="text-dusty-lavender uppercase font-black tracking-widest text-[10px] md:text-xs">Top Sahayam contributors making an impact</p>
         </header>
 
-        <div className="flex bg-white/50 backdrop-blur-md p-1.5 md:p-2 rounded-2xl border border-dusty-lavender/30 shadow-sm mb-6 max-w-sm mx-auto">
-          <button 
-            onClick={() => setActiveTab('heroes')} 
-            className={`flex-1 py-3 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all ${activeTab === 'heroes' ? `${themeBg} text-white shadow-md` : "text-dusty-lavender hover:bg-white hover:text-pine-teal"}`}
-          >
-            Top Heroes
-          </button>
-          <button 
-            onClick={() => setActiveTab('cities')} 
-            className={`flex-1 py-3 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all ${activeTab === 'cities' ? "bg-pine-teal text-white shadow-md" : "text-dusty-lavender hover:bg-white hover:text-pine-teal"}`}
-          >
-            City Standings
-          </button>
-        </div>
 
         {loading ? (
           <div className="flex justify-center py-20"><FaSpinner className={`animate-spin text-4xl ${themeAccent}`} /></div>
-        ) : activeTab === 'heroes' ? (
+        ) : (
           <div className="space-y-3 md:space-y-4">
             {leaders.map((leader, index) => {
               const isTop3 = index < 3;
@@ -122,44 +102,6 @@ const Leaderboard = () => {
             {leaders.length === 0 && (
               <div className="text-center py-10 bg-white/50 backdrop-blur-md border border-dusty-lavender/30 rounded-3xl text-dusty-lavender font-bold uppercase tracking-widest text-xs md:text-sm">
                 No leaders yet. Be the first to make a Sahayam impact!
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-3 md:space-y-4">
-            {cityLeaders.map((city, index) => {
-              const isTop3 = index < 3;
-              return (
-                <div 
-                  key={city._id} 
-                  className={`relative flex items-center justify-between p-4 md:p-6 rounded-2xl md:rounded-[2rem] border transition-all ${
-                    isTop3 
-                      ? 'bg-white/90 backdrop-blur-md border-pine-teal shadow-[0_20px_40px_rgba(41,82,74,0.15)] ring-2 ring-pine-teal/20 md:scale-105 z-10' 
-                      : 'bg-white/50 backdrop-blur-sm border-dusty-lavender/20 shadow-sm scale-100'
-                  }`}
-                >
-                  <div className="flex items-center gap-3 md:gap-6 overflow-hidden">
-                    <div className="text-xl md:text-2xl font-black italic text-dusty-lavender w-6 md:w-8 text-center shrink-0">
-                      {index === 0 ? <FaCrown className="text-pine-teal mx-auto drop-shadow-md" /> : index + 1}
-                    </div>
-                    <div className="min-w-0 pr-2">
-                      <h3 className="text-base md:text-xl font-black text-pine-teal flex items-center gap-2 truncate">
-                        <span className="truncate">{city._id}</span>
-                      </h3>
-                      <p className={`text-pine-teal text-[9px] md:text-[10px] font-bold uppercase tracking-widest truncate mt-0.5`}>{city.donors} Active Members</p>
-                    </div>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-xl md:text-3xl font-black text-pine-teal">{city.totalPoints}</p>
-                    <p className="text-[8px] md:text-[10px] text-dusty-lavender font-black uppercase tracking-widest">City XP</p>
-                  </div>
-                </div>
-              );
-            })}
-            
-            {cityLeaders.length === 0 && (
-              <div className="text-center py-10 bg-white/50 backdrop-blur-md border border-dusty-lavender/30 rounded-3xl text-dusty-lavender font-bold uppercase tracking-widest text-xs md:text-sm">
-                No city data available yet.
               </div>
             )}
           </div>
