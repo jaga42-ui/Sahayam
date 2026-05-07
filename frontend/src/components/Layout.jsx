@@ -138,7 +138,6 @@ const Layout = ({ children }) => {
       name: "Ranks",
       path: "/leaderboard",
       icon: <FaTrophy />,
-      hideOnMobileBottom: true,
     },
     { name: "Inbox", path: "/chat/inbox", icon: <FaEnvelope /> },
     { name: "Profile", path: "/profile", icon: <FaUser /> },

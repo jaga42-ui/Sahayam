@@ -294,6 +294,12 @@ const updateLocation = asyncHandler(async (req, res) => {
 
 const getNearbyDonors = asyncHandler(async (req, res) => {
   const { lat, lng, bloodGroup, distance = 15000 } = req.query;
+
+  if (!lat || !lng) {
+    res.status(400);
+    throw new Error("Latitude and longitude are required to scan for nearby nodes");
+  }
+
   let query = {
     location: {
       $near: {
