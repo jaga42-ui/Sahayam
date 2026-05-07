@@ -44,7 +44,7 @@ const createDonation = asyncHandler(async (req, res) => {
     severityLevel,
   } = req.body;
 
-  let imageUrl = req.file ? req.file.path : "";
+  let imageUrl = req.file ? (req.file.secure_url || req.file.path || req.file.url) : "";
   const pickupPIN = Math.floor(1000 + Math.random() * 9000).toString();
 
   const parsedLat = parseFloat(lat) || 0;
