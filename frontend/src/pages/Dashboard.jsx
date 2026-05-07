@@ -738,7 +738,7 @@ const Dashboard = () => {
                   whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={enableNotifications}
-                  className="hidden min-h-12 items-center justify-center gap-2 rounded-2xl border border-dusty-lavender/20 bg-surface px-4 py-3 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm transition-all hover:border-blazing-flame/30 sm:flex md:px-5"
+                  className="flex min-h-10 items-center justify-center gap-2 rounded-xl border border-dusty-lavender/20 bg-surface px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm transition-all hover:border-blazing-flame/30 sm:min-h-12 sm:rounded-2xl sm:py-3 sm:flex md:px-5"
                 >
                   <FaBell className="text-sm text-blazing-flame" />
                   Alerts
@@ -748,7 +748,7 @@ const Dashboard = () => {
                   whileHover={{ y: -2 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={toggleDarkMode}
-                  className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-dusty-lavender/20 bg-surface px-4 py-3 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm transition-all hover:border-dusty-lavender/40 sm:flex md:px-5"
+                  className="flex min-h-10 items-center justify-center gap-2 rounded-xl border border-dusty-lavender/20 bg-surface px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm transition-all hover:border-dusty-lavender/40 sm:min-h-12 sm:rounded-2xl sm:py-3 sm:flex md:px-5"
                 >
                   {isDarkMode ? <FaSun className="text-sm text-[#ffd700]" /> : <FaMoon className="text-sm text-dusty-lavender" />}
                   {isDarkMode ? 'Light' : 'Dark'}
@@ -760,7 +760,7 @@ const Dashboard = () => {
                   onClick={() => setShowSOS(true)}
                   className="flex min-h-10 items-center justify-center gap-2 rounded-xl bg-blazing-flame px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-white shadow-md shadow-blazing-flame/20 transition-all sm:min-h-12 sm:rounded-2xl sm:py-3 sm:shadow-lg sm:shadow-blazing-flame/25 md:px-5"
                 >
-                  <FaHeartbeat className="text-sm" />
+                  <FaHeartbeat className="text-sm animate-pulse" />
                   SOS
                 </MotionButton>
               </MotionDiv>
