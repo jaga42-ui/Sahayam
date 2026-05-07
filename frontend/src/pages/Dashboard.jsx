@@ -137,7 +137,7 @@ const SkeletonCard = () => (
 );
 
 const Dashboard = () => {
-  const { user, switchRole, socket, enableNotifications } =
+  const { user, switchRole, socket, enableNotifications, isDarkMode, toggleDarkMode } =
     useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -157,19 +157,7 @@ const Dashboard = () => {
 
   const isDonor = localRole === "donor";
 
-  const [isDarkMode, setIsDarkMode] = useState(
-    document.documentElement.classList.contains("dark")
-  );
 
-  const toggleDarkMode = () => {
-    if (isDarkMode) {
-      document.documentElement.classList.remove("dark");
-      setIsDarkMode(false);
-    } else {
-      document.documentElement.classList.add("dark");
-      setIsDarkMode(true);
-    }
-  };
   const [sosData, setSosData] = useState({
     bloodGroup: "",
     quantity: "",

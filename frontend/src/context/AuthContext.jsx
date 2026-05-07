@@ -143,8 +143,23 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
   };
 
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem("isDarkMode") === "true";
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+    localStorage.setItem("isDarkMode", isDarkMode);
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, switchRole, toggleAvailability, setUser, unreadCount, setUnreadCount, enableNotifications, socket }}>
+    <AuthContext.Provider value={{ user, login, logout, switchRole, toggleAvailability, setUser, unreadCount, setUnreadCount, enableNotifications, socket, isDarkMode, toggleDarkMode }}>
       {children}
     </AuthContext.Provider>
   );
