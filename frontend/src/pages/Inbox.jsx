@@ -52,7 +52,7 @@ const Inbox = () => {
     <Layout>
       <main className="max-w-3xl mx-auto md:px-4 pb-32 md:pb-24 font-sans">
         <header className="mb-6 md:mb-8 pt-6 px-4 md:px-0 flex items-center gap-4">
-          <button onClick={() => navigate("/dashboard")} className="text-dusty-lavender hover:text-pine-teal transition-colors bg-white hover:bg-pearl-beige p-3 md:p-3.5 rounded-full border border-dusty-lavender/30 active:scale-90 shadow-sm">
+          <button onClick={() => navigate("/dashboard")} className="text-dusty-lavender hover:text-pine-teal transition-colors bg-surface hover:bg-pearl-beige p-3 md:p-3.5 rounded-full border border-dusty-lavender/30 active:scale-90 shadow-sm">
             <FaArrowLeft className="text-lg md:text-sm" />
           </button>
           <div>
@@ -62,7 +62,7 @@ const Inbox = () => {
           </div>
         </header>
 
-        <section className="bg-white/70 backdrop-blur-lg border-y md:border border-white md:rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_rgba(41,82,74,0.08)] min-h-[60vh] relative">
+        <section className="bg-surface/70 backdrop-blur-lg border-y md:border border-surface md:rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_rgba(41,82,74,0.08)] min-h-[60vh] relative">
           <div className="relative z-10">
             {loading ? (
               <div className="flex flex-col justify-center items-center h-[60vh] gap-4">
@@ -91,7 +91,7 @@ const Inbox = () => {
                       onClick={() => navigate(`/chat/${chat.donationId}_${chat.otherUserId}`, {
                         state: { otherUserId: chat.otherUserId, otherUserName: chat.otherUserName, itemTitle: chat.donationTitle },
                       })}
-                      className="flex items-center gap-4 p-4 md:p-6 cursor-pointer hover:bg-white/90 active:bg-pearl-beige transition-colors group"
+                      className="flex items-center gap-4 p-4 md:p-6 cursor-pointer hover:bg-surface/90 active:bg-pearl-beige transition-colors group"
                     >
                       <div className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl flex-shrink-0 flex items-center justify-center font-black text-xl overflow-hidden uppercase border ${roleTheme.avatarBg} group-hover:scale-105 transition-transform shadow-sm`}>
                         {chat.otherUserProfilePic ? (

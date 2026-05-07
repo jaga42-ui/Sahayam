@@ -108,7 +108,7 @@ const Register = () => {
                  Every 2 seconds, someone needs blood or emergency assistance. By creating an account, you aren't just signing up for an app—you are stepping up as a critical lifeline for your neighborhood.
                </p>
                
-               <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[2rem] shadow-xl hover:bg-white/10 transition-colors">
+               <div className="bg-surface/5 backdrop-blur-xl border border-surface/10 p-6 rounded-[2rem] shadow-xl hover:bg-surface/10 transition-colors">
                   <p className="text-sm font-black uppercase tracking-widest text-white mb-3 flex items-center gap-3">
                     <FaShieldAlt className="text-blazing-flame text-xl" /> Secure & Private
                   </p>
@@ -129,7 +129,7 @@ const Register = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-md bg-white/70 backdrop-blur-lg border border-white rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_40px_rgba(41,82,74,0.08)] relative z-10 my-8"
+          className="w-full max-w-md bg-surface/70 backdrop-blur-lg border border-surface rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_40px_rgba(41,82,74,0.08)] relative z-10 my-8"
         >
           {/* Mobile Logo (Only visible on small screens) */}
           <div className="lg:hidden text-center mb-8">
@@ -149,25 +149,25 @@ const Register = () => {
           </div>
 
           {/* Role Selector */}
-          <div className="flex bg-white/50 backdrop-blur-md p-1.5 rounded-2xl mb-6 border border-dusty-lavender/30 shadow-sm flex-wrap sm:flex-nowrap gap-1 sm:gap-0">
+          <div className="flex bg-surface/50 backdrop-blur-md p-1.5 rounded-2xl mb-6 border border-dusty-lavender/30 shadow-sm flex-wrap sm:flex-nowrap gap-1 sm:gap-0">
             <button
               type="button"
               onClick={() => setActiveRole("donor")}
-              className={`flex-1 py-3 px-1 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeRole === "donor" ? "bg-blazing-flame text-white shadow-md" : "text-dusty-lavender hover:text-pine-teal hover:bg-white"}`}
+              className={`flex-1 py-3 px-1 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeRole === "donor" ? "bg-blazing-flame text-white shadow-md" : "text-dusty-lavender hover:text-pine-teal hover:bg-surface"}`}
             >
               Donor
             </button>
             <button
               type="button"
               onClick={() => setActiveRole("receiver")}
-              className={`flex-1 py-3 px-1 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeRole === "receiver" ? "bg-dark-raspberry text-white shadow-md" : "text-dusty-lavender hover:text-pine-teal hover:bg-white"}`}
+              className={`flex-1 py-3 px-1 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeRole === "receiver" ? "bg-dark-raspberry text-white shadow-md" : "text-dusty-lavender hover:text-pine-teal hover:bg-surface"}`}
             >
               Receiver
             </button>
             <button
               type="button"
               onClick={() => setActiveRole("ngo")}
-              className={`flex-1 py-3 px-1 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeRole === "ngo" ? "bg-pine-teal text-white shadow-md" : "text-dusty-lavender hover:text-pine-teal hover:bg-white"}`}
+              className={`flex-1 py-3 px-1 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeRole === "ngo" ? "bg-pine-teal text-white shadow-md" : "text-dusty-lavender hover:text-pine-teal hover:bg-surface"}`}
             >
               Institution
             </button>
@@ -183,7 +183,7 @@ const Register = () => {
                 placeholder={activeRole === "ngo" ? "Representative Name" : "Full Name"}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className={`w-full bg-white border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
+                className={`w-full bg-surface border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
               />
             </div>
 
@@ -197,7 +197,7 @@ const Register = () => {
                   placeholder="Organization/Hospital Name"
                   value={formData.organizationName}
                   onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
-                  className={`w-full bg-white border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
+                  className={`w-full bg-surface border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
                 />
               </div>
             )}
@@ -211,7 +211,7 @@ const Register = () => {
                 placeholder="operator@sahayam.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className={`w-full bg-white border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
+                className={`w-full bg-surface border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
               />
             </div>
 
@@ -224,7 +224,7 @@ const Register = () => {
                 placeholder="+91 XXXXXXXXXX"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className={`w-full bg-white border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
+                className={`w-full bg-surface border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
               />
             </div>
 
@@ -237,7 +237,7 @@ const Register = () => {
                 placeholder="Secure Password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className={`w-full bg-white border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
+                className={`w-full bg-surface border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
               />
             </div>
 
@@ -248,7 +248,7 @@ const Register = () => {
                   aria-label="Blood Group"
                   value={formData.bloodGroup}
                   onChange={(e) => setFormData({ ...formData, bloodGroup: e.target.value })}
-                  className={`w-full bg-white border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all appearance-none shadow-inner cursor-pointer ${themeFocusBorder}`}
+                  className={`w-full bg-surface border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all appearance-none shadow-inner cursor-pointer ${themeFocusBorder}`}
                 >
                   <option value="" disabled className="text-dusty-lavender">Blood Group (Optional)</option>
                   {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((bg) => (
@@ -259,13 +259,13 @@ const Register = () => {
             )}
 
             {/* 👉 THE LEGAL SHIELD: A11y Compliant Checkbox */}
-            <div className="flex items-start gap-3 mt-6 mb-2 bg-white/50 p-4 rounded-xl border border-white shadow-sm">
+            <div className="flex items-start gap-3 mt-6 mb-2 bg-surface/50 p-4 rounded-xl border border-surface shadow-sm">
               <button
                 type="button"
                 role="checkbox"
                 aria-checked={agreedToPolicy}
                 onClick={() => setAgreedToPolicy(!agreedToPolicy)}
-                className={`w-5 h-5 mt-0.5 rounded border flex items-center justify-center shrink-0 transition-all ${agreedToPolicy ? (activeRole === "donor" ? "bg-blazing-flame border-blazing-flame" : "bg-dark-raspberry border-dark-raspberry") : "bg-white border-dusty-lavender/50 shadow-inner"}`}
+                className={`w-5 h-5 mt-0.5 rounded border flex items-center justify-center shrink-0 transition-all ${agreedToPolicy ? (activeRole === "donor" ? "bg-blazing-flame border-blazing-flame" : "bg-dark-raspberry border-dark-raspberry") : "bg-surface border-dusty-lavender/50 shadow-inner"}`}
               >
                 {agreedToPolicy && <FaCheck className="text-white text-[10px]" />}
               </button>

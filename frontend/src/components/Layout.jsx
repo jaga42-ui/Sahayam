@@ -72,7 +72,7 @@ const Layout = ({ children }) => {
             initial={{ opacity: 0, y: -50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className={`w-full max-w-sm border-l-4 p-4 rounded-xl shadow-[0_10px_30px_rgba(41,82,74,0.1)] flex items-start gap-3 bg-white ${data.level === "critical"
+            className={`w-full max-w-sm border-l-4 p-4 rounded-xl shadow-[0_10px_30px_rgba(41,82,74,0.1)] flex items-start gap-3 bg-surface ${data.level === "critical"
                 ? "border-blazing-flame"
                 : "border-pine-teal"
               }`}
@@ -154,7 +154,7 @@ const Layout = ({ children }) => {
             exit={{ y: -50, opacity: 0 }}
             className="fixed top-0 left-0 w-full bg-blazing-flame z-[9999] px-4 py-3 shadow-2xl flex items-center justify-center gap-3"
           >
-            <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 bg-surface/20 rounded-full flex items-center justify-center shrink-0">
               <FaWifi className="text-white text-sm animate-pulse" />
             </div>
             <div>
@@ -170,7 +170,7 @@ const Layout = ({ children }) => {
       </AnimatePresence>
 
       {/* ---------------- MOBILE TOP BAR ---------------- */}
-      <div className="md:hidden bg-white/80 backdrop-blur-md border-b border-dusty-lavender/30 px-4 py-3 flex justify-between items-center z-50 shrink-0 shadow-sm">
+      <div className="md:hidden bg-surface/80 backdrop-blur-md border-b border-dusty-lavender/30 px-4 py-3 flex justify-between items-center z-50 shrink-0 shadow-sm">
         <Link to="/dashboard" className="flex items-center gap-2">
           <img
             src={logo}
@@ -204,7 +204,7 @@ const Layout = ({ children }) => {
       </div>
 
       {/* ---------------- DESKTOP SIDEBAR ---------------- */}
-      <aside className="hidden md:flex flex-col w-72 bg-white/60 backdrop-blur-xl border-r border-dusty-lavender/30 shrink-0 relative z-40 shadow-xl">
+      <aside className="hidden md:flex flex-col w-72 bg-surface/60 backdrop-blur-xl border-r border-dusty-lavender/30 shrink-0 relative z-40 shadow-xl">
         <div className="h-full flex flex-col pt-8 pb-8 px-6">
           <div className="mb-10 flex justify-center">
             <Link to="/dashboard" className="flex items-center gap-3 group">
@@ -222,7 +222,7 @@ const Layout = ({ children }) => {
           {user && (
             <motion.div
               whileHover={{ scale: 1.02 }}
-              className="mb-8 bg-white border border-dusty-lavender/30 rounded-[2rem] p-4 flex items-center gap-4 cursor-pointer shadow-sm"
+              className="mb-8 bg-surface border border-dusty-lavender/30 rounded-[2rem] p-4 flex items-center gap-4 cursor-pointer shadow-sm"
               onClick={() => navigate("/profile")}
             >
               {user.profilePic ? (
@@ -257,7 +257,7 @@ const Layout = ({ children }) => {
               <div className="mb-6 pb-6 border-b border-dusty-lavender/20">
                 <Link
                   to="/admin"
-                  className={`flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-all duration-300 border ${location.pathname === "/admin" ? "bg-dark-raspberry/10 text-dark-raspberry border-dark-raspberry/30 shadow-inner" : "bg-transparent text-dusty-lavender border-transparent hover:bg-white hover:text-pine-teal"}`}
+                  className={`flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-all duration-300 border ${location.pathname === "/admin" ? "bg-dark-raspberry/10 text-dark-raspberry border-dark-raspberry/30 shadow-inner" : "bg-transparent text-dusty-lavender border-transparent hover:bg-surface hover:text-pine-teal"}`}
                 >
                   <span
                     className={
@@ -278,17 +278,17 @@ const Layout = ({ children }) => {
               const isRadar = item.path === "/radar";
 
               let linkClass =
-                "bg-transparent border-transparent text-dusty-lavender hover:bg-white hover:text-pine-teal hover:shadow-sm";
+                "bg-transparent border-transparent text-dusty-lavender hover:bg-surface hover:text-pine-teal hover:shadow-sm";
               if (isActive) {
                 if (isRadar) {
                   linkClass =
                     "bg-blazing-flame/10 border-blazing-flame/30 text-blazing-flame shadow-inner";
                 } else {
-                  linkClass = `bg-white text-pine-teal border-dusty-lavender/30 shadow-md`;
+                  linkClass = `bg-surface text-pine-teal border-dusty-lavender/30 shadow-md`;
                 }
               } else if (isRadar) {
                 linkClass =
-                  "bg-transparent border-transparent text-blazing-flame/70 hover:bg-white hover:text-blazing-flame";
+                  "bg-transparent border-transparent text-blazing-flame/70 hover:bg-surface hover:text-blazing-flame";
               }
 
               return (
@@ -319,14 +319,14 @@ const Layout = ({ children }) => {
           {/* 👉 THE FIX: Added Feedback Button to Desktop Sidebar */}
           <button
             onClick={() => setIsFeedbackOpen(true)}
-            className="mt-auto flex items-center gap-4 px-5 py-3 mb-2 rounded-2xl font-bold text-dusty-lavender hover:bg-white hover:text-pine-teal transition-all"
+            className="mt-auto flex items-center gap-4 px-5 py-3 mb-2 rounded-2xl font-bold text-dusty-lavender hover:bg-surface hover:text-pine-teal transition-all"
           >
             <FaCommentAlt /> Feedback
           </button>
 
           <button
             onClick={handleLogout}
-            className="flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-dusty-lavender hover:bg-white hover:text-blazing-flame transition-all"
+            className="flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-dusty-lavender hover:bg-surface hover:text-blazing-flame transition-all"
           >
             <FaSignOutAlt /> Logout
           </button>
@@ -350,7 +350,7 @@ const Layout = ({ children }) => {
       </main>
 
       {/* ---------------- MOBILE BOTTOM NAVIGATION ---------------- */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-dusty-lavender/30 z-50 px-2 pb-safe shadow-[0_-10px_30px_rgba(132,107,138,0.1)]">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-surface/90 backdrop-blur-md border-t border-dusty-lavender/30 z-50 px-2 pb-safe shadow-[0_-10px_30px_rgba(132,107,138,0.1)]">
         <nav className="flex justify-around items-center h-16">
           {menuItems
             .filter((item) => !item.hideOnMobileBottom)

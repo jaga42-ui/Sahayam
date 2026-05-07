@@ -266,12 +266,12 @@ const Chat = () => {
 
   return (
     <Layout>
-      <main className="w-full h-[calc(100dvh-80px)] md:h-[85vh] md:max-w-4xl md:mx-auto md:my-4 flex flex-col bg-pearl-beige md:border md:border-white md:rounded-[2.5rem] overflow-hidden md:shadow-[0_20px_40px_rgba(41,82,74,0.08)] relative font-sans">
-        <header className="bg-white/80 backdrop-blur-md p-3 md:p-5 flex items-center justify-between z-20 shadow-sm border-b border-white shrink-0">
+      <main className="w-full h-[calc(100dvh-80px)] md:h-[85vh] md:max-w-4xl md:mx-auto md:my-4 flex flex-col bg-pearl-beige md:border md:border-surface md:rounded-[2.5rem] overflow-hidden md:shadow-[0_20px_40px_rgba(41,82,74,0.08)] relative font-sans">
+        <header className="bg-surface/80 backdrop-blur-md p-3 md:p-5 flex items-center justify-between z-20 shadow-sm border-b border-surface shrink-0">
           <div className="flex items-center gap-3 md:gap-5">
             <button
               onClick={() => navigate("/chat/inbox")}
-              className="text-dusty-lavender hover:text-pine-teal transition-colors p-2.5 active:scale-90 bg-white hover:bg-pearl-beige border border-dusty-lavender/30 rounded-full shadow-sm"
+              className="text-dusty-lavender hover:text-pine-teal transition-colors p-2.5 active:scale-90 bg-surface hover:bg-pearl-beige border border-dusty-lavender/30 rounded-full shadow-sm"
             >
               <FaArrowLeft className="text-sm md:text-base" />
             </button>
@@ -299,7 +299,7 @@ const Chat = () => {
           <div className="flex gap-2">
             <button
               onClick={() => setShowETA(!showETA)}
-              className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${showETA ? "bg-blazing-flame text-white border-blazing-flame shadow-[0_0_15px_rgba(255,74,28,0.4)]" : "bg-white text-pine-teal border-pine-teal/20 hover:bg-pine-teal hover:text-white"}`}
+              className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${showETA ? "bg-blazing-flame text-white border-blazing-flame shadow-[0_0_15px_rgba(255,74,28,0.4)]" : "bg-surface text-pine-teal border-pine-teal/20 hover:bg-pine-teal hover:text-white"}`}
             >
               <FaMapMarkerAlt /> {showETA ? "Tracking" : "ETA"}
             </button>
@@ -353,7 +353,7 @@ const Chat = () => {
             </div>
           ) : activeConversation.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-dusty-lavender space-y-3">
-              <div className="w-20 h-20 bg-white border border-white rounded-full flex items-center justify-center mb-2 shadow-sm">
+              <div className="w-20 h-20 bg-surface border border-surface rounded-full flex items-center justify-center mb-2 shadow-sm">
                 <FaShieldAlt
                   className={`text-4xl ${roleTheme.text} animate-pulse opacity-70`}
                 />
@@ -379,7 +379,7 @@ const Chat = () => {
                     className={`flex ${isMe ? "justify-end" : "justify-start"} w-full`}
                   >
                     <div
-                      className={`relative max-w-[85%] md:max-w-[70%] px-5 py-3.5 shadow-md flex flex-col group transition-all duration-300 ${isMe ? `bg-gradient-to-br ${roleTheme.primaryGradient} text-white rounded-[2rem] rounded-tr-md ${roleTheme.shadow}` : "bg-white border border-dusty-lavender/20 text-pine-teal rounded-[2rem] rounded-tl-md"} ${msg.isSending ? "opacity-60" : "opacity-100"}`}
+                      className={`relative max-w-[85%] md:max-w-[70%] px-5 py-3.5 shadow-md flex flex-col group transition-all duration-300 ${isMe ? `bg-gradient-to-br ${roleTheme.primaryGradient} text-white rounded-[2rem] rounded-tr-md ${roleTheme.shadow}` : "bg-surface border border-dusty-lavender/20 text-pine-teal rounded-[2rem] rounded-tl-md"} ${msg.isSending ? "opacity-60" : "opacity-100"}`}
                     >
                       {isMe && !msg.isSending && (
                         <div className="absolute top-1 right-1 z-20">
@@ -395,7 +395,7 @@ const Chat = () => {
                             <FaChevronDown className="text-[10px]" />
                           </button>
                           {dropdownOpen === msg._id && (
-                            <div className="absolute right-0 top-8 bg-white border border-dusty-lavender/30 rounded-2xl shadow-xl z-50 flex flex-col overflow-hidden w-36 py-1">
+                            <div className="absolute right-0 top-8 bg-surface border border-dusty-lavender/30 rounded-2xl shadow-xl z-50 flex flex-col overflow-hidden w-36 py-1">
                               <button
                                 onClick={() => {
                                   setEditingMessage(msg);
@@ -456,7 +456,7 @@ const Chat = () => {
               exit={{ opacity: 0, y: 20 }}
               className="absolute bottom-[90px] left-2 right-2 md:left-4 md:right-auto z-50 shadow-2xl flex justify-center md:block"
             >
-              <div className="w-full md:w-[320px] rounded-3xl overflow-hidden border border-dusty-lavender/30 bg-white shadow-[0_10px_40px_rgba(41,82,74,0.15)]">
+              <div className="w-full md:w-[320px] rounded-3xl overflow-hidden border border-dusty-lavender/30 bg-surface shadow-[0_10px_40px_rgba(41,82,74,0.15)]">
                 <EmojiPicker
                   onEmojiClick={onEmojiClick}
                   theme="light"
@@ -474,7 +474,7 @@ const Chat = () => {
               initial={{ height: 0 }}
               animate={{ height: "auto" }}
               exit={{ height: 0 }}
-              className="bg-white px-5 py-3 flex justify-between items-center border-t border-dusty-lavender/30 z-20 shadow-inner overflow-hidden"
+              className="bg-surface px-5 py-3 flex justify-between items-center border-t border-dusty-lavender/30 z-20 shadow-inner overflow-hidden"
             >
               <span
                 className={`${roleTheme.text} text-[10px] font-black uppercase tracking-widest flex items-center gap-2`}
@@ -494,10 +494,10 @@ const Chat = () => {
           )}
         </AnimatePresence>
 
-        <div className="bg-white/80 backdrop-blur-md px-3 py-3 md:p-4 z-20 border-t border-white shrink-0 pb-6 md:pb-4 shadow-[0_-10px_20px_rgba(41,82,74,0.03)]">
+        <div className="bg-surface/80 backdrop-blur-md px-3 py-3 md:p-4 z-20 border-t border-surface shrink-0 pb-6 md:pb-4 shadow-[0_-10px_20px_rgba(41,82,74,0.03)]">
           <form
             onSubmit={handleSendMessage}
-            className="max-w-3xl mx-auto flex items-end gap-2 bg-white border border-dusty-lavender/30 rounded-3xl p-1.5 shadow-sm transition-all focus-within:border-pine-teal focus-within:ring-1 focus-within:ring-pine-teal/30"
+            className="max-w-3xl mx-auto flex items-end gap-2 bg-surface border border-dusty-lavender/30 rounded-3xl p-1.5 shadow-sm transition-all focus-within:border-pine-teal focus-within:ring-1 focus-within:ring-pine-teal/30"
           >
             <button
               type="button"
@@ -548,7 +548,7 @@ const Chat = () => {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="relative w-full max-w-sm rounded-[2.5rem] bg-white p-8 shadow-2xl flex flex-col items-center border-4 border-pine-teal"
+                className="relative w-full max-w-sm rounded-[2.5rem] bg-surface p-8 shadow-2xl flex flex-col items-center border-4 border-pine-teal"
               >
                 <div className="absolute top-4 right-4">
                    <button onClick={() => setShowQRModal(false)} className="p-2 text-dusty-lavender hover:text-pine-teal bg-pearl-beige rounded-full transition-colors"><FaTimes /></button>

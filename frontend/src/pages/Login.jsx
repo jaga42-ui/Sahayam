@@ -91,7 +91,7 @@ const Login = () => {
                  Since your last session, the Sahayam network has processed thousands of hyper-local SOS alerts. Reconnect your node and stay prepared. Your neighborhood needs you.
                </p>
                
-               <div className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[2rem] shadow-xl hover:bg-white/10 transition-colors">
+               <div className="bg-surface/5 backdrop-blur-xl border border-surface/10 p-6 rounded-[2rem] shadow-xl hover:bg-surface/10 transition-colors">
                   <p className="text-sm font-black uppercase tracking-widest text-white mb-3 flex items-center gap-3">
                     <FaShieldAlt className="text-dark-raspberry text-xl" /> Fast & Secure Access
                   </p>
@@ -112,7 +112,7 @@ const Login = () => {
           initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-md bg-white/70 backdrop-blur-lg border border-white rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_40px_rgba(41,82,74,0.08)] relative z-10 my-8"
+          className="w-full max-w-md bg-surface/70 backdrop-blur-lg border border-surface rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_40px_rgba(41,82,74,0.08)] relative z-10 my-8"
         >
           {/* Mobile Logo (Only visible on small screens) */}
           <div className="lg:hidden text-center mb-8">
@@ -142,7 +142,7 @@ const Login = () => {
                 value={email} 
                 onChange={(e) => setEmail(e.target.value)} 
                 required
-                className="w-full bg-white border border-dusty-lavender/40 rounded-2xl px-5 py-4 text-pine-teal text-base md:text-sm placeholder-dusty-lavender/70 focus:border-blazing-flame focus:ring-4 focus:ring-blazing-flame/10 outline-none transition-all shadow-inner"
+                className="w-full bg-surface border border-dusty-lavender/40 rounded-2xl px-5 py-4 text-pine-teal text-base md:text-sm placeholder-dusty-lavender/70 focus:border-blazing-flame focus:ring-4 focus:ring-blazing-flame/10 outline-none transition-all shadow-inner"
                 placeholder="operator@sahayam.com"
               />
             </div>
@@ -162,7 +162,7 @@ const Login = () => {
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 required
-                className="w-full bg-white border border-dusty-lavender/40 rounded-2xl px-5 py-4 text-pine-teal text-base md:text-sm placeholder-dusty-lavender/70 focus:border-blazing-flame focus:ring-4 focus:ring-blazing-flame/10 outline-none transition-all shadow-inner"
+                className="w-full bg-surface border border-dusty-lavender/40 rounded-2xl px-5 py-4 text-pine-teal text-base md:text-sm placeholder-dusty-lavender/70 focus:border-blazing-flame focus:ring-4 focus:ring-blazing-flame/10 outline-none transition-all shadow-inner"
                 placeholder="••••••••"
               />
             </div>
@@ -186,12 +186,12 @@ const Login = () => {
           <button 
             onClick={handleGoogleLogin} 
             type="button" 
-            className="w-full bg-white hover:bg-pearl-beige/50 border border-dusty-lavender/40 text-pine-teal hover:text-dark-raspberry font-bold text-xs uppercase tracking-widest py-4 rounded-2xl transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm"
+            className="w-full bg-surface hover:bg-pearl-beige/50 border border-dusty-lavender/40 text-pine-teal hover:text-dark-raspberry font-bold text-xs uppercase tracking-widest py-4 rounded-2xl transition-all flex items-center justify-center gap-3 active:scale-95 shadow-sm"
           >
             <FaGoogle className="text-blazing-flame text-lg" /> Continue with Google
           </button>
 
-          <div className="mt-8 text-center bg-white/50 py-4 rounded-2xl border border-white shadow-sm">
+          <div className="mt-8 text-center bg-surface/50 py-4 rounded-2xl border border-surface shadow-sm">
             <p className="text-dusty-lavender text-[10px] font-bold uppercase tracking-widest">
               Haven't Enlisted Yet?
               <Link to="/register" className="block mt-2 text-pine-teal hover:text-blazing-flame text-xs font-black transition-colors">

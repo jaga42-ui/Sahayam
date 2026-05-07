@@ -40,17 +40,16 @@ body {
   font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
-
-  /* 👉 NATIVE UPGRADE: Kill Chrome Pull-to-Refresh & Bounce */
-  /* overscroll-behavior-y: none; */
-  /* overscroll-behavior-x: none; */
-  /* touch-action: pan-x pan-y; */
-  
-  /* 👉 NATIVE UPGRADE: Remove Android's blue tap highlight */
   -webkit-tap-highlight-color: transparent; 
 }
 
-/* 👉 NATIVE UPGRADE: Prevent accidental text highlighting on UI elements */
+/* Global Transition for Theme Switching */
+*, ::before, ::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+}
+
 *:not(input):not(textarea):not(select) {
   user-select: none;
   -webkit-user-select: none;

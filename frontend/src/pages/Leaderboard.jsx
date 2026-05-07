@@ -17,8 +17,8 @@ const Leaderboard = () => {
   
   // Highlight the current user's card
   const meCardTheme = isDonor 
-    ? 'bg-white border-blazing-flame/40 shadow-[0_10px_30px_rgba(255,74,28,0.15)] ring-2 ring-blazing-flame/20' 
-    : 'bg-white border-dark-raspberry/40 shadow-[0_10px_30px_rgba(159,17,100,0.15)] ring-2 ring-dark-raspberry/20';
+    ? 'bg-surface border-blazing-flame/40 shadow-[0_10px_30px_rgba(255,74,28,0.15)] ring-2 ring-blazing-flame/20' 
+    : 'bg-surface border-dark-raspberry/40 shadow-[0_10px_30px_rgba(159,17,100,0.15)] ring-2 ring-dark-raspberry/20';
 
   useEffect(() => {
     const fetchLeaders = async () => {
@@ -61,8 +61,8 @@ const Leaderboard = () => {
                     isMe 
                       ? meCardTheme 
                       : isTop3 
-                        ? 'bg-white/90 backdrop-blur-md border-white shadow-[0_20px_40px_rgba(41,82,74,0.08)]' 
-                        : 'bg-white/50 backdrop-blur-sm border-dusty-lavender/20 shadow-sm'
+                        ? 'bg-surface/90 backdrop-blur-md border-surface shadow-[0_20px_40px_rgba(41,82,74,0.08)]' 
+                        : 'bg-surface/50 backdrop-blur-sm border-dusty-lavender/20 shadow-sm'
                   } ${isTop3 ? 'md:scale-105 z-10' : 'scale-100'}`}
                 >
                   
@@ -73,9 +73,9 @@ const Leaderboard = () => {
                     
                     <div className="relative shrink-0">
                       {leader.profilePic ? (
-                        <img src={leader.profilePic} alt={leader.name} className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl object-cover border-2 ${isTop3 ? 'border-white shadow-md' : 'border-dusty-lavender/20'}`} referrerPolicy="no-referrer" />
+                        <img src={leader.profilePic} alt={leader.name} className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl object-cover border-2 ${isTop3 ? 'border-surface shadow-md' : 'border-dusty-lavender/20'}`} referrerPolicy="no-referrer" />
                       ) : (
-                        <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-pearl-beige/50 border ${isTop3 ? 'border-white shadow-md' : 'border-dusty-lavender/30'} flex items-center justify-center font-black text-pine-teal text-xl md:text-2xl uppercase`}>
+                        <div className={`w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-pearl-beige/50 border ${isTop3 ? 'border-surface shadow-md' : 'border-dusty-lavender/30'} flex items-center justify-center font-black text-pine-teal text-xl md:text-2xl uppercase`}>
                           {leader.name.charAt(0)}
                         </div>
                       )}
@@ -100,7 +100,7 @@ const Leaderboard = () => {
             })}
             
             {leaders.length === 0 && (
-              <div className="text-center py-10 bg-white/50 backdrop-blur-md border border-dusty-lavender/30 rounded-3xl text-dusty-lavender font-bold uppercase tracking-widest text-xs md:text-sm">
+              <div className="text-center py-10 bg-surface/50 backdrop-blur-md border border-dusty-lavender/30 rounded-3xl text-dusty-lavender font-bold uppercase tracking-widest text-xs md:text-sm">
                 No leaders yet. Be the first to make a Sahayam impact!
               </div>
             )}
