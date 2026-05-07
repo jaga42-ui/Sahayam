@@ -671,7 +671,7 @@ const Dashboard = () => {
                   className="text-3xl font-black leading-tight tracking-tight text-pine-teal sm:text-5xl md:text-6xl"
                 >
                   <span className="block text-dusty-lavender text-[10px] sm:text-xs uppercase tracking-[0.3em] mb-1">
-                    Commander Node // {isDonor ? 'Donor Status' : 'Receiver Status'}
+                    Dashboard
                   </span>
                   {user?.name?.split(" ")[0] || "Operator"}<span className="text-blazing-flame animate-pulse">_</span>
                 </MotionH1>
