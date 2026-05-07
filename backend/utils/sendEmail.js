@@ -103,6 +103,7 @@ const sendWelcomeEmail = async (email, name) => {
     await transporter.sendMail(mailOptions);
   } catch (error) {
     console.error("Welcome Email Failed:", error.message);
+  }
 };
 
 const sendVerificationEmail = async (email, name, token) => {
