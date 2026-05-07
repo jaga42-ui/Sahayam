@@ -28,6 +28,8 @@ import {
   FaBell,
   FaShieldAlt,
   FaMicrophone,
+  FaMoon,
+  FaSun,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -113,23 +115,23 @@ const getCategoryMeta = (category) =>
   CATEGORY_META[category?.toLowerCase()] || CATEGORY_META.general;
 
 const SkeletonCard = () => (
-  <div className="relative h-[430px] overflow-hidden rounded-[2rem] border border-white/60 bg-white/55 p-5 shadow-[0_18px_50px_rgba(41,82,74,0.08)] backdrop-blur-2xl">
-    <div className="dashboard-card-sheen absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/70 to-transparent" />
-    <div className="flex animate-pulse flex-col gap-4">
+  <div className="relative h-[430px] overflow-hidden rounded-[2rem] border border-dusty-lavender/20 bg-white/40 p-5 shadow-[0_18px_50px_rgba(41,82,74,0.08)] backdrop-blur-2xl">
+    <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/60 to-transparent z-10" />
+    <div className="flex flex-col gap-4 opacity-70">
       <div className="flex items-center gap-3">
-        <div className="h-11 w-11 rounded-2xl bg-white/70" />
+        <div className="h-11 w-11 rounded-2xl bg-dusty-lavender/30" />
         <div className="flex-1">
-          <div className="mb-2 h-3 w-1/2 rounded-full bg-white/70" />
-          <div className="h-2 w-1/3 rounded-full bg-white/60" />
+          <div className="mb-2 h-3 w-1/2 rounded-full bg-dusty-lavender/30" />
+          <div className="h-2 w-1/3 rounded-full bg-dusty-lavender/20" />
         </div>
       </div>
-      <div className="h-44 w-full rounded-[1.5rem] bg-white/60" />
-      <div className="space-y-3">
-        <div className="h-4 w-4/5 rounded-full bg-white/70" />
-        <div className="h-3 w-full rounded-full bg-white/60" />
-        <div className="h-3 w-2/3 rounded-full bg-white/60" />
+      <div className="h-44 w-full rounded-[1.5rem] bg-dusty-lavender/20" />
+      <div className="space-y-3 mt-2">
+        <div className="h-4 w-4/5 rounded-full bg-dusty-lavender/30" />
+        <div className="h-3 w-full rounded-full bg-dusty-lavender/20" />
+        <div className="h-3 w-2/3 rounded-full bg-dusty-lavender/20" />
       </div>
-      <div className="mt-7 h-12 w-full rounded-2xl bg-white/60" />
+      <div className="mt-auto h-12 w-full rounded-2xl bg-dusty-lavender/20" />
     </div>
   </div>
 );
@@ -155,6 +157,19 @@ const Dashboard = () => {
 
   const isDonor = localRole === "donor";
 
+  const [isDarkMode, setIsDarkMode] = useState(
+    document.documentElement.classList.contains("dark")
+  );
+
+  const toggleDarkMode = () => {
+    if (isDarkMode) {
+      document.documentElement.classList.remove("dark");
+      setIsDarkMode(false);
+    } else {
+      document.documentElement.classList.add("dark");
+      setIsDarkMode(true);
+    }
+  };
   const [sosData, setSosData] = useState({
     bloodGroup: "",
     quantity: "",
@@ -727,6 +742,16 @@ const Dashboard = () => {
                 >
                   <FaBell className="text-sm text-blazing-flame" />
                   Alerts
+                </MotionButton>
+
+                <MotionButton
+                  whileHover={{ y: -2 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={toggleDarkMode}
+                  className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-dusty-lavender/20 bg-white px-4 py-3 text-[10px] font-black uppercase tracking-widest text-pine-teal shadow-sm transition-all hover:border-dusty-lavender/40 sm:flex md:px-5"
+                >
+                  {isDarkMode ? <FaSun className="text-sm text-[#ffd700]" /> : <FaMoon className="text-sm text-dusty-lavender" />}
+                  {isDarkMode ? 'Light' : 'Dark'}
                 </MotionButton>
 
                 <MotionButton

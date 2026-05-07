@@ -2,15 +2,30 @@
 @import "leaflet/dist/leaflet.css";
 
 @theme {
-  /* YOUR EXISTING VARIABLES HERE */
-  --color-pearl-beige: #e8dab2;
-  --color-pine-teal: #29524a;
-  --color-blazing-flame: #ff4a1c;
-  --color-dark-raspberry: #9f1164;
-  --color-dusty-lavender: #846b8a;
+  --color-pearl-beige: var(--theme-pearl-beige);
+  --color-pine-teal: var(--theme-pine-teal);
+  --color-blazing-flame: var(--theme-blazing-flame);
+  --color-dark-raspberry: var(--theme-dark-raspberry);
+  --color-dusty-lavender: var(--theme-dusty-lavender);
   
   --animate-shimmer: shimmer 1.5s infinite;
   @keyframes shimmer { 100% { transform: translateX(100%); } }
+}
+
+:root {
+  --theme-pearl-beige: #e8dab2;
+  --theme-pine-teal: #29524a;
+  --theme-blazing-flame: #ff4a1c;
+  --theme-dark-raspberry: #9f1164;
+  --theme-dusty-lavender: #846b8a;
+}
+
+:root.dark {
+  --theme-pearl-beige: #12181b;
+  --theme-pine-teal: #e8dab2;
+  --theme-blazing-flame: #ff6b4a;
+  --theme-dark-raspberry: #d43b95;
+  --theme-dusty-lavender: #a694ab;
 }
 
 html,
@@ -49,12 +64,13 @@ input, textarea, select {
 
 .dashboard-shell {
   background: var(--color-pearl-beige);
+  transition: background-color 0.3s ease;
 }
 
 .dashboard-grid {
   background-image:
-    linear-gradient(rgba(41, 82, 74, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(41, 82, 74, 0.045) 1px, transparent 1px);
+    linear-gradient(rgba(132, 107, 138, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(132, 107, 138, 0.08) 1px, transparent 1px);
   background-size: 46px 46px;
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent 76%);
   animation: dashboard-grid-pan 26s linear infinite;
@@ -118,12 +134,13 @@ input, textarea, select {
 }
 
 .custom-popup .leaflet-popup-content-wrapper {
-  background: #ffffff;
+  background: var(--color-pearl-beige);
   border: 1px solid rgba(132, 107, 138, 0.3);
   border-radius: 1rem;
-  box-shadow: 0 10px 25px rgba(41, 82, 74, 0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  color: var(--color-pine-teal);
 }
 .custom-popup .leaflet-popup-tip {
-  background: #ffffff;
+  background: var(--color-pearl-beige);
   border: 1px solid rgba(132, 107, 138, 0.3);
 }
