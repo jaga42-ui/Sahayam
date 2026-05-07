@@ -475,7 +475,7 @@ const Dashboard = () => {
     setIsSubmitting(true);
 
     try {
-      const toastId = toast.loading("AI Triage: Analyzing emergency severity...");
+      const toastId = toast.loading("Analyzing emergency request...");
       
       // Simulate AI Triage Delay
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -486,7 +486,7 @@ const Dashboard = () => {
         severityLevel = "Code Red";
       }
 
-      toast.success(`AI Triage complete. Classified as ${severityLevel}. Broadcasting...`, { id: toastId });
+      toast.success(`Analysis complete. Classified as ${severityLevel}. Sending...`, { id: toastId });
 
       const formData = new FormData();
       formData.append("listingType", "request");
@@ -532,7 +532,7 @@ const Dashboard = () => {
         lat: null,
         lng: null,
       });
-      toast.success("Emergency broadcast deployed!");
+      toast.success("Emergency request sent!");
     } catch {
       toast.error("Failed to broadcast SOS");
     } finally {
@@ -662,7 +662,7 @@ const Dashboard = () => {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blazing-flame opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-blazing-flame"></span>
                   </span>
-                  Sahayam Global Grid : Online
+                  Sahayam Community : Active
                 </MotionDiv>
                 <MotionH1
                   initial={{ opacity: 0, y: 12 }}
@@ -673,7 +673,7 @@ const Dashboard = () => {
                   <span className="block text-dusty-lavender text-[10px] sm:text-xs uppercase tracking-[0.3em] mb-1">
                     Dashboard
                   </span>
-                  {user?.name?.split(" ")[0] || "Operator"}<span className="text-blazing-flame animate-pulse">_</span>
+                  {user?.name?.split(" ")[0] || "User"}
                 </MotionH1>
                 <MotionP
                   initial={{ opacity: 0, y: 8 }}
@@ -682,8 +682,8 @@ const Dashboard = () => {
                   className="mt-3 hidden max-w-2xl text-sm font-bold leading-relaxed text-pine-teal/70 sm:block md:text-base border-l-2 border-blazing-flame/50 pl-3"
                 >
                   {isDonor
-                    ? "Your sector is clear. Monitor live distress signals below or dispatch resources to nearby zones."
-                    : "Live distress grid activated. Deploy emergency requests for immediate community assistance."}
+                    ? "Welcome to Sahayam. Monitor requests below or offer help to your local community."
+                    : "Welcome to Sahayam. Create a request below to get help from your local community."}
                 </MotionP>
               </div>
 
@@ -793,7 +793,7 @@ const Dashboard = () => {
             transition={{ delay: 0.3 }}
             className="mb-6 relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-pine-teal to-[#1a3630] border border-pine-teal/40 p-6 md:p-8 shadow-[0_20px_50px_rgba(41,82,74,0.3)] group cursor-pointer"
             onClick={() => {
-              const url = `https://wa.me/?text=I%20just%20joined%20Sahayam%2C%20the%20hyper-local%20emergency%20%26%20donation%20network.%20We%20need%20more%20people%20in%20our%20city%20to%20build%20a%20lifesaver%20grid.%20Join%20me%20here%3A%20https%3A%2F%2Fsahayam.vercel.app%2F%3Fref%3D${user?._id}`;
+              const url = `https://wa.me/?text=I%20just%20joined%20Sahayam%2C%20the%20hyper-local%20emergency%20%26%20donation%20network.%20We%20need%20more%20people%20in%20our%20city%20to%20build%20a%20lifesaver%20community.%20Join%20me%20here%3A%20https%3A%2F%2Fsahayam.vercel.app%2F%3Fref%3D${user?._id}`;
               window.open(url, '_blank');
             }}
           >
@@ -807,16 +807,16 @@ const Dashboard = () => {
                   <FaMedal /> Founder Status Locked
                 </div>
                 <h3 className="text-2xl md:text-3xl font-black text-pearl-beige tracking-tight uppercase leading-tight mb-2">
-                  Invite your city.<br className="hidden md:block"/> Form the grid.
+                  Invite your city.<br className="hidden md:block"/> Grow the community.
                 </h3>
                 <p className="text-dusty-lavender text-xs md:text-sm font-bold tracking-wider max-w-lg mx-auto md:mx-0">
-                  Sahayam's emergency radar only works if we have enough nodes. Invite 5 friends via WhatsApp to unlock the exclusive <span className="text-blazing-flame">Founder Badge</span>.
+                  Sahayam works best when more people join. Invite 5 friends via WhatsApp to unlock the exclusive <span className="text-blazing-flame">Founder Badge</span>.
                 </p>
               </div>
               
               <div className="shrink-0 w-full md:w-auto flex flex-col gap-3">
                 <button className="w-full md:w-auto bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-[0_15px_30px_rgba(37,211,102,0.3)] hover:scale-105 transition-transform flex items-center justify-center gap-3 border border-[#25D366]/50">
-                  <FaShareAlt className="text-lg" /> Broadcast Invite
+                  <FaShareAlt className="text-lg" /> Share Invite
                 </button>
               </div>
             </div>
@@ -1019,7 +1019,7 @@ const Dashboard = () => {
 
                         {item.patientDetails && item.patientDetails.name && (
                           <div className="mb-3 bg-gradient-to-r from-blazing-flame/10 to-transparent border-l-2 border-blazing-flame pl-3 py-2">
-                             <p className="text-[9px] font-black uppercase tracking-[0.2em] text-blazing-flame mb-0.5">Patient Intel</p>
+                             <p className="text-[9px] font-black uppercase tracking-[0.2em] text-blazing-flame mb-0.5">Patient Details</p>
                              <p className="text-sm font-black text-pine-teal">{item.patientDetails.name} <span className="text-pine-teal/60 font-bold ml-1">({item.patientDetails.age} Yrs)</span></p>
                              {item.hospitalRoomNumber && <p className="text-[10px] font-bold text-pine-teal mt-1">Ward: <span className="font-black text-dark-raspberry">{item.hospitalRoomNumber}</span></p>}
                           </div>

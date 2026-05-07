@@ -36,12 +36,12 @@ const AITriageModal = ({ isOpen, onClose, onTriageComplete }) => {
               <div className="w-10 h-10 bg-blazing-flame/10 rounded-xl flex items-center justify-center text-blazing-flame text-xl">
                 <FaRobot />
               </div>
-              AI Triage
+              Smart Assistant
             </h3>
             <button onClick={onClose} className="p-2 hover:bg-pearl-beige rounded-full text-dusty-lavender transition-colors"><FaTimes /></button>
           </div>
           <p className="text-[10px] sm:text-xs font-bold text-dusty-lavender mb-4 uppercase tracking-widest leading-relaxed">
-            Describe the emergency naturally. Our Gemini AI will extract the blood group, location, and urgency automatically.
+            Describe the emergency naturally. Our Smart Assistant will find the blood group, location, and urgency automatically.
           </p>
           <textarea
             value={text}
@@ -50,7 +50,7 @@ const AITriageModal = ({ isOpen, onClose, onTriageComplete }) => {
             className="w-full h-32 sm:h-40 bg-pearl-beige/30 border border-dusty-lavender/30 rounded-2xl p-4 text-pine-teal mb-6 resize-none outline-none focus:border-blazing-flame focus:bg-white transition-all shadow-inner text-sm"
           />
           <button onClick={handleTriage} disabled={loading} className="w-full py-4 bg-gradient-to-r from-blazing-flame to-[#e03a12] text-white font-black uppercase tracking-widest text-[10px] sm:text-xs rounded-xl flex justify-center items-center gap-2 shadow-[0_10px_25px_rgba(255,74,28,0.3)] transition-all active:scale-95 disabled:opacity-50">
-            {loading ? <FaSpinner className="animate-spin text-lg" /> : <><FaMagic className="text-sm" /> Extract Details</>}
+            {loading ? <FaSpinner className="animate-spin text-lg" /> : <><FaMagic className="text-sm" /> Process Request</>}
           </button>
         </motion.div>
       </div>
