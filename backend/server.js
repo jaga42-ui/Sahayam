@@ -61,7 +61,8 @@ const allowedOrigins = [
   "http://localhost:3000",
   "http://localhost:5173",
   "http://localhost:4173",
-  process.env.FRONTEND_URL,
+  "https://sahayam-beta.vercel.app",
+  process.env.FRONTEND_URL ? process.env.FRONTEND_URL.replace(/\/$/, "") : "",
 ];
 
 const corsOptions = {
