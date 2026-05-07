@@ -24,6 +24,8 @@ if (!admin.apps.length) {
   }
 }
 
+const { cloudinary } = require("../config/cloudinary");
+
 const createDonation = asyncHandler(async (req, res) => {
   const {
     listingType,
@@ -44,7 +46,28 @@ const createDonation = asyncHandler(async (req, res) => {
     severityLevel,
   } = req.body;
 
-  let imageUrl = req.file ? (req.file.secure_url || req.file.path || req.file.url) : "";
+  let imageUrl = "";
+
+  if (req.file) {
+    try {
+      const uploadPromise = new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          { folder: "hopelink_uploads", width: 800, crop: "limit" },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        stream.end(req.file.buffer);
+      });
+      const result = await uploadPromise;
+      imageUrl = result.secure_url;
+    } catch (uploadError) {
+      console.error("Cloudinary upload failed:", uploadError);
+      return res.status(500).json({ message: "Image upload failed. Please try again." });
+    }
+  }
+
   const pickupPIN = Math.floor(1000 + Math.random() * 9000).toString();
 
   const parsedLat = parseFloat(lat) || 0;
