@@ -1060,7 +1060,7 @@ const Dashboard = () => {
                           <div className="flex flex-1 items-center gap-2 rounded-xl border border-dark-raspberry/10 bg-dark-raspberry/5 p-3 text-[10px] font-black uppercase tracking-widest text-dark-raspberry">
                             <FaMapMarkerAlt className="shrink-0 text-sm" />
                             <span className="truncate">
-                              {item.addressText || "Location pending"}
+                              {item.addressText || item.location?.addressText || "Location pending"}
                             </span>
                           </div>
                         </div>
