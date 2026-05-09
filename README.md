@@ -17,7 +17,7 @@
 - **Smart Emergency Routing (Blood Radar):** Location-based SOS broadcasting that pings nearby donors. If initial responders fail to answer, a background cron job dynamically expands the search radius.
 - **Real-Time Communication:** Instant, direct messaging between requesters and donors powered by Socket.io to coordinate logistics.
 - **Community Marketplace:** Users can post requests for items (e.g., food, clothing) or list available items for donation.
-- **AI Triage Assistant:** Integrates Google's Gemini AI to triage SOS requests and generate "Hero Stories" to boost community morale.
+- **Smart Assistant:** Integrates Google's Gemini AI to process SOS requests naturally and generate "Hero Stories" to boost community morale.
 - **Gamification & Leaderboard:** A point-based rank system that rewards users for active participation and successful fulfilled requests.
 - **Admin Command Center:** A powerful dashboard for administrators to view activity heatmaps, resolve reports, manage users, and broadcast system-wide alerts.
 - **Dual-Role System:** Users can seamlessly toggle between "Requester" and "Donor" profiles.
@@ -175,10 +175,10 @@ The frontend will be available at `http://localhost:5173` and the backend API at
 
 ## 8. Design & UX Principles
 
-- **Human-Centered & Fast:** In an emergency, every second counts. The UI reduces friction by placing the most critical action (SOS Blast) front and center.
-- **Mobile-First:** Designed entirely with responsiveness in mind, ensuring people on the move can access help from their smartphones.
-- **Visual Urgency:** High-contrast color coding (e.g., Red for blood radar/emergencies) safely guides user attention.
-- **Dynamic Feedback:** Micro-animations (via Framer Motion) and real-time toast notifications assure users that the system is working for them.
+- **Human-Centered & Friendly:** We've replaced complex jargon with natural, supportive language. In an emergency, every second counts, and the UI reduces friction by placing the most critical action front and center.
+- **Mobile-First Layout:** Designed entirely with responsiveness in mind, featuring optimized navigation grids ensuring people on the move can access help from their smartphones.
+- **Visual Urgency & Accessibility:** High-contrast color coding (e.g., Red for emergencies) safely guides user attention. A seamless, dynamic **Dark Mode** with smooth crossfade transitions ensures optimal viewing in any lighting condition.
+- **Dynamic Feedback:** Features premium shimmering skeleton loaders during data fetches, micro-animations (via Framer Motion), and real-time toast notifications to assure users that the system is working for them.
 
 ---
 
