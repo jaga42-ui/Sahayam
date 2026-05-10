@@ -805,7 +805,8 @@ const Dashboard = () => {
             transition={{ delay: 0.3 }}
             className="mb-6 relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-pine-teal to-[#1a3630] border border-pine-teal/40 p-6 md:p-8 shadow-[0_20px_50px_rgba(41,82,74,0.3)] group cursor-pointer"
             onClick={() => {
-              const url = `https://wa.me/?text=I%20just%20joined%20Sahayam%2C%20a%20community%20support%20network.%20Join%20me%20here%3A%20https%3A%2F%2Fsahayam.vercel.app%2F%3Fref%3D${user?._id}`;
+              const inviteLink = encodeURIComponent(`${window.location.origin}/register?ref=${user?._id}`);
+              const url = `https://wa.me/?text=I%20just%20joined%20Sahayam%2C%20a%20community%20support%20network.%20Join%20me%20here%3A%20${inviteLink}`;
               window.open(url, '_blank');
             }}
           >
