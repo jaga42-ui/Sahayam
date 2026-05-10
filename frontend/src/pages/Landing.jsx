@@ -45,7 +45,6 @@ const Landing = () => {
           </Link>
           <nav className="landing-nav hidden-mobile">
             <Link to="/login" className="landing-nav-link">Sign in</Link>
-            <Link to="/register" className="landing-btn landing-btn-primary">Join the Grid</Link>
           </nav>
         </header>
       </div>
@@ -53,16 +52,16 @@ const Landing = () => {
       {/* HERO SECTION */}
       <section className="hero-section">
         <div className="landing-container">
-          <h1 className="hero-title">When seconds matter,<br />we respond.</h1>
+          <h1 className="hero-title">Help is always nearby.</h1>
           <p className="hero-subtitle">
-            The world's fastest hyper-local community emergency network. Connect instantly with verified volunteers in your neighborhood.
+            A compassionate community network connecting those in need with trusted neighbors who care. You are never alone.
           </p>
-          <div className="hero-actions">
-            <Link to="/register" className="landing-btn landing-btn-primary landing-btn-large">
-              Request Help Now
+          <div className="hero-actions" style={{ alignItems: 'center' }}>
+            <Link to="/register" className="landing-btn landing-btn-primary landing-btn-large" style={{ backgroundColor: 'var(--theme-pine-teal)', boxShadow: 'none' }}>
+              Find Support
             </Link>
-            <Link to="/login" className="landing-btn landing-btn-secondary landing-btn-large">
-              Become a Volunteer
+            <Link to="/login" className="landing-nav-link" style={{ textDecoration: 'underline', textUnderlineOffset: '4px', opacity: 0.8 }}>
+              Offer help as a volunteer
             </Link>
           </div>
         </div>
@@ -171,13 +170,10 @@ const Landing = () => {
         <div className="landing-container">
           <h2 className="mission-title">Our Mission</h2>
           <p className="mission-desc">
-            We believe that communities are strongest when they help each other. 
-            Sahayam was built to create a safe, organized space where local support 
-            can happen naturally, securely, and efficiently.
+            We believe that compassion is the strongest force in any neighborhood. 
+            Sahayam was built to create a quiet, organized space where communities 
+            can care for one another—safely, naturally, and with profound empathy.
           </p>
-          <Link to="/register" className="landing-btn mission-btn landing-btn-large">
-            Join the Community
-          </Link>
         </div>
       </section>
 
