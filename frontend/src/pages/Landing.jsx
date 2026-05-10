@@ -32,8 +32,8 @@ const Landing = () => {
   return (
     <div className="landing-page">
       <Helmet>
-        <title>Sahayam - Connect. Rescue. Survive.</title>
-        <meta name="description" content="Connect with trusted local helpers and volunteers safely and instantly." />
+        <title>Sahayam — No one should face hardship alone.</title>
+        <meta name="description" content="A trusted community network where people can ask for help, support others, and stay connected during difficult moments." />
       </Helmet>
 
       {/* HEADER */}
@@ -43,25 +43,22 @@ const Landing = () => {
             <img src={logo} alt="Sahayam Logo" />
             Sahayam
           </Link>
-          <nav className="landing-nav hidden-mobile">
-            <Link to="/login" className="landing-nav-link">Sign in</Link>
-          </nav>
         </header>
       </div>
 
       {/* HERO SECTION */}
       <section className="hero-section">
         <div className="landing-container">
-          <h1 className="hero-title">Help is always nearby.</h1>
+          <h1 className="hero-title">Help is closer than you think.</h1>
           <p className="hero-subtitle">
-            A compassionate community network connecting those in need with trusted neighbors who care. You are never alone.
+            Sahayam brings together caring people, trusted volunteers, and local communities so that support is always within reach when life feels overwhelming.
           </p>
-          <div className="hero-actions" style={{ alignItems: 'center' }}>
+          <div className="hero-actions">
             <Link to="/register" className="landing-btn landing-btn-primary landing-btn-large" style={{ backgroundColor: 'var(--theme-pine-teal)', boxShadow: 'none' }}>
-              Find Support
+              Get Started
             </Link>
-            <Link to="/login" className="landing-nav-link" style={{ textDecoration: 'underline', textUnderlineOffset: '4px', opacity: 0.8 }}>
-              Offer help as a volunteer
+            <Link to="/login" className="landing-btn landing-btn-secondary landing-btn-large">
+              Sign In
             </Link>
           </div>
         </div>
@@ -73,23 +70,23 @@ const Landing = () => {
           <div className="trust-grid">
             <div className="trust-item">
               <div className="trust-icon"><FaUserShield /></div>
-              <h3 className="trust-title">Verified Helpers</h3>
-              <p className="trust-desc">Every volunteer is background-checked and identity-verified to ensure community safety.</p>
+              <h3 className="trust-title">Verified Community Members</h3>
+              <p className="trust-desc">Every helper goes through identity verification to create a safer and more dependable environment for everyone.</p>
             </div>
             <div className="trust-item">
               <div className="trust-icon"><FaShieldAlt /></div>
-              <h3 className="trust-title">Secure Requests</h3>
-              <p className="trust-desc">Your personal information and location are only shared when you explicitly approve a helper.</p>
+              <h3 className="trust-title">Private & Secure</h3>
+              <p className="trust-desc">Your personal details stay protected. You decide when and how your information is shared.</p>
             </div>
             <div className="trust-item">
               <div className="trust-icon"><FaRegLightbulb /></div>
-              <h3 className="trust-title">Community Moderation</h3>
-              <p className="trust-desc">A transparent rating system helps maintain a high-quality, trustworthy environment for everyone.</p>
+              <h3 className="trust-title">Built on Trust</h3>
+              <p className="trust-desc">Community reviews and transparent interactions help create a space where people can confidently support one another.</p>
             </div>
             <div className="trust-item">
               <div className="trust-icon"><FaHandsHelping /></div>
-              <h3 className="trust-title">Transparent Support</h3>
-              <p className="trust-desc">Clear communication channels and tracking ensure you know exactly when help is arriving.</p>
+              <h3 className="trust-title">Support You Can Follow</h3>
+              <p className="trust-desc">Stay updated throughout the process with clear communication and real-time request progress.</p>
             </div>
           </div>
         </div>
@@ -100,24 +97,24 @@ const Landing = () => {
         <div className="landing-container">
           <div className="section-header">
             <h2 className="section-title">How Sahayam Works</h2>
-            <p className="section-subtitle">A simple, effective way to get the help you need or support your community.</p>
+            <p className="section-subtitle">A calm and simple way to ask for help or support someone nearby.</p>
           </div>
           
           <div className="steps-grid">
             <div className="step-card">
               <div className="step-number">1</div>
-              <h3 className="step-title">Raise an Alert</h3>
-              <p className="step-desc">Detail what you need help with. The system intelligently matches your request with nearby capable volunteers.</p>
+              <h3 className="step-title">Share Your Situation</h3>
+              <p className="step-desc">Tell the community what kind of support you need, and nearby verified volunteers will be notified instantly.</p>
             </div>
             <div className="step-card">
               <div className="step-number">2</div>
-              <h3 className="step-title">Get Connected</h3>
-              <p className="step-desc">Review profiles of interested helpers. Choose someone you feel comfortable with based on their community standing.</p>
+              <h3 className="step-title">Choose Who Helps</h3>
+              <p className="step-desc">View volunteer profiles, community feedback, and availability before deciding who you feel most comfortable with.</p>
             </div>
             <div className="step-card">
               <div className="step-number">3</div>
-              <h3 className="step-title">Receive Help</h3>
-              <p className="step-desc">Communicate safely through the app. Once completed, leave a review to strengthen our community.</p>
+              <h3 className="step-title">Receive Support Safely</h3>
+              <p className="step-desc">Stay connected through secure in-app communication and track updates until your request is completed.</p>
             </div>
           </div>
         </div>
@@ -128,8 +125,8 @@ const Landing = () => {
         <div className="landing-container">
           <div className="screens-container">
             <div className="screens-content">
-              <h3>Designed for speed and reliability.</h3>
-              <p>In stressful situations, you need an interface that is organized and lightning fast. We've stripped away the clutter to focus on what matters most.</p>
+              <h3>Designed to feel simple during difficult moments.</h3>
+              <p>When someone needs help, every second matters. Sahayam is designed to reduce confusion and make support feel calm, clear, and accessible.</p>
             </div>
             
             <div className="screens-list">
@@ -138,8 +135,8 @@ const Landing = () => {
                   <FaMapMarkerAlt />
                 </div>
                 <div className="screen-list-text">
-                  <h4>Smart Routing</h4>
-                  <p>We find the closest available help instantly without manual searching.</p>
+                  <h4>Nearby Support</h4>
+                  <p>Quickly connect with trusted volunteers close to your location without endless searching.</p>
                 </div>
               </div>
               <div className="screen-list-item">
@@ -147,8 +144,8 @@ const Landing = () => {
                   <FaComments />
                 </div>
                 <div className="screen-list-text">
-                  <h4>Secure Chat</h4>
-                  <p>Communicate directly and safely without sharing your personal phone number.</p>
+                  <h4>Safe Conversations</h4>
+                  <p>Chat securely inside the app without exposing personal contact information.</p>
                 </div>
               </div>
               <div className="screen-list-item">
@@ -156,8 +153,8 @@ const Landing = () => {
                   <FaBell />
                 </div>
                 <div className="screen-list-text">
-                  <h4>Real-time Updates</h4>
-                  <p>Know exactly when your request is accepted and when your help arrives.</p>
+                  <h4>Live Updates</h4>
+                  <p>Know when your request is accepted, who is responding, and when support is on the way.</p>
                 </div>
               </div>
             </div>
@@ -168,11 +165,9 @@ const Landing = () => {
       {/* MISSION SECTION */}
       <section className="mission-section">
         <div className="landing-container">
-          <h2 className="mission-title">Our Mission</h2>
+          <h2 className="mission-title">Why We Built Sahayam</h2>
           <p className="mission-desc">
-            We believe that compassion is the strongest force in any neighborhood. 
-            Sahayam was built to create a quiet, organized space where communities 
-            can care for one another—safely, naturally, and with profound empathy.
+            We believe communities become stronger when people feel seen, supported, and connected. Sahayam was created to make helping one another easier, safer, and more human — especially during moments when kindness matters most.
           </p>
         </div>
       </section>
@@ -192,7 +187,7 @@ const Landing = () => {
             </div>
           </div>
           <div className="footer-copyright">
-            &copy; {new Date().getFullYear()} Sahayam. All rights reserved.
+            Built with care for communities that care for each other.
           </div>
         </div>
       </footer>

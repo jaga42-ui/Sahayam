@@ -24,6 +24,8 @@ const BloodBank = lazy(() => import("./pages/BloodBank"));
 const Inbox = lazy(() => import("./pages/Inbox"));
 const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const BloodRadar = lazy(() => import("./pages/BloodRadar"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Privacy = lazy(() => import("./pages/Privacy"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 function App() {
@@ -100,6 +102,10 @@ function App() {
                 
                 {/* Admin Command Center */}
                 <Route path="/admin" element={<AdminDashboard />} />
+
+                {/* Legal Pages */}
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
                 
                 {/* 404 CATCH-ALL ROUTE */}
                 <Route path="*" element={<NotFound />} />
