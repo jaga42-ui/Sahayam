@@ -135,21 +135,27 @@ const Landing = () => {
             
             <div className="screens-list">
               <div className="screen-list-item">
-                <FaMapMarkerAlt className="screen-list-icon" />
+                <div className="screen-list-icon-wrapper">
+                  <FaMapMarkerAlt />
+                </div>
                 <div className="screen-list-text">
                   <h4>Smart Routing</h4>
                   <p>We find the closest available help instantly without manual searching.</p>
                 </div>
               </div>
               <div className="screen-list-item">
-                <FaComments className="screen-list-icon" />
+                <div className="screen-list-icon-wrapper">
+                  <FaComments />
+                </div>
                 <div className="screen-list-text">
                   <h4>Secure Chat</h4>
                   <p>Communicate directly and safely without sharing your personal phone number.</p>
                 </div>
               </div>
               <div className="screen-list-item">
-                <FaBell className="screen-list-icon" />
+                <div className="screen-list-icon-wrapper">
+                  <FaBell />
+                </div>
                 <div className="screen-list-text">
                   <h4>Real-time Updates</h4>
                   <p>Know exactly when your request is accepted and when your help arrives.</p>
