@@ -799,36 +799,32 @@ const Dashboard = () => {
             })}
           </MotionSection>
 
-          {/* 👉 THE MASTERPIECE: Viral Referral Engine Banner */}
           <MotionDiv 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className="mb-6 relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-pine-teal to-[#1a3630] border border-pine-teal/40 p-6 md:p-8 shadow-[0_20px_50px_rgba(41,82,74,0.3)] group cursor-pointer"
             onClick={() => {
-              const url = `https://wa.me/?text=I%20just%20joined%20Sahayam%2C%20the%20hyper-local%20emergency%20%26%20donation%20network.%20We%20need%20more%20people%20in%20our%20city%20to%20build%20a%20lifesaver%20community.%20Join%20me%20here%3A%20https%3A%2F%2Fsahayam.vercel.app%2F%3Fref%3D${user?._id}`;
+              const url = `https://wa.me/?text=I%20just%20joined%20Sahayam%2C%20a%20community%20support%20network.%20Join%20me%20here%3A%20https%3A%2F%2Fsahayam.vercel.app%2F%3Fref%3D${user?._id}`;
               window.open(url, '_blank');
             }}
           >
             {/* Background Glows */}
-            <div className="absolute top-[-50%] right-[-10%] w-[80%] h-[200%] bg-blazing-flame/10 blur-[80px] rounded-full group-hover:bg-blazing-flame/20 transition-all duration-700 pointer-events-none" />
+            <div className="absolute top-[-50%] right-[-10%] w-[80%] h-[200%] bg-dark-raspberry/10 blur-[80px] rounded-full group-hover:bg-dark-raspberry/20 transition-all duration-700 pointer-events-none" />
             <div className="absolute bottom-[-50%] left-[-10%] w-[50%] h-[200%] bg-pearl-beige/10 blur-[80px] rounded-full pointer-events-none" />
             
             <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
               <div className="flex-1 text-center md:text-left">
-                <div className="inline-flex items-center gap-2 bg-blazing-flame/20 text-blazing-flame px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border border-blazing-flame/30 mb-3 shadow-[0_0_15px_rgba(255,74,28,0.3)]">
-                  <FaMedal /> Founder Status Locked
-                </div>
-                <h3 className="text-2xl md:text-3xl font-black text-pearl-beige tracking-tight uppercase leading-tight mb-2">
-                  Invite your city.<br className="hidden md:block"/> Grow the community.
+                <h3 className="text-2xl md:text-3xl font-black text-pearl-beige tracking-tight leading-tight mb-2">
+                  Grow our community.
                 </h3>
                 <p className="text-dusty-lavender text-xs md:text-sm font-bold tracking-wider max-w-lg mx-auto md:mx-0">
-                  Sahayam works best when more people join. Invite 5 friends via WhatsApp to unlock the exclusive <span className="text-blazing-flame">Founder Badge</span>.
+                  Sahayam is built by people who care. Invite your neighbors and friends to join our support network.
                 </p>
               </div>
               
               <div className="shrink-0 w-full md:w-auto flex flex-col gap-3">
-                <button className="w-full md:w-auto bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-[0_15px_30px_rgba(37,211,102,0.3)] hover:scale-105 transition-transform flex items-center justify-center gap-3 border border-[#25D366]/50">
+                <button className="w-full md:w-auto bg-dark-raspberry text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-xs shadow-[0_15px_30px_rgba(159,17,100,0.3)] hover:bg-[#850e53] hover:scale-105 transition-all flex items-center justify-center gap-3">
                   <FaShareAlt className="text-lg" /> Share Invite
                 </button>
               </div>
@@ -1221,11 +1217,11 @@ const Dashboard = () => {
                       <FaExclamationTriangle className="text-2xl animate-pulse text-white" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-black uppercase tracking-tight text-white">
-                        SOS Broadcast
+                      <h2 className="text-2xl font-black tracking-tight text-white">
+                        Emergency Request
                       </h2>
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blazing-flame animate-pulse">
-                        Critical Override Activated
+                      <p className="text-[10px] font-black uppercase tracking-widest text-dark-raspberry">
+                        Ask for urgent help
                       </p>
                     </div>
                   </div>
@@ -1244,7 +1240,7 @@ const Dashboard = () => {
                     className={`w-full flex items-center justify-center gap-3 rounded-2xl border py-4 text-xs font-black uppercase tracking-widest text-white shadow-[0_10px_30px_rgba(255,74,28,0.2)] transition-all ${isListening ? "bg-blazing-flame border-blazing-flame animate-pulse shadow-[0_0_40px_rgba(255,74,28,0.6)]" : "bg-surface/10 border-blazing-flame/50 hover:bg-blazing-flame/20"}`}
                   >
                     <FaMicrophone className={isListening ? "text-lg animate-bounce" : "text-lg"} />
-                    {isListening ? "Listening... Speak Now" : "Panic Mode: Voice SOS"}
+                    {isListening ? "Listening... Speak naturally" : "Voice Request"}
                   </button>
                 </div>
 
@@ -1369,7 +1365,7 @@ const Dashboard = () => {
                     ) : (
                       <>
                         <FaHeartbeat />
-                        Deploy SOS
+                        Send Request
                       </>
                     )}
                   </MotionButton>

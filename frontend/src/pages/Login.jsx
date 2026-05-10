@@ -85,10 +85,10 @@ const Login = () => {
              
              <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
                <h1 className="text-5xl lg:text-6xl font-black mb-6 leading-[1.1] tracking-tight">
-                 Welcome Back, <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-dark-raspberry to-[#ff7e5f]">Lifesaver.</span>
+                 Welcome back to <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-dark-raspberry to-pine-teal">Our Community.</span>
                </h1>
                <p className="text-lg lg:text-xl font-medium text-pearl-beige/80 mb-10 leading-relaxed border-l-4 border-dark-raspberry pl-6">
-                 Since your last session, the Sahayam network has processed thousands of hyper-local SOS alerts. Reconnect your node and stay prepared. Your neighborhood needs you.
+                 Log in to check on your neighborhood, offer support, or ask for help. We're so glad you're here.
                </p>
                
                <div className="bg-surface/5 backdrop-blur-xl border border-surface/10 p-6 rounded-[2rem] shadow-xl hover:bg-surface/10 transition-colors">
@@ -123,11 +123,11 @@ const Login = () => {
           </div>
 
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-black text-pine-teal tracking-tight uppercase">
-              Resume <span className="text-blazing-flame">Mission.</span>
+            <h2 className="text-3xl font-black text-pine-teal tracking-tight">
+              Sign In
             </h2>
-            <p className="text-dusty-lavender text-sm font-bold uppercase tracking-widest mt-1">
-              The network is waiting for you.
+            <p className="text-dusty-lavender text-sm font-bold tracking-widest mt-1">
+              Connect with your community.
             </p>
           </div>
 
@@ -169,9 +169,9 @@ const Login = () => {
 
             <button 
               disabled={loading || !email || !password} 
-              className="w-full mt-4 bg-blazing-flame hover:bg-[#e03a12] text-white font-black uppercase tracking-widest text-xs py-4 md:py-5 rounded-2xl transition-all shadow-[0_10px_25px_rgba(255,74,28,0.3)] active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50 disabled:active:scale-100"
+              className="w-full mt-4 bg-dark-raspberry hover:bg-[#850e53] text-white font-black uppercase tracking-widest text-xs py-4 md:py-5 rounded-2xl transition-all shadow-[0_10px_25px_rgba(159,17,100,0.3)] active:scale-95 flex items-center justify-center gap-3 disabled:opacity-50 disabled:active:scale-100"
             >
-              {loading ? <FaSpinner className="animate-spin text-xl text-white" /> : 'Access Live Network'}
+              {loading ? <FaSpinner className="animate-spin text-xl text-white" /> : 'Sign In'}
             </button>
           </form>
 
@@ -193,9 +193,9 @@ const Login = () => {
 
           <div className="mt-8 text-center bg-surface/50 py-4 rounded-2xl border border-surface shadow-sm">
             <p className="text-dusty-lavender text-[10px] font-bold uppercase tracking-widest">
-              Haven't Enlisted Yet?
-              <Link to="/register" className="block mt-2 text-pine-teal hover:text-blazing-flame text-xs font-black transition-colors">
-                Join the Sahayam Network
+              New to Sahayam?
+              <Link to="/register" className="block mt-2 text-pine-teal hover:text-dark-raspberry text-xs font-black transition-colors">
+                Join our Community
               </Link>
             </p>
           </div>

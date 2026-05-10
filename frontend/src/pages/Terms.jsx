@@ -1,4 +1,3 @@
-import Layout from "../components/Layout";
 import { FaShieldAlt, FaArrowLeft } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
@@ -6,7 +5,7 @@ const Terms = () => {
   const navigate = useNavigate();
 
   return (
-    <Layout>
+    <div className="min-h-screen bg-[#e8dab2] font-sans selection:bg-[#9f1164] selection:text-white pb-10">
       <main className="max-w-4xl mx-auto px-4 py-8 md:py-12 pb-32 font-sans">
         <button onClick={() => navigate(-1)} className="mb-6 text-dusty-lavender hover:text-pine-teal bg-white p-3 rounded-full border border-dusty-lavender/30 shadow-sm flex items-center justify-center w-max active:scale-90 transition-all">
           <FaArrowLeft className="text-sm" />
@@ -45,7 +44,7 @@ const Terms = () => {
           </div>
         </div>
       </main>
-    </Layout>
+    </div>
   );
 };
 

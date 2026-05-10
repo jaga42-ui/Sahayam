@@ -102,10 +102,10 @@ const Register = () => {
              
              <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
                <h1 className="text-5xl lg:text-6xl font-black mb-6 leading-[1.1] tracking-tight">
-                 Become a Node in the <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-blazing-flame to-[#ff7e5f]">Lifesaver Grid.</span>
+                 Join our <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-dark-raspberry to-pine-teal">Caring Community.</span>
                </h1>
-               <p className="text-lg lg:text-xl font-medium text-pearl-beige/80 mb-10 leading-relaxed border-l-4 border-blazing-flame pl-6">
-                 Every 2 seconds, someone needs blood or emergency assistance. By creating an account, you aren't just signing up for an app—you are stepping up as a critical lifeline for your neighborhood.
+               <p className="text-lg lg:text-xl font-medium text-pearl-beige/80 mb-10 leading-relaxed border-l-4 border-dark-raspberry pl-6">
+                 Create an account to ask for help when you need it, or offer support to neighbors when they do. Kindness starts here.
                </p>
                
                <div className="bg-surface/5 backdrop-blur-xl border border-surface/10 p-6 rounded-[2rem] shadow-xl hover:bg-surface/10 transition-colors">
@@ -140,11 +140,11 @@ const Register = () => {
           </div>
 
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-black text-pine-teal tracking-tight mb-1 uppercase">
-              Join <span className={themeAccent}>Sahayam.</span>
+            <h2 className="text-3xl font-black text-pine-teal tracking-tight mb-1">
+              Join Sahayam
             </h2>
-            <p className="text-dusty-lavender text-xs font-bold uppercase tracking-widest mt-1">
-              Create your secure account.
+            <p className="text-dusty-lavender text-xs font-bold tracking-widest mt-1">
+              Create your account.
             </p>
           </div>
 
@@ -300,8 +300,8 @@ const Register = () => {
           </form>
 
           <p className="text-center text-dusty-lavender text-[10px] uppercase font-bold tracking-widest mt-8">
-            Already a hero?{" "}
-            <Link to="/login" className="text-pine-teal font-black hover:text-blazing-flame transition-colors">
+            Already have an account?{" "}
+            <Link to="/login" className="text-pine-teal font-black hover:text-dark-raspberry transition-colors">
               Sign In
             </Link>
           </p>
