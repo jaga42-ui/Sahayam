@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
@@ -6,10 +6,13 @@ import {
   FaShieldAlt,
   FaComments,
   FaBell,
-  FaCheckCircle,
   FaHandsHelping,
   FaUserShield,
-  FaRegLightbulb
+  FaRegLightbulb,
+  FaHome,
+  FaInbox,
+  FaUser,
+  FaHeartbeat
 } from "react-icons/fa";
 
 import logo from "../assets/logo.png";
@@ -29,7 +32,7 @@ const Landing = () => {
   return (
     <div className="landing-page">
       <Helmet>
-        <title>Sahayam - Trusted Community Support</title>
+        <title>Sahayam - Connect. Rescue. Survive.</title>
         <meta name="description" content="Connect with trusted local helpers and volunteers safely and instantly." />
       </Helmet>
 
@@ -41,8 +44,8 @@ const Landing = () => {
             Sahayam
           </Link>
           <nav className="landing-nav hidden-mobile">
-            <Link to="/login" className="landing-nav-link">Log in</Link>
-            <Link to="/register" className="landing-btn landing-btn-primary">Get Started</Link>
+            <Link to="/login" className="landing-nav-link">Sign in</Link>
+            <Link to="/register" className="landing-btn landing-btn-primary">Join the Grid</Link>
           </nav>
         </header>
       </div>
@@ -50,9 +53,9 @@ const Landing = () => {
       {/* HERO SECTION */}
       <section className="hero-section">
         <div className="landing-container">
-          <h1 className="hero-title">Help when you need it.<br />Community you can trust.</h1>
+          <h1 className="hero-title">When seconds matter,<br />we respond.</h1>
           <p className="hero-subtitle">
-            Sahayam is a safe, organized platform connecting people with verified local helpers and volunteers for immediate assistance and support.
+            The world's fastest hyper-local community emergency network. Connect instantly with verified volunteers in your neighborhood.
           </p>
           <div className="hero-actions">
             <Link to="/register" className="landing-btn landing-btn-primary landing-btn-large">
@@ -64,23 +67,40 @@ const Landing = () => {
           </div>
           
           <div className="hero-preview">
-            {/* Minimal CSS-based Skeleton of the Dashboard */}
-            <div className="skeleton-app">
-              <div className="skeleton-header">
-                <div className="skeleton-header-logo"></div>
+            {/* High-Fidelity UI Mockup of the Dashboard */}
+            <div className="mockup-app">
+              <div className="mockup-sidebar">
+                <div className="mockup-brand">Dashboard</div>
+                <div className="mockup-nav-item active"><FaHome /> Overview</div>
+                <div className="mockup-nav-item"><FaHeartbeat /> Blood Radar</div>
+                <div className="mockup-nav-item"><FaInbox /> Messages</div>
+                <div className="mockup-nav-item"><FaUser /> Profile</div>
               </div>
-              <div className="skeleton-body">
-                <div className="skeleton-sidebar">
-                  <div className="skeleton-nav-item" style={{ backgroundColor: '#eef2ff' }}></div>
-                  <div className="skeleton-nav-item"></div>
-                  <div className="skeleton-nav-item"></div>
-                  <div className="skeleton-nav-item"></div>
+              <div className="mockup-main">
+                <div className="mockup-header">
+                  <div className="mockup-header-title">Live Grid</div>
+                  <div className="mockup-btn">+ Broadcast SOS</div>
                 </div>
-                <div className="skeleton-content">
-                  <div className="skeleton-content-header"></div>
-                  <div className="skeleton-card"></div>
-                  <div className="skeleton-card"></div>
-                  <div className="skeleton-card"></div>
+                <div className="mockup-grid">
+                  <div className="mockup-map">
+                    <div className="mockup-map-bg"></div>
+                    <div className="mockup-map-pin" style={{ top: '40%', left: '50%' }}></div>
+                    <div className="mockup-map-pin" style={{ top: '60%', left: '30%' }}></div>
+                    <div className="mockup-map-pin" style={{ top: '30%', left: '70%' }}></div>
+                    <span style={{position:'relative', zIndex: 11}}>Finding nearby responders...</span>
+                  </div>
+                  <div className="mockup-list">
+                    <div className="mockup-list-card">
+                      <div className="mockup-card-title">Urgent: O- Blood Needed</div>
+                      <div className="mockup-card-desc">City Hospital, Downtown</div>
+                      <div className="mockup-tag">High Priority</div>
+                    </div>
+                    <div className="mockup-list-card">
+                      <div className="mockup-card-title">Food Distribution</div>
+                      <div className="mockup-card-desc">Community Center</div>
+                      <div className="mockup-tag" style={{ backgroundColor: 'rgba(41, 82, 74, 0.1)', color: '#29524a' }}>Volunteer</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -127,12 +147,12 @@ const Landing = () => {
           <div className="steps-grid">
             <div className="step-card">
               <div className="step-number">1</div>
-              <h3 className="step-title">Create a Request</h3>
+              <h3 className="step-title">Raise an Alert</h3>
               <p className="step-desc">Detail what you need help with. The system intelligently matches your request with nearby capable volunteers.</p>
             </div>
             <div className="step-card">
               <div className="step-number">2</div>
-              <h3 className="step-title">Get Matched</h3>
+              <h3 className="step-title">Get Connected</h3>
               <p className="step-desc">Review profiles of interested helpers. Choose someone you feel comfortable with based on their community standing.</p>
             </div>
             <div className="step-card">
@@ -149,8 +169,8 @@ const Landing = () => {
         <div className="landing-container">
           <div className="screens-grid">
             <div className="screens-content">
-              <h3>Designed for clarity and calm.</h3>
-              <p>In stressful situations, you need an interface that is organized and easy to understand. We've stripped away the clutter to focus on what matters most.</p>
+              <h3>Designed for speed and reliability.</h3>
+              <p>In stressful situations, you need an interface that is organized and lightning fast. We've stripped away the clutter to focus on what matters most.</p>
               
               <div className="screens-list">
                 <div className="screen-list-item">
@@ -178,29 +198,35 @@ const Landing = () => {
             </div>
             
             <div className="screens-visual">
-              {/* Mobile Skeleton UI representing Request Flow/Volunteer Dashboard */}
-              <div className="skeleton-mobile">
-                <div className="skeleton-mobile-header">
-                  <div className="skeleton-mobile-title"></div>
-                  <div className="skeleton-mobile-subtitle"></div>
+              {/* High Fidelity Mobile App Mockup */}
+              <div className="mockup-mobile">
+                <div className="mockup-mobile-header">
+                  <div className="mockup-mobile-title">Nearby Alerts</div>
+                  <div className="mockup-mobile-subtitle">3 active requests in your area</div>
                 </div>
-                <div className="skeleton-mobile-body">
-                  <div className="skeleton-mobile-card">
-                    <div className="skeleton-mobile-card-title"></div>
-                    <div className="skeleton-mobile-card-desc"></div>
-                    <div className="skeleton-mobile-btn"></div>
+                <div className="mockup-mobile-body">
+                  <div className="mockup-mobile-card">
+                    <div className="mockup-m-title">Medical Supplies Needed</div>
+                    <div className="mockup-m-desc">Require a first aid kit and basic bandages at the community center.</div>
+                    <div className="mockup-m-footer">
+                      <div className="mockup-m-dist">0.8 km away</div>
+                      <div className="mockup-m-btn">Respond</div>
+                    </div>
                   </div>
-                  <div className="skeleton-mobile-card">
-                    <div className="skeleton-mobile-card-title"></div>
-                    <div className="skeleton-mobile-card-desc"></div>
-                    <div className="skeleton-mobile-btn" style={{ backgroundColor: '#f3f4f6' }}></div>
+                  <div className="mockup-mobile-card">
+                    <div className="mockup-m-title">Transportation Help</div>
+                    <div className="mockup-m-desc">Need a ride to the clinic for a checkup, wheelchair accessible vehicle preferred.</div>
+                    <div className="mockup-m-footer">
+                      <div className="mockup-m-dist">1.2 km away</div>
+                      <div className="mockup-m-btn">Respond</div>
+                    </div>
                   </div>
                 </div>
-                <div className="skeleton-mobile-nav">
-                  <div className="skeleton-nav-icon active"></div>
-                  <div className="skeleton-nav-icon"></div>
-                  <div className="skeleton-nav-icon"></div>
-                  <div className="skeleton-nav-icon"></div>
+                <div className="mockup-mobile-nav">
+                  <div className="mockup-nav-icon active"><FaHome /></div>
+                  <div className="mockup-nav-icon"><FaMapMarkerAlt /></div>
+                  <div className="mockup-nav-icon"><FaInbox /></div>
+                  <div className="mockup-nav-icon"><FaUser /></div>
                 </div>
               </div>
             </div>
