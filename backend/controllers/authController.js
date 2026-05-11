@@ -459,34 +459,10 @@ const forgotPassword = asyncHandler(async (req, res) => {
   });
   const resetLink = `${process.env.FRONTEND_URL}/reset-password/${user._id}/${token}`;
 
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: process.env.SMTP_PORT,
-    secure: false,
-    auth: { user: process.env.SMTP_EMAIL, pass: process.env.SMTP_PASSWORD },
-  });
-
-  const mailOptions = {
-    from: `"${process.env.FROM_NAME}" <${process.env.FROM_EMAIL}>`,
-    to: user.email,
-    subject: "Sahayam - Security Clearance Reset",
-    html: `
-      <div style="font-family: ui-sans-serif, system-ui, sans-serif; max-width: 600px; margin: 0 auto; background-color: #fdfbf7; padding: 40px; border-radius: 24px; color: #29524a; border: 1px solid rgba(132, 107, 138, 0.3);">
-        <h2 style="color: #29524a; margin-top: 0; font-weight: 900; font-style: italic;">PASSWORD RESET PROTOCOL</h2>
-        <p style="color: #846b8a; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em;">You requested a security clearance update.</p>
-        
-        <p style="margin: 30px 0; font-size: 16px; font-weight: 500;">Click the button below to securely set a new password for your Sahayam account. This link will expire in exactly 15 minutes.</p>
-        
-        <a href="${resetLink}" style="display: inline-block; padding: 16px 32px; background-color: #ff4a1c; color: #ffffff; text-decoration: none; border-radius: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em;">Reset Password</a>
-        
-        <hr style="border: 0; border-top: 1px solid rgba(132, 107, 138, 0.2); margin: 40px 0 20px 0;" />
-        <p style="font-size: 10px; color: #846b8a; margin: 0; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em;">If you did not request this change, you may safely ignore this email.</p>
-      </div>
-    `,
-  };
-
-  // 👉 THE FIX: Removed await to unblock the Event Loop. Fires in background.
-  transporter.sendMail(mailOptions).catch(err => console.error("SMTP Error:", err));
+  const { sendPasswordResetEmail } = require('../utils/sendEmail');
+  
+  // Fire in background
+  sendPasswordResetEmail(user.email, resetLink);
   
   res.json({ message: "If an account with that email exists, a security clearance link has been dispatched." });
 });

@@ -27,11 +27,10 @@ const Profile = () => {
     name: user?.name || '', bloodGroup: user?.bloodGroup || '', phone: user?.phone || '', addressText: user?.addressText || ''
   });
 
-  const isDonor = user?.activeRole === 'donor';
-  const themeAccent = isDonor ? 'text-blazing-flame' : 'text-dark-raspberry';
-  const themeBg = isDonor ? 'bg-blazing-flame hover:bg-[#e03a12]' : 'bg-dark-raspberry hover:bg-[#850e53]';
-  const themeFocusBorder = isDonor ? 'focus:border-blazing-flame' : 'focus:border-dark-raspberry';
-  const themeGradient = 'from-dark-raspberry to-blazing-flame';
+  const themeAccent = 'text-dark-raspberry';
+  const themeBg = 'bg-dark-raspberry hover:bg-[#850e53]';
+  const themeFocusBorder = 'focus:border-dark-raspberry';
+  const themeGradient = 'from-dark-raspberry to-pine-teal';
 
   useEffect(() => {
     const fetchImpactStats = async () => {
@@ -106,15 +105,15 @@ const Profile = () => {
         
         <header className="mb-8 md:mb-12 border-b border-dusty-lavender/30 pt-6 pb-6 md:pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
-            <motion.h1 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="text-4xl md:text-6xl font-black text-pine-teal uppercase tracking-tight">
-              OPERATIVE <span className={themeAccent}>DOSSIER.</span>
+            <motion.h1 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="text-4xl md:text-6xl font-black text-pine-teal tracking-tight">
+              Your <span className={themeAccent}>Profile</span>
             </motion.h1>
-            <p className="text-dusty-lavender font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-[9px] md:text-[10px] mt-1 md:mt-2">Global Network Profile & Settings</p>
+            <p className="text-dusty-lavender font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-[9px] md:text-[10px] mt-1 md:mt-2">Account details and settings</p>
           </div>
           
           {!isEditing && (
             <button onClick={() => setIsEditing(true)} className="w-full md:w-auto px-6 py-4 md:py-3 rounded-2xl md:rounded-full font-black text-[10px] md:text-xs uppercase tracking-widest bg-surface border border-dusty-lavender/30 text-dusty-lavender hover:text-pine-teal hover:shadow-md active:scale-95 transition-all flex items-center justify-center gap-2">
-              <FaEdit /> Update Dossier
+              <FaEdit /> Edit Profile
             </button>
           )}
         </header>
@@ -134,7 +133,7 @@ const Profile = () => {
                       {user.name.charAt(0)}
                     </div>
                   )}
-                  <div className="absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 bg-blazing-flame text-white p-2 md:p-2.5 rounded-full shadow-lg border-4 border-surface z-20" title={user.rank || 'Member'}>
+                  <div className="absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 bg-dark-raspberry text-white p-2 md:p-2.5 rounded-full shadow-lg border-4 border-surface z-20" title={user.rank || 'Member'}>
                     <FaShieldAlt className="text-xs md:text-sm" />
                   </div>
                 </div>
@@ -143,12 +142,12 @@ const Profile = () => {
                   <>
                     <h2 className="text-2xl md:text-3xl font-black text-pine-teal tracking-tight leading-tight">{user.name}</h2>
                     <p className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-1 md:mt-2 ${themeAccent}`}>
-                      {user.rank || (user.isAdmin ? <span className="text-dark-raspberry">System Admin</span> : 'Verified Sahayam Member')}
+                      {user.rank || (user.isAdmin ? <span className="text-dark-raspberry">System Admin</span> : 'Community Member')}
                     </p>
 
                     <div className="mt-5 md:mt-6 flex items-center justify-center gap-4 bg-surface px-5 py-3 rounded-xl md:rounded-2xl border border-dusty-lavender/20 w-full shadow-sm">
                       <div className="flex items-center gap-3">
-                        <FaStar className="text-blazing-flame text-lg md:text-xl" />
+                        <FaStar className="text-dark-raspberry text-lg md:text-xl" />
                         {user.totalRatings > 0 ? (
                           <div className="flex flex-col items-start leading-none">
                             <span className="text-pine-teal font-black text-lg md:text-xl">{user.rating?.toFixed(1)}</span>
@@ -217,7 +216,7 @@ const Profile = () => {
                         <FaTimes className="text-lg" />
                       </button>
                       <button type="submit" className={`flex-1 py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all text-white shadow-md active:scale-95 border border-transparent ${themeBg}`}>
-                        <FaSave className="text-lg" /> Commit Record
+                        <FaSave className="text-lg" /> Save Changes
                       </button>
                     </div>
                   </motion.form>
@@ -229,16 +228,16 @@ const Profile = () => {
           <div className="lg:col-span-8 space-y-5 md:space-y-6">
             
             <div className="bg-surface/70 backdrop-blur-lg border border-surface rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden group shadow-[0_20px_40px_rgba(41,82,74,0.08)]">
-              <div className="absolute -right-8 -bottom-8 md:-right-10 md:-bottom-10 text-8xl md:text-9xl text-blazing-flame/10 pointer-events-none">
+              <div className="absolute -right-8 -bottom-8 md:-right-10 md:-bottom-10 text-8xl md:text-9xl text-dark-raspberry/5 pointer-events-none">
                 <FaAward />
               </div>
               <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 md:gap-6">
                 <div>
-                  <p className="text-blazing-flame text-[10px] md:text-xs font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mb-1 md:mb-2 flex items-center gap-2">
-                    <FaStar className="animate-pulse" /> Sahayam Standing
+                  <p className="text-dark-raspberry text-[10px] md:text-xs font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mb-1 md:mb-2 flex items-center gap-2">
+                    <FaStar /> Community Standing
                   </p>
                   <h3 className="text-5xl sm:text-6xl md:text-8xl font-black text-pine-teal tracking-tighter">{user.points || 0}</h3>
-                  <p className="text-dusty-lavender font-bold uppercase tracking-widest text-[9px] md:text-[10px] mt-1 md:mt-2">Total Experience Points (XP)</p>
+                  <p className="text-dusty-lavender font-bold uppercase tracking-widest text-[9px] md:text-[10px] mt-1 md:mt-2">Total Contributions</p>
                 </div>
                 <div className="w-full md:w-auto bg-surface px-5 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl border border-dusty-lavender/30 text-center md:min-w-[140px] shadow-sm">
                   <p className="text-dusty-lavender text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1">Current Rank</p>
@@ -259,7 +258,7 @@ const Profile = () => {
                 ) : (
                   <h3 className="text-4xl md:text-5xl font-black text-pine-teal relative z-10">{user.donationsCount || stats.totalDonations}</h3>
                 )}
-                <p className="text-dusty-lavender text-[9px] md:text-[10px] uppercase font-black tracking-widest mt-2 md:mt-3 leading-tight relative z-10">Missions Completed</p>
+                <p className="text-dusty-lavender text-[9px] md:text-[10px] uppercase font-black tracking-widest mt-2 md:mt-3 leading-tight relative z-10">Moments of Support</p>
               </div>
 
               <div className="bg-surface/70 backdrop-blur-lg border border-surface rounded-2xl md:rounded-[2.5rem] p-5 md:p-8 relative overflow-hidden group shadow-[0_10px_30px_rgba(41,82,74,0.05)] hover:scale-105 hover:shadow-[0_20px_40px_rgba(41,82,74,0.12)] transition-all duration-300">
@@ -273,23 +272,22 @@ const Profile = () => {
                 ) : (
                   <h3 className="text-4xl md:text-5xl font-black text-pine-teal relative z-10">{stats.activeListings}</h3>
                 )}
-                <p className="text-dusty-lavender text-[9px] md:text-[10px] uppercase font-black tracking-widest mt-2 md:mt-3 leading-tight relative z-10">Active Field Ops</p>
+                <p className="text-dusty-lavender text-[9px] md:text-[10px] uppercase font-black tracking-widest mt-2 md:mt-3 leading-tight relative z-10">Ongoing Support</p>
               </div>
             </div>
 
-            {/* 👉 NEW: Referral Gamification */}
             <div className="mt-6 bg-surface/70 backdrop-blur-lg border border-pine-teal/20 rounded-[2rem] p-6 shadow-sm relative overflow-hidden">
               <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                 <div>
                   <h3 className="text-sm font-black uppercase tracking-widest text-pine-teal flex items-center gap-2 mb-1">
-                    <FaAward className="text-pine-teal" /> Recruit & Rank Up
+                    <FaAward className="text-pine-teal" /> Grow Our Community
                   </h3>
-                  <p className="text-[10px] text-dusty-lavender uppercase font-bold tracking-wider">Earn 50 XP for every hero you recruit!</p>
+                  <p className="text-[10px] text-dusty-lavender uppercase font-bold tracking-wider">Invite friends to help grow the Sahayam network.</p>
                 </div>
                 <button 
                   onClick={() => {
-                    navigator.clipboard.writeText(`https://hopelink-api.onrender.com/register?ref=${user.referralCode || ''}`);
-                    toast.success("Recruitment Link Copied!");
+                    navigator.clipboard.writeText(`${window.location.origin}/?ref=${user?.referralCode || ''}`);
+                    toast.success("Invite Link Copied!");
                   }}
                   className="w-full md:w-auto py-3 px-6 bg-pine-teal hover:bg-[#1a3630] text-white font-black uppercase tracking-widest text-[10px] rounded-xl shadow-md transition-all active:scale-95"
                 >
@@ -308,14 +306,14 @@ const Profile = () => {
             </div>
 
             {/* 👉 NEW: AI Hero Story Engine */}
-            <div className="mt-8 bg-surface/70 backdrop-blur-lg border border-blazing-flame/20 rounded-[2rem] p-6 shadow-sm relative overflow-hidden group flex flex-col">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blazing-flame to-pine-teal" />
+            <div className="mt-8 bg-surface/70 backdrop-blur-lg border border-dark-raspberry/20 rounded-[2rem] p-6 shadow-sm relative overflow-hidden group flex flex-col">
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-dark-raspberry to-pine-teal" />
               <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
                 <div className="text-center md:text-left">
                   <h3 className="text-sm font-black uppercase tracking-widest text-pine-teal flex items-center justify-center md:justify-start gap-2 mb-1">
-                    <FaAward className="text-blazing-flame" /> Share Your Legacy
+                    <FaAward className="text-dark-raspberry" /> Share Your Impact
                   </h3>
-                  <p className="text-[10px] text-dusty-lavender uppercase font-bold tracking-wider">Let AI craft your personalized impact story to inspire others.</p>
+                  <p className="text-[10px] text-dusty-lavender uppercase font-bold tracking-wider">Generate a short story of your contributions to share with friends.</p>
                 </div>
                 <button 
                   onClick={async () => {
@@ -329,9 +327,9 @@ const Profile = () => {
                       toast.error("Failed to generate story", { id: toastId });
                     }
                   }}
-                  className="w-full md:w-auto py-3 px-6 bg-blazing-flame hover:bg-[#e03a12] text-white font-black uppercase tracking-widest text-[10px] rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
+                  className="w-full md:w-auto py-3 px-6 bg-dark-raspberry hover:bg-[#850e53] text-white font-black uppercase tracking-widest text-[10px] rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
                 >
-                  <FaStar /> Generate AI Story
+                  <FaStar /> Generate Story
                 </button>
               </div>
 
@@ -341,12 +339,12 @@ const Profile = () => {
                   <div className="flex justify-end mt-3">
                     <button onClick={() => {
                         if (navigator.share) {
-                          navigator.share({ title: 'My Sahayam Journey', text: generatedStory, url: 'https://hopelink-api.onrender.com' }).catch(console.error);
+                          navigator.share({ title: 'My Community Impact', text: generatedStory, url: window.location.origin }).catch(console.error);
                         } else {
-                          navigator.clipboard.writeText(generatedStory + " https://hopelink-api.onrender.com");
+                          navigator.clipboard.writeText(generatedStory + " " + window.location.origin);
                           toast.success("Copied to clipboard!");
                         }
-                    }} className="text-[10px] uppercase font-black tracking-widest text-blazing-flame hover:underline flex items-center gap-1">
+                    }} className="text-[10px] uppercase font-black tracking-widest text-dark-raspberry hover:underline flex items-center gap-1">
                       <FaAward /> Share Now
                     </button>
                   </div>

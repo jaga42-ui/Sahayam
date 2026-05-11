@@ -10,15 +10,9 @@ const Leaderboard = () => {
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 👉 PREMIUM LIGHT THEME VARIABLES
-  const isDonor = user?.activeRole === 'donor';
-  const themeAccent = isDonor ? 'text-blazing-flame' : 'text-dark-raspberry';
-  const themeBg = isDonor ? 'bg-blazing-flame' : 'bg-dark-raspberry';
-  
-  // Highlight the current user's card
-  const meCardTheme = isDonor 
-    ? 'bg-surface border-blazing-flame/40 shadow-[0_10px_30px_rgba(255,74,28,0.15)] ring-2 ring-blazing-flame/20' 
-    : 'bg-surface border-dark-raspberry/40 shadow-[0_10px_30px_rgba(159,17,100,0.15)] ring-2 ring-dark-raspberry/20';
+  const themeAccent = 'text-dark-raspberry';
+  const themeBg = 'bg-dark-raspberry';
+  const meCardTheme = 'bg-surface border-dark-raspberry/40 shadow-[0_10px_30px_rgba(159,17,100,0.15)] ring-2 ring-dark-raspberry/20';
 
   useEffect(() => {
     const fetchLeaders = async () => {
@@ -39,10 +33,10 @@ const Leaderboard = () => {
       <div className="max-w-4xl mx-auto px-4 pb-32 md:pb-24 min-h-screen text-pine-teal">
         
         <header className="text-center pt-6 mb-10 md:mb-12">
-          <h1 className="text-4xl md:text-5xl font-black text-pine-teal uppercase tracking-tight mb-2 md:mb-4">
-            COMMUNITY <span className={themeAccent}>LEADERS.</span>
+          <h1 className="text-4xl md:text-5xl font-black text-pine-teal tracking-tight mb-2 md:mb-4">
+            Community <span className={themeAccent}>Highlights</span>
           </h1>
-          <p className="text-dusty-lavender uppercase font-black tracking-widest text-[10px] md:text-xs">Top Sahayam contributors making an impact</p>
+          <p className="text-dusty-lavender uppercase font-bold tracking-widest text-[10px] md:text-xs">People making a difference in our neighborhood</p>
         </header>
 
 
@@ -67,8 +61,8 @@ const Leaderboard = () => {
                 >
                   
                   <div className="flex items-center gap-3 md:gap-6 overflow-hidden">
-                    <div className="text-xl md:text-2xl font-black italic text-dusty-lavender w-6 md:w-8 text-center shrink-0">
-                      {index === 0 ? <FaCrown className="text-blazing-flame mx-auto drop-shadow-md" /> : index + 1}
+                    <div className="text-xl md:text-2xl font-black text-dusty-lavender w-6 md:w-8 text-center shrink-0">
+                      {index + 1}
                     </div>
                     
                     <div className="relative shrink-0">
@@ -79,7 +73,7 @@ const Leaderboard = () => {
                           {leader.name.charAt(0)}
                         </div>
                       )}
-                      {index === 0 && <div className="absolute -top-2 -right-2 bg-blazing-flame text-white p-1 md:p-1.5 rounded-full text-[10px] md:text-xs shadow-lg shadow-blazing-flame/30"><FaStar /></div>}
+                      {/* Removed Star icon */}
                     </div>
 
                     <div className="min-w-0 pr-2">
@@ -93,7 +87,7 @@ const Leaderboard = () => {
 
                   <div className="text-right shrink-0">
                     <p className="text-xl md:text-3xl font-black text-pine-teal">{leader.points}</p>
-                    <p className="text-[8px] md:text-[10px] text-dusty-lavender font-black uppercase tracking-widest">XP</p>
+                    <p className="text-[8px] md:text-[10px] text-dusty-lavender font-bold uppercase tracking-widest">Points</p>
                   </div>
                 </div>
               );
@@ -101,7 +95,7 @@ const Leaderboard = () => {
             
             {leaders.length === 0 && (
               <div className="text-center py-10 bg-surface/50 backdrop-blur-md border border-dusty-lavender/30 rounded-3xl text-dusty-lavender font-bold uppercase tracking-widest text-xs md:text-sm">
-                No leaders yet. Be the first to make a Sahayam impact!
+                No community members highlighted yet.
               </div>
             )}
           </div>

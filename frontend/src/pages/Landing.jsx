@@ -1,5 +1,5 @@
 import React, { useEffect, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import {
   FaMapMarkerAlt,
@@ -22,6 +22,9 @@ import "./Landing.css";
 const Landing = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const refCode = searchParams.get('ref');
+  const registerLink = refCode ? `/register?ref=${refCode}` : "/register";
 
   useEffect(() => {
     if (user && user.token) {
@@ -54,7 +57,7 @@ const Landing = () => {
             Sahayam brings together caring people, trusted volunteers, and local communities so that support is always within reach when life feels overwhelming.
           </p>
           <div className="hero-actions">
-            <Link to="/register" className="landing-btn landing-btn-primary landing-btn-large" style={{ backgroundColor: 'var(--theme-pine-teal)', boxShadow: 'none' }}>
+            <Link to={registerLink} className="landing-btn landing-btn-primary landing-btn-large" style={{ backgroundColor: 'var(--theme-pine-teal)', boxShadow: 'none' }}>
               Get Started
             </Link>
             <Link to="/login" className="landing-btn landing-btn-secondary landing-btn-large">
