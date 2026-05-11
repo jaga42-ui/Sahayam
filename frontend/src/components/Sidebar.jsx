@@ -17,10 +17,10 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     logout();
-    toast.success('System override successful. Session terminated.', {
+    toast.success('Successfully logged out.', {
       style: { background: '#ffffff', color: '#29524a', border: '1px solid #846b8a' }
     });
-    navigate('/login');
+    navigate('/');
   };
 
   const isDonor = user?.activeRole === 'donor';
@@ -95,7 +95,7 @@ const Sidebar = () => {
         
         <Link to="/radar" className={getLinkClasses('/radar', true)}>
           <FaMapMarkerAlt className={`text-lg ${location.pathname === '/radar' ? '' : 'animate-pulse'}`} /> 
-          <span>Crisis Radar</span>
+          <span>Community Map</span>
         </Link>
 
         <Link to="/donations" className={getLinkClasses('/donations')}>
@@ -129,7 +129,7 @@ const Sidebar = () => {
             <div className="overflow-hidden">
               <p className="text-sm font-black text-pine-teal truncate uppercase tracking-tighter">{user?.name}</p>
               <p className={`text-[9px] font-black uppercase tracking-[0.2em] ${themeAccent}`}>
-                LVL {Math.floor((user?.points || 0) / 100)} {user?.rank || 'Operator'}
+                Level {Math.floor((user?.points || 0) / 100)} {user?.rank || 'Member'}
               </p>
             </div>
           </div>
@@ -149,7 +149,7 @@ const Sidebar = () => {
           className="group flex items-center gap-3 w-full px-5 py-4 text-dusty-lavender hover:text-dark-raspberry transition-all rounded-2xl hover:bg-surface font-black uppercase tracking-widest text-[10px]"
         >
           <FaSignOutAlt className="text-lg group-hover:rotate-12 transition-transform" /> 
-          <span>End Session</span>
+          <span>Logout</span>
         </button>
       </div>
 

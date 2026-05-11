@@ -32,9 +32,9 @@ const Donations = () => {
   const typingTimeoutRef = useRef(null);
 
   const isRequest = formData.listingType === "request";
-  const themeAccent = isRequest ? "text-dark-raspberry" : "text-blazing-flame";
-  const themeBg = isRequest ? "bg-dark-raspberry hover:bg-[#850e53]" : "bg-blazing-flame hover:bg-[#e03a12]";
-  const themeFocusBorder = isRequest ? "focus:border-dark-raspberry" : "focus:border-blazing-flame";
+  const themeAccent = isRequest ? "text-dark-raspberry" : "text-pine-teal";
+  const themeBg = isRequest ? "bg-dark-raspberry hover:bg-[#850e53]" : "bg-pine-teal hover:bg-[#1a3630]";
+  const themeFocusBorder = isRequest ? "focus:border-dark-raspberry" : "focus:border-pine-teal";
   const themeContainerBorder = "border-white";
 
   // Removed handleLocationType and handleSelectSuggestion as manual typing is disabled
@@ -87,13 +87,13 @@ const Donations = () => {
       const submitData = new FormData();
       Object.keys(formData).forEach((key) => { if (formData[key]) submitData.append(key, formData[key]); });
       await api.post("/donations", submitData);
-      toast.success(formData.listingType === "donation" ? "Item posted for donation! 🎉" : "Request broadcasted! 🚨");
+      toast.success(formData.listingType === "donation" ? "Offer posted!" : "Request shared!");
       navigate("/dashboard");
     } catch (error) { toast.error(error.response?.data?.message || "Failed to post item."); } finally { setIsSubmitting(false); }
   };
 
   const categories = [
-    { id: "food", label: "Food", icon: <FaHamburger />, inactive: "text-dusty-lavender hover:text-blazing-flame hover:bg-white hover:border-blazing-flame/30", active: "bg-blazing-flame border-blazing-flame text-white shadow-lg shadow-blazing-flame/30" },
+    { id: "food", label: "Food", icon: <FaHamburger />, inactive: "text-dusty-lavender hover:text-pine-teal hover:bg-white hover:border-pine-teal/30", active: "bg-pine-teal border-pine-teal text-white shadow-lg shadow-pine-teal/30" },
     { id: "clothes", label: "Clothes", icon: <FaTshirt />, inactive: "text-dusty-lavender hover:text-dark-raspberry hover:bg-white hover:border-dark-raspberry/30", active: "bg-dark-raspberry border-dark-raspberry text-white shadow-lg shadow-dark-raspberry/30" },
     { id: "book", label: "Book", icon: <FaBook />, inactive: "text-dusty-lavender hover:text-pine-teal hover:bg-white hover:border-pine-teal/30", active: "bg-pine-teal border-pine-teal text-white shadow-lg shadow-pine-teal/30" },
     { id: "general", label: "General", icon: <FaCube />, inactive: "text-dusty-lavender hover:text-dusty-lavender hover:bg-white hover:border-dusty-lavender/50", active: "bg-dusty-lavender border-dusty-lavender text-white shadow-lg shadow-dusty-lavender/30" },
@@ -106,18 +106,18 @@ const Donations = () => {
       <div className="max-w-3xl mx-auto px-4 pb-32 md:pb-24 relative text-pine-teal min-h-screen font-sans">
         <header className="mb-6 md:mb-8 text-center pt-6">
           <div className="w-16 h-16 md:w-20 md:h-20 bg-white/80 border border-white rounded-2xl flex items-center justify-center text-3xl md:text-4xl text-pine-teal mx-auto mb-4 shadow-[0_10px_30px_rgba(41,82,74,0.05)] backdrop-blur-md">
-            {formData.listingType === "donation" ? <FaHandHoldingHeart className="text-blazing-flame" /> : <FaBoxOpen className="text-dark-raspberry" />}
+            {formData.listingType === "donation" ? <FaHandHoldingHeart className="text-pine-teal" /> : <FaBoxOpen className="text-dark-raspberry" />}
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-pine-teal tracking-tight uppercase">
-            CREATE <span className={themeAccent}>LISTING.</span>
+          <h1 className="text-3xl md:text-4xl font-black text-pine-teal tracking-tight">
+            Share <span className={themeAccent}>Support</span>
           </h1>
-          <p className="text-dusty-lavender text-[10px] md:text-sm font-bold mt-2 tracking-widest uppercase md:normal-case">Share details to make a Sahayam impact.</p>
+          <p className="text-dusty-lavender text-[10px] md:text-sm font-bold mt-2 tracking-widest uppercase md:normal-case">Share details to make an impact in your community.</p>
         </header>
 
         <form onSubmit={handleSubmit} className="space-y-6 md:space-y-8">
           <div className="bg-white/50 backdrop-blur-md p-1.5 md:p-2 rounded-2xl border border-dusty-lavender/30 flex shadow-sm">
-            <button type="button" onClick={() => setFormData({ ...formData, listingType: "donation" })} className={`flex-1 py-3 md:py-3.5 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all ${formData.listingType === "donation" ? "bg-blazing-flame text-white shadow-md" : "text-dusty-lavender hover:bg-white hover:text-blazing-flame"}`}>I am Donating</button>
-            <button type="button" onClick={() => setFormData({ ...formData, listingType: "request" })} className={`flex-1 py-3 md:py-3.5 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all ${formData.listingType === "request" ? "bg-dark-raspberry text-white shadow-md" : "text-dusty-lavender hover:bg-white hover:text-dark-raspberry"}`}>I am Requesting</button>
+            <button type="button" onClick={() => setFormData({ ...formData, listingType: "donation" })} className={`flex-1 py-3 md:py-3.5 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all ${formData.listingType === "donation" ? "bg-pine-teal text-white shadow-md" : "text-dusty-lavender hover:bg-white hover:text-pine-teal"}`}>Offering Support</button>
+            <button type="button" onClick={() => setFormData({ ...formData, listingType: "request" })} className={`flex-1 py-3 md:py-3.5 rounded-xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all ${formData.listingType === "request" ? "bg-dark-raspberry text-white shadow-md" : "text-dusty-lavender hover:bg-white hover:text-dark-raspberry"}`}>Requesting Help</button>
           </div>
 
           <div>
@@ -194,7 +194,7 @@ const Donations = () => {
                 <label className="text-[10px] font-black uppercase tracking-widest text-dusty-lavender ml-2 md:ml-4 mb-1.5 block">Location *</label>
                 <div className="flex gap-2">
                   <input required readOnly type="text" placeholder="Use GPS for accurate location..." value={formData.addressText} className={`flex-1 w-full bg-pearl-beige/30 border border-dusty-lavender/40 rounded-2xl px-4 md:px-5 py-3.5 md:py-4 text-pine-teal text-base md:text-sm font-bold placeholder-dusty-lavender/70 outline-none transition-all shadow-inner cursor-not-allowed opacity-80`} />
-                  <button type="button" onClick={handleGetLocation} disabled={isFetchingLocation} className="px-4 md:px-5 bg-white text-blazing-flame border border-dusty-lavender/40 rounded-2xl active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center shrink-0 shadow-sm hover:shadow-md">
+                  <button type="button" onClick={handleGetLocation} disabled={isFetchingLocation} className="px-4 md:px-5 bg-white text-pine-teal border border-dusty-lavender/40 rounded-2xl active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center shrink-0 shadow-sm hover:shadow-md">
                     {isFetchingLocation ? <FaSpinner className="animate-spin text-lg" /> : <FaLocationArrow className="text-lg" />}
                   </button>
                 </div>
@@ -216,8 +216,8 @@ const Donations = () => {
               </div>
             </div>
 
-            <button type="submit" disabled={isSubmitting} className={`w-full mt-4 py-4 md:py-5 rounded-2xl font-black text-white uppercase tracking-[0.1em] md:tracking-[0.2em] text-xs md:text-sm transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 md:gap-3 ${themeBg} ${isRequest ? "shadow-dark-raspberry/30" : "shadow-blazing-flame/30"}`}>
-              {isSubmitting ? <FaSpinner className="animate-spin text-xl" /> : <>{formData.listingType === "donation" ? <FaHandHoldingHeart className="text-lg" /> : <FaBoxOpen className="text-lg" />}{formData.listingType === "donation" ? "Publish Donation" : "Broadcast Request"}</>}
+            <button type="submit" disabled={isSubmitting} className={`w-full mt-4 py-4 md:py-5 rounded-2xl font-black text-white uppercase tracking-[0.1em] md:tracking-[0.2em] text-xs md:text-sm transition-all shadow-lg active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 md:gap-3 ${themeBg} ${isRequest ? "shadow-dark-raspberry/30" : "shadow-pine-teal/30"}`}>
+              {isSubmitting ? <FaSpinner className="animate-spin text-xl" /> : <>{formData.listingType === "donation" ? <FaHandHoldingHeart className="text-lg" /> : <FaBoxOpen className="text-lg" />}{formData.listingType === "donation" ? "Post Offer" : "Post Request"}</>}
             </button>
           </div>
         </form>

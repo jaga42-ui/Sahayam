@@ -93,7 +93,7 @@ const Profile = () => {
 
   const handleMobileLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
     toast.success("Successfully logged out.");
   };
 

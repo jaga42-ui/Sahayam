@@ -111,7 +111,7 @@ const Layout = ({ children }) => {
 
   const handleLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/");
   };
 
   const isDonor = user?.activeRole === "donor";

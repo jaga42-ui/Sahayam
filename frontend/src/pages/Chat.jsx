@@ -49,18 +49,18 @@ const Chat = () => {
   const isDonor = localRole === "donor";
   const roleTheme = {
     primaryGradient: isDonor
-      ? "from-blazing-flame to-[#e03a12]"
+      ? "from-pine-teal to-[#1a3630]"
       : "from-dark-raspberry to-[#850e53]",
     buttonBg: isDonor
-      ? "bg-blazing-flame hover:bg-[#e03a12]"
+      ? "bg-pine-teal hover:bg-[#1a3630]"
       : "bg-dark-raspberry hover:bg-[#850e53]",
-    text: isDonor ? "text-blazing-flame" : "text-dark-raspberry",
-    border: isDonor ? "border-blazing-flame/30" : "border-dark-raspberry/30",
+    text: isDonor ? "text-pine-teal" : "text-dark-raspberry",
+    border: isDonor ? "border-pine-teal/30" : "border-dark-raspberry/30",
     shadow: isDonor
-      ? "shadow-[0_10px_25px_rgba(255,74,28,0.3)]"
+      ? "shadow-[0_10px_25px_rgba(41,82,74,0.3)]"
       : "shadow-[0_10px_25px_rgba(159,17,100,0.3)]",
     avatarBg: isDonor
-      ? "bg-blazing-flame/10 text-blazing-flame"
+      ? "bg-pine-teal/10 text-pine-teal"
       : "bg-dark-raspberry/10 text-dark-raspberry",
   };
 
@@ -136,7 +136,7 @@ const Chat = () => {
 
     socket.on("chat_terminated", (data) => {
       toast.success(
-        data.message || "Transaction verified. Channel closing...",
+        data.message || "Support completed. Closing chat...",
         {
           duration: 4000,
           icon: "✅",
@@ -235,7 +235,7 @@ const Chat = () => {
   };
 
   const handleDeleteMessage = async (msgId) => {
-    if (window.confirm("Purge this transmission from the logs?")) {
+    if (window.confirm("Delete this message?")) {
       setMessages((prev) => prev.filter((msg) => msg._id !== msgId));
       try {
         await api.delete(`/chat/${msgId}`);
@@ -299,7 +299,7 @@ const Chat = () => {
           <div className="flex gap-2">
             <button
               onClick={() => setShowETA(!showETA)}
-              className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${showETA ? "bg-blazing-flame text-white border-blazing-flame shadow-[0_0_15px_rgba(255,74,28,0.4)]" : "bg-surface text-pine-teal border-pine-teal/20 hover:bg-pine-teal hover:text-white"}`}
+              className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${showETA ? "bg-pine-teal text-white border-pine-teal shadow-[0_0_15px_rgba(41,82,74,0.4)]" : "bg-surface text-pine-teal border-pine-teal/20 hover:bg-pine-teal hover:text-white"}`}
             >
               <FaMapMarkerAlt /> {showETA ? "Tracking" : "ETA"}
             </button>
@@ -318,19 +318,19 @@ const Chat = () => {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              className="bg-gradient-to-r from-[#1c0808] to-[#0a0000] border-b border-blazing-flame/30 overflow-hidden relative shrink-0 shadow-inner"
+              className="bg-gradient-to-r from-[#1a3630] to-[#0a0a0a] border-b border-pine-teal/30 overflow-hidden relative shrink-0 shadow-inner"
             >
               <div className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none">
-                <div className="w-[300px] h-[300px] rounded-full border border-blazing-flame/20 animate-ping" style={{ animationDuration: '3s' }} />
+                <div className="w-[300px] h-[300px] rounded-full border border-pine-teal/20 animate-ping" style={{ animationDuration: '3s' }} />
               </div>
               <div className="p-4 flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-blazing-flame/10 border border-blazing-flame/50 flex items-center justify-center text-blazing-flame shadow-[0_0_15px_rgba(255,74,28,0.3)]">
+                  <div className="w-10 h-10 rounded-full bg-pine-teal/10 border border-pine-teal/50 flex items-center justify-center text-pine-teal shadow-[0_0_15px_rgba(41,82,74,0.3)]">
                     <FaMapMarkerAlt className="animate-bounce" />
                   </div>
                   <div>
                     <h3 className="text-white font-black text-sm uppercase tracking-wider">Live ETA Tracking</h3>
-                    <p className="text-blazing-flame text-[10px] font-bold uppercase tracking-[0.2em] animate-pulse">Operator is 2.4 miles away (Est. 8 mins)</p>
+                    <p className="text-pine-teal text-[10px] font-bold uppercase tracking-[0.2em] animate-pulse">Community member is 2.4 miles away (Est. 8 mins)</p>
                   </div>
                 </div>
               </div>
@@ -359,11 +359,10 @@ const Chat = () => {
                 />
               </div>
               <p className="font-black text-xs uppercase tracking-[0.3em] text-pine-teal">
-                Secure Channel Open
+                Chat Started
               </p>
               <p className="text-[10px] text-center max-w-[250px] font-medium text-dusty-lavender leading-relaxed">
-                Messages are end-to-end encrypted and routed directly through
-                the Sahayam grid.
+                Your messages are secure and private.
               </p>
             </div>
           ) : (
@@ -411,9 +410,9 @@ const Chat = () => {
                                   handleDeleteMessage(msg._id);
                                   setDropdownOpen(null);
                                 }}
-                                className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-blazing-flame hover:bg-blazing-flame hover:text-white text-left flex items-center gap-3 border-t border-dusty-lavender/20 transition-colors"
+                                className="px-4 py-3 text-[10px] font-black uppercase tracking-widest text-dark-raspberry hover:bg-dark-raspberry hover:text-white text-left flex items-center gap-3 border-t border-dusty-lavender/20 transition-colors"
                               >
-                                <FaTrash className="text-sm" /> Purge
+                                <FaTrash className="text-sm" /> Delete
                               </button>
                             </div>
                           )}
@@ -479,7 +478,7 @@ const Chat = () => {
               <span
                 className={`${roleTheme.text} text-[10px] font-black uppercase tracking-widest flex items-center gap-2`}
               >
-                <FaEdit /> Modifying Transmission...
+                <FaEdit /> Editing message...
               </span>
               <button
                 onClick={() => {
@@ -582,7 +581,7 @@ const Chat = () => {
                           initial={{ y: 0 }}
                           animate={{ y: 224 }}
                           transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                          className="absolute top-0 left-0 w-full h-1.5 bg-blazing-flame shadow-[0_0_25px_rgba(255,74,28,1)] z-10" 
+                          className="absolute top-0 left-0 w-full h-1.5 bg-pine-teal shadow-[0_0_25px_rgba(41,82,74,1)] z-10" 
                         />
                       )}
                     </>

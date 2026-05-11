@@ -34,7 +34,7 @@ const mySonarIcon = L.divIcon({
 const donorIcon = L.divIcon({
   className: "custom-donor-icon",
   html: `<div class="relative flex items-center justify-center w-10 h-10">
-           <div class="absolute w-4 h-4 bg-blazing-flame rounded-full border-[3px] border-white shadow-lg"></div>
+           <div class="absolute w-4 h-4 bg-dark-raspberry rounded-full border-[3px] border-white shadow-lg"></div>
          </div>`,
   iconSize: [40, 40],
   iconAnchor: [20, 20],
@@ -153,7 +153,7 @@ const BloodRadar = () => {
           <div className="bg-white/60 backdrop-blur-xl border border-dusty-lavender/30 px-5 py-3.5 rounded-2xl flex items-center gap-4 shadow-[0_20px_40px_rgba(41,82,74,0.08)] pointer-events-auto">
             <div className={`w-3 h-3 rounded-full ${loading ? "bg-blazing-flame animate-pulse" : "bg-pine-teal animate-pulse shadow-[0_0_15px_rgba(41,82,74,0.8)]"}`} />
             <div>
-              <p className="text-pine-teal text-xs font-black uppercase tracking-widest leading-none">{donors.length} Nodes Active</p>
+              <p className="text-pine-teal text-xs font-black uppercase tracking-widest leading-none">{donors.length} Community Members Nearby</p>
               <p className="text-dusty-lavender text-[9px] font-bold uppercase tracking-widest mt-1 flex items-center gap-1"><FaMapMarkerAlt /> {myAddressText}</p>
             </div>
           </div>
@@ -173,13 +173,13 @@ const BloodRadar = () => {
           {blastId && (
             <motion.div initial={{ y: -100, x: "-50%", opacity: 0 }} animate={{ y: 90, x: "-50%", opacity: 1 }} exit={{ y: -100, x: "-50%", opacity: 0 }} className="absolute top-0 left-1/2 z-[401] bg-white/95 backdrop-blur-xl border border-blazing-flame/50 p-5 rounded-3xl shadow-[0_20px_50px_rgba(255,74,28,0.2)] flex flex-col sm:flex-row items-center gap-5 w-[90%] max-w-xl pointer-events-auto">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-blazing-flame/10 text-blazing-flame border border-blazing-flame/30 rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-[0_0_15px_rgba(255,74,28,0.2)]"><FaExclamationTriangle className="animate-pulse" /></div>
+                <div className="w-12 h-12 bg-dark-raspberry/10 text-dark-raspberry border border-dark-raspberry/30 rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-[0_0_15px_rgba(159,17,100,0.2)]"><FaExclamationTriangle className="animate-pulse" /></div>
                 <div className="flex-1 text-left">
-                  <h3 className="text-pine-teal font-black tracking-tighter leading-tight text-base uppercase">SOS Broadcast Received</h3>
-                  <p className="text-dusty-lavender text-[10px] uppercase tracking-[0.2em] font-bold mt-1">Immediate response required</p>
+                  <h3 className="text-pine-teal font-black tracking-tighter leading-tight text-base uppercase">Support Request Received</h3>
+                  <p className="text-dusty-lavender text-[10px] uppercase tracking-[0.2em] font-bold mt-1">A neighbor needs help</p>
                 </div>
               </div>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleIAmComing} className="w-full sm:w-auto bg-gradient-to-r from-blazing-flame to-[#e03a12] text-white px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-[0_10px_20px_rgba(255,74,28,0.4)] shrink-0 flex items-center justify-center gap-2"><FaRunning className="text-sm" /> Intercept</motion.button>
+              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleIAmComing} className="w-full sm:w-auto bg-dark-raspberry hover:bg-[#850e53] text-white px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-[0_10px_20px_rgba(159,17,100,0.4)] shrink-0 flex items-center justify-center gap-2"><FaRunning className="text-sm" /> Offer Support</motion.button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -209,12 +209,12 @@ const BloodRadar = () => {
                         <h3 className="font-black truncate text-base leading-tight mb-1">{donor.name}</h3>
                         <p className="text-[9px] text-dusty-lavender uppercase tracking-widest font-bold mb-3">{donor.distance ? `${(donor.distance / 1000).toFixed(1)} km away` : 'Nearby'}</p>
                         
-                        <div className="flex justify-center items-center gap-1.5 mb-4 bg-blazing-flame/10 py-1.5 rounded-lg border border-blazing-flame/20">
-                          <FaHeartbeat className="text-blazing-flame text-xs" />
-                          <span className="text-blazing-flame font-black text-[10px] tracking-widest">{donor.bloodGroup}</span>
+                        <div className="flex justify-center items-center gap-1.5 mb-4 bg-dark-raspberry/10 py-1.5 rounded-lg border border-dark-raspberry/20">
+                          <FaHeartbeat className="text-dark-raspberry text-xs" />
+                          <span className="text-dark-raspberry font-black text-[10px] tracking-widest">{donor.bloodGroup}</span>
                         </div>
                         
-                        <button onClick={() => navigate(`/chat/direct_${donor._id}`, { state: { otherUserId: donor._id, otherUserName: donor.name } })} className="w-full py-3 bg-pine-teal text-white hover:bg-dark-raspberry rounded-xl text-[10px] font-black tracking-[0.2em] uppercase transition-all shadow-md shadow-pine-teal/20 active:scale-95">Establish Comms</button>
+                        <button onClick={() => navigate(`/chat/direct_${donor._id}`, { state: { otherUserId: donor._id, otherUserName: donor.name } })} className="w-full py-3 bg-pine-teal text-white hover:bg-[#1a3630] rounded-xl text-[10px] font-black tracking-[0.2em] uppercase transition-all shadow-md shadow-pine-teal/20 active:scale-95">Message</button>
                       </div>
                     </Popup>
                   </Marker>
@@ -227,11 +227,11 @@ const BloodRadar = () => {
         {/* 👉 THE MASTERPIECE: Floating Neon Blast Button */}
         <div className="absolute bottom-24 md:bottom-10 left-0 right-0 z-[400] flex justify-center pointer-events-none">
           <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowBlastModal(true)} className="group relative flex items-center justify-center pointer-events-auto">
-            <div className="absolute inset-0 bg-blazing-flame rounded-2xl animate-ping opacity-40 blur-sm" />
-            <div className="relative bg-white/90 backdrop-blur-xl border border-blazing-flame/50 text-pine-teal px-8 py-4 md:px-10 md:py-5 rounded-2xl flex items-center gap-3 shadow-[0_15px_30px_rgba(255,74,28,0.2)] transition-all overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blazing-flame/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
-              <FaBullhorn className="text-xl text-blazing-flame animate-pulse" />
-              <span className="text-xs md:text-[11px] font-black uppercase tracking-[0.2em]">Global Override</span>
+            <div className="absolute inset-0 bg-dark-raspberry rounded-2xl animate-ping opacity-40 blur-sm" />
+            <div className="relative bg-white/90 backdrop-blur-xl border border-dark-raspberry/50 text-pine-teal px-8 py-4 md:px-10 md:py-5 rounded-2xl flex items-center gap-3 shadow-[0_15px_30px_rgba(159,17,100,0.2)] transition-all overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-dark-raspberry/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
+              <FaBullhorn className="text-xl text-dark-raspberry animate-pulse" />
+              <span className="text-xs md:text-[11px] font-black uppercase tracking-[0.2em]">Ask for Help</span>
             </div>
           </motion.button>
         </div>
@@ -245,19 +245,19 @@ const BloodRadar = () => {
                 <button type="button" onClick={() => setShowBlastModal(false)} className="hidden sm:block absolute top-6 right-6 text-dusty-lavender hover:text-pine-teal bg-dusty-lavender/10 p-2 rounded-full transition-colors"><FaTimes className="text-sm" /></button>
 
                 <div className="flex justify-between items-center mb-1">
-                  <h2 className="text-2xl sm:text-3xl font-black italic tracking-tighter text-blazing-flame drop-shadow-[0_0_15px_rgba(255,74,28,0.2)]">SOS DIRECTIVE</h2>
-                  <button onClick={() => setShowTriageModal(true)} className="flex items-center gap-2 bg-blazing-flame/10 text-blazing-flame hover:bg-blazing-flame hover:text-white transition-colors px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest">
+                  <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-dark-raspberry drop-shadow-[0_0_15px_rgba(159,17,100,0.2)]">Request Support</h2>
+                  <button onClick={() => setShowTriageModal(true)} className="flex items-center gap-2 bg-dark-raspberry/10 text-dark-raspberry hover:bg-dark-raspberry hover:text-white transition-colors px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest">
                     <FaRobot /> AI Auto-Fill
                   </button>
                 </div>
-                <p className="text-dusty-lavender text-[10px] sm:text-[11px] font-bold uppercase tracking-widest mb-8 border-b border-dusty-lavender/20 pb-4">Ping active nodes within {radius / 1000}km</p>
+                <p className="text-dusty-lavender text-[10px] sm:text-[11px] font-bold uppercase tracking-widest mb-8 border-b border-dusty-lavender/20 pb-4">Notify community members within {radius / 1000}km</p>
 
-                <textarea value={emotionalMessage} onChange={(e) => setEmotionalMessage(e.target.value)} placeholder="Transmit emergency details..." className="w-full h-32 sm:h-40 bg-white/50 border border-dusty-lavender/30 rounded-2xl p-5 text-pine-teal text-sm outline-none focus:border-blazing-flame focus:bg-white transition-all resize-none mb-6 placeholder-dusty-lavender/70" />
+                <textarea value={emotionalMessage} onChange={(e) => setEmotionalMessage(e.target.value)} placeholder="Describe how we can help..." className="w-full h-32 sm:h-40 bg-white/50 border border-dusty-lavender/30 rounded-2xl p-5 text-pine-teal text-sm outline-none focus:border-dark-raspberry focus:bg-white transition-all resize-none mb-6 placeholder-dusty-lavender/70" />
 
                 <div className="flex gap-3 sm:gap-4 pb-4 sm:pb-0">
-                  <button onClick={() => setShowBlastModal(false)} className="flex-1 py-4 bg-transparent border border-dusty-lavender/30 hover:bg-dusty-lavender/10 rounded-2xl text-pine-teal font-black uppercase tracking-widest text-[10px] transition-colors">Abort</button>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleEmergencyBlast} disabled={isBlasting} className="flex-[2] bg-gradient-to-r from-blazing-flame to-[#e03a12] text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-[11px] flex items-center justify-center gap-2 shadow-[0_10px_20px_rgba(255,74,28,0.3)] disabled:opacity-50">
-                    {isBlasting ? <FaSpinner className="animate-spin text-lg" /> : "Transmit Signal"}
+                  <button onClick={() => setShowBlastModal(false)} className="flex-1 py-4 bg-transparent border border-dusty-lavender/30 hover:bg-dusty-lavender/10 rounded-2xl text-pine-teal font-black uppercase tracking-widest text-[10px] transition-colors">Cancel</button>
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleEmergencyBlast} disabled={isBlasting} className="flex-[2] bg-dark-raspberry hover:bg-[#850e53] text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-[11px] flex items-center justify-center gap-2 shadow-[0_10px_20px_rgba(159,17,100,0.3)] disabled:opacity-50">
+                    {isBlasting ? <FaSpinner className="animate-spin text-lg" /> : "Request Help"}
                   </motion.button>
                 </div>
               </motion.div>

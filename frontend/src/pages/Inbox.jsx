@@ -17,11 +17,11 @@ const Inbox = () => {
   const localRole = user?.activeRole || "donor";
   const isDonor = localRole === "donor";
   const roleTheme = {
-    text: isDonor ? "text-blazing-flame" : "text-dark-raspberry",
-    bg: isDonor ? "bg-blazing-flame" : "bg-dark-raspberry",
-    border: isDonor ? "border-blazing-flame/30" : "border-dark-raspberry/30",
-    shadow: isDonor ? "shadow-[0_10px_25px_rgba(255,74,28,0.3)]" : "shadow-[0_10px_25px_rgba(159,17,100,0.3)]",
-    avatarBg: isDonor ? "bg-blazing-flame/10 text-blazing-flame border-blazing-flame/20" : "bg-dark-raspberry/10 text-dark-raspberry border-dark-raspberry/20",
+    text: isDonor ? "text-pine-teal" : "text-dark-raspberry",
+    bg: isDonor ? "bg-pine-teal" : "bg-dark-raspberry",
+    border: isDonor ? "border-pine-teal/30" : "border-dark-raspberry/30",
+    shadow: isDonor ? "shadow-[0_10px_25px_rgba(41,82,74,0.3)]" : "shadow-[0_10px_25px_rgba(159,17,100,0.3)]",
+    avatarBg: isDonor ? "bg-pine-teal/10 text-pine-teal border-pine-teal/20" : "bg-dark-raspberry/10 text-dark-raspberry border-dark-raspberry/20",
   };
 
   useEffect(() => {
@@ -57,7 +57,7 @@ const Inbox = () => {
           </button>
           <div>
             <h1 className="text-2xl md:text-3xl font-black text-pine-teal tracking-tight uppercase leading-none">
-              SECURE <span className={roleTheme.text}>INBOX.</span>
+              YOUR <span className={roleTheme.text}>INBOX</span>
             </h1>
           </div>
         </header>
@@ -67,16 +67,16 @@ const Inbox = () => {
             {loading ? (
               <div className="flex flex-col justify-center items-center h-[60vh] gap-4">
                 <FaSpinner className={`animate-spin text-4xl ${roleTheme.text} opacity-80`} />
-                <p className="text-dusty-lavender text-[10px] font-black uppercase tracking-[0.3em]">Decrypting...</p>
+                <p className="text-dusty-lavender text-[10px] font-black uppercase tracking-[0.3em]">Loading messages...</p>
               </div>
             ) : inboxChats.length === 0 ? (
               <div className="flex flex-col justify-center items-center h-[60vh] text-dusty-lavender px-6 text-center">
                 <div className="w-20 h-20 bg-pearl-beige/50 border border-dusty-lavender/30 rounded-full flex items-center justify-center mb-4 shadow-sm">
                   <FaCommentAlt className="text-3xl opacity-30 text-pine-teal" />
                 </div>
-                <p className="font-black uppercase tracking-[0.2em] text-xs text-pine-teal">No Active Comms</p>
+                <p className="font-black uppercase tracking-[0.2em] text-xs text-pine-teal">No Messages Yet</p>
                 <p className="text-[11px] mt-2 max-w-[250px] font-medium leading-relaxed">
-                  Your secure Sahayam communications will appear here once a signal is approved.
+                  Your messages will appear here when you connect with someone in the community.
                 </p>
               </div>
             ) : (

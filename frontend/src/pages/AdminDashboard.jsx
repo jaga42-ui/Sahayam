@@ -122,7 +122,7 @@ const Admin = () => {
     try {
       await api.patch(`/admin/resolve-report/${id}`, { action });
       toast.success(
-        action === "delete" ? "Hostile post purged." : "Post whitelisted.",
+        action === "delete" ? "Post removed." : "Post approved.",
       );
       setStats((prev) => ({
         ...prev,
@@ -212,7 +212,7 @@ const Admin = () => {
             <FaShieldAlt className="text-4xl md:text-5xl drop-shadow-[0_0_15px_rgba(159,17,100,0.3)]" />
             <div>
               <h1 className="text-2xl md:text-3xl font-black text-pine-teal tracking-tighter drop-shadow-sm uppercase">
-                SAHAYAM <span className="text-dark-raspberry">COMMAND</span>
+                SAHAYAM <span className="text-dark-raspberry">ADMIN</span>
               </h1>
               <p className="text-dusty-lavender text-[10px] uppercase font-black tracking-[0.3em]">
                 System Administrator
@@ -270,7 +270,7 @@ const Admin = () => {
                       icon: <FaExclamationTriangle className="animate-pulse" />,
                     },
                     {
-                      title: "Missions Fulfilled",
+                      title: "Support Fulfilled",
                       value: stats.fulfilledItems,
                       color: "text-[#1a3630]",
                     },
@@ -384,10 +384,10 @@ const Admin = () => {
                   </div>
 
                   <div className="space-y-6">
-                    <div className="bg-white/70 backdrop-blur-lg border border-blazing-flame/30 rounded-[2rem] p-6 shadow-[0_10px_40px_rgba(255,74,28,0.1)] relative overflow-hidden">
-                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blazing-flame to-dark-raspberry" />
-                      <h2 className="text-sm font-black uppercase tracking-widest text-blazing-flame mb-6 flex items-center gap-2">
-                        <FaBullhorn /> Global Override
+                    <div className="bg-white/70 backdrop-blur-lg border border-dark-raspberry/30 rounded-[2rem] p-6 shadow-[0_10px_40px_rgba(159,17,100,0.1)] relative overflow-hidden">
+                      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pine-teal to-dark-raspberry" />
+                      <h2 className="text-sm font-black uppercase tracking-widest text-dark-raspberry mb-6 flex items-center gap-2">
+                        <FaBullhorn /> Global Broadcast
                       </h2>
                       <form onSubmit={handleBroadcast} className="space-y-4">
                         <select
@@ -396,7 +396,7 @@ const Admin = () => {
                           className="w-full bg-pearl-beige/30 border border-dusty-lavender/40 text-pine-teal text-xs font-bold uppercase tracking-wider rounded-xl p-3 outline-none focus:border-blazing-flame focus:bg-white shadow-inner"
                         >
                           <option value="info">Standard Info Update</option>
-                          <option value="critical">CRITICAL EMERGENCY</option>
+                          <option value="critical">Important Update</option>
                         </select>
                         <textarea
                           required
@@ -404,14 +404,14 @@ const Admin = () => {
                           placeholder="Type message to blast to all screens..."
                           value={broadcastMsg}
                           onChange={(e) => setBroadcastMsg(e.target.value)}
-                          className="w-full bg-pearl-beige/30 border border-dusty-lavender/40 rounded-xl p-3 text-sm text-pine-teal resize-none outline-none focus:border-blazing-flame focus:bg-white shadow-inner"
+                          className="w-full bg-pearl-beige/30 border border-dusty-lavender/40 rounded-xl p-3 text-sm text-pine-teal resize-none outline-none focus:border-dark-raspberry focus:bg-white shadow-inner"
                         />
                         <button
                           disabled={isBroadcasting}
-                          className="w-full py-3 bg-blazing-flame hover:bg-[#e03a12] text-white font-black uppercase tracking-widest text-[10px] rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50"
+                          className="w-full py-3 bg-dark-raspberry hover:bg-[#850e53] text-white font-black uppercase tracking-widest text-[10px] rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50"
                         >
                           {isBroadcasting
-                            ? "Transmitting..."
+                            ? "Broadcasting..."
                             : "Initiate Broadcast"}
                         </button>
                       </form>
@@ -713,8 +713,8 @@ const Admin = () => {
                           <td className="px-6 py-4 text-pine-teal/80">
                             {u.email}
                           </td>
-                          <td className="px-6 py-4 font-black text-blazing-flame drop-shadow-sm">
-                            {u.points} XP
+                          <td className="px-6 py-4 font-black text-dark-raspberry drop-shadow-sm">
+                            {u.points} Points
                           </td>
                           <td className="px-6 py-4 text-dusty-lavender">
                             {new Date(u.createdAt).toLocaleDateString()}
@@ -786,8 +786,8 @@ const Admin = () => {
                           <p className="text-[8px] text-dusty-lavender uppercase font-black">
                             Points
                           </p>
-                          <p className="text-blazing-flame font-black text-xs">
-                            {u.points} XP
+                          <p className="text-dark-raspberry font-black text-xs">
+                            {u.points} Points
                           </p>
                         </div>
                         <div className="text-right">
