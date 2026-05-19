@@ -1204,7 +1204,7 @@ const Dashboard = () => {
                 animate={{ y: 0, opacity: 1, scale: 1 }}
                 exit={{ y: "100%", opacity: 0, scale: 0.95 }}
                 transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className="relative w-full max-w-md rounded-[2rem] border border-blazing-flame/50 bg-gradient-to-br from-[#1c0808] to-[#0a0000] p-6 shadow-[0_0_80px_rgba(255,74,28,0.3)] backdrop-blur-2xl sm:p-8 overflow-hidden"
+                className="relative w-full max-w-md max-h-[90vh] rounded-[2rem] border border-blazing-flame/50 bg-gradient-to-br from-[#1c0808] to-[#0a0000] p-6 shadow-[0_0_80px_rgba(255,74,28,0.3)] backdrop-blur-2xl sm:p-8 overflow-y-auto overflow-x-hidden no-scrollbar"
               >
                 {/* Emergency Radar Animation Background */}
                 <div className="absolute inset-0 z-0 flex items-center justify-center opacity-20 pointer-events-none">
