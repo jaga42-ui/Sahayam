@@ -1,34 +1,41 @@
-import { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import AuthContext from '../context/AuthContext';
-import Layout from '../components/Layout';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FaTint, FaExclamationTriangle, FaMapMarkerAlt, FaPhoneAlt, FaSpinner } from 'react-icons/fa';
-import toast from 'react-hot-toast';
+import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import AuthContext from "../context/AuthContext";
+import Layout from "../components/Layout";
+import { motion, AnimatePresence } from "framer-motion";
+import { FaTint, FaExclamationTriangle, FaMapMarkerAlt, FaPhoneAlt, FaSpinner } from "react-icons/fa";
+import toast from "react-hot-toast";
+import api from "../utils/api";
 
-import api from '../utils/api';
+const springIn = { type: "spring", stiffness: 300, damping: 26 };
+
+const containerVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06 } },
+};
+const cardVariants = {
+  hidden: { opacity: 0, y: 20 },
+  show:   { opacity: 1, y: 0, transition: springIn },
+};
 
 const BloodBank = () => {
   const { user } = useContext(AuthContext);
   const [bloodRequests, setBloodRequests] = useState([]);
-  const [activeTab, setActiveTab] = useState('All');
-  const [loading, setLoading] = useState(true);
-  const [locating, setLocating] = useState(false);
+  const [activeTab,     setActiveTab]     = useState("All");
+  const [loading,       setLoading]       = useState(true);
+  const [locating,      setLocating]      = useState(false);
 
-  const bloodGroups = ['All', 'A+', 'A-', 'B+', 'B-', 'O+', 'O-', 'AB+', 'AB-'];
+  const bloodGroups = ["All", "A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
 
   const fetchBloodRequests = async (lat = null, lng = null) => {
     try {
       setLoading(true);
-      let url = '/donations/blood-donors';
+      let url = "/donations/blood-donors";
       if (lat && lng) url += `?lat=${lat}&lng=${lng}`;
-
       const { data } = await api.get(url);
       setBloodRequests(data);
-    } catch (error) {
-      toast.error("Failed to load the blood bank feed", {
-        style: { background: '#ffffff', color: '#ff4a1c', border: '1px solid #ff4a1c' }
-      });
+    } catch {
+      toast.error("Failed to load the blood bank feed");
     } finally {
       setLoading(false);
       setLocating(false);
@@ -39,7 +46,7 @@ const BloodBank = () => {
     if (user) {
       navigator.geolocation.getCurrentPosition(
         (pos) => fetchBloodRequests(pos.coords.latitude, pos.coords.longitude),
-        () => fetchBloodRequests() 
+        () => fetchBloodRequests(),
       );
     }
   }, [user]);
@@ -49,135 +56,188 @@ const BloodBank = () => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         fetchBloodRequests(pos.coords.latitude, pos.coords.longitude);
-        toast.success("Feed updated with nearest requests!", {
-          style: { background: '#ffffff', color: '#29524a', border: '1px solid #846b8a' }
-        });
+        toast.success("Feed updated with nearest requests!");
       },
-      () => {
-        setLocating(false);
-        toast.error("Location access denied.");
-      }
+      () => { setLocating(false); toast.error("Location access denied."); },
     );
   };
 
   const handleRespond = async (id) => {
     if (window.confirm("Commit to this blood request? Your contact info will be shared.")) {
       try {
-        await api.put(`/donations/${id}`, { status: 'accepted' });
+        await api.put(`/donations/${id}`, { status: "accepted" });
         toast.success("Thank you! Please check your Dashboard for contact details.");
-        setBloodRequests(bloodRequests.filter(d => d._id !== id));
+        setBloodRequests(bloodRequests.filter((d) => d._id !== id));
       } catch (error) {
         toast.error(error.response?.data?.message || "Failed to respond to request");
       }
     }
   };
 
-  const filtered = bloodRequests.filter(d => activeTab === 'All' ? true : d.bloodGroup === activeTab);
-
-  if (loading && bloodRequests.length === 0) {
-    return <Layout><div className="p-10 text-blazing-flame font-black animate-pulse italic text-center uppercase tracking-widest mt-20">Scanning Sahayam Network...</div></Layout>;
-  }
+  const filtered = bloodRequests.filter((d) => activeTab === "All" ? true : d.bloodGroup === activeTab);
 
   return (
     <Layout>
-      <main className="max-w-7xl mx-auto px-4 pb-20 text-pine-teal min-h-screen">
-        <header className="mb-10 pt-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <motion.h1 
-              initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-              className="text-5xl md:text-6xl font-black text-pine-teal tracking-tighter italic flex items-center gap-4 uppercase"
-            >
-              <FaTint className="text-blazing-flame drop-shadow-md" /> SAHAYAM<span className="text-blazing-flame">BLOOD.</span>
-            </motion.h1>
-            <p className="text-dusty-lavender font-bold uppercase tracking-[0.3em] text-[10px] mt-2">Emergency Transfusion Network</p>
-          </div>
+      <div className="min-h-screen bg-pearl-beige font-sans pb-32 md:pb-16">
 
-          <button 
-            onClick={handleFindNearMe}
-            disabled={locating}
-            className="bg-white border border-dusty-lavender/30 text-blazing-flame px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-pearl-beige transition flex items-center justify-center gap-2 shadow-sm active:scale-95"
+        {/* ── AURORA HEADER ── */}
+        <div className="aurora-header relative px-4 pt-8 pb-20 overflow-hidden">
+          <div className="dark-dot-grid absolute inset-0 opacity-20" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="relative z-10 text-center"
           >
-            {locating ? <FaSpinner className="animate-spin" /> : <><FaMapMarkerAlt /> Find Near Me</>}
-          </button>
-        </header>
-
-        {/* Blood Group Filters */}
-        <div className="flex gap-4 mb-10 overflow-x-auto pb-4 no-scrollbar">
-          {bloodGroups.map(tab => (
-            <button 
-              key={tab} 
-              onClick={() => setActiveTab(tab)}
-              className={`min-w-[70px] py-3 rounded-2xl font-black transition-all text-sm tracking-wide border ${
-                activeTab === tab 
-                ? 'bg-blazing-flame text-white border-blazing-flame shadow-[0_10px_25px_rgba(255,74,28,0.3)] scale-105' 
-                : 'bg-white/60 text-dusty-lavender hover:bg-white hover:text-pine-teal border-white shadow-sm'
-              }`}
+            <motion.div
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+              className="mb-3"
             >
-              {tab}
-            </button>
-          ))}
+              <FaTint className="text-blazing-flame text-4xl mx-auto drop-shadow-[0_0_20px_rgba(255,74,28,0.8)]" />
+            </motion.div>
+            <h1 className="text-3xl font-black text-white tracking-tight leading-tight">
+              Sahayam<br />
+              <span className="gradient-text-aurora">Blood.</span>
+            </h1>
+            <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mt-2">Emergency Transfusion Network</p>
+          </motion.div>
+
+          {/* Filter chips */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, ...springIn }}
+            className="relative z-10 mt-5 overflow-x-auto no-scrollbar"
+          >
+            <div className="flex gap-2 min-w-max px-1 pb-1">
+              {bloodGroups.map((tab) => (
+                <motion.button
+                  key={tab}
+                  whileTap={{ scale: 0.88 }}
+                  transition={springIn}
+                  onClick={() => setActiveTab(tab)}
+                  className={`relative px-4 py-2 rounded-xl font-black text-xs tracking-widest uppercase transition-all ${
+                    activeTab === tab
+                      ? "bg-blazing-flame text-white shadow-[0_0_20px_rgba(255,74,28,0.5)]"
+                      : "bg-white/10 text-white/60 border border-white/15 hover:bg-white/20 hover:text-white"
+                  }`}
+                >
+                  {activeTab === tab && (
+                    <motion.div
+                      layoutId="bloodGroupBg"
+                      className="absolute inset-0 rounded-xl bg-blazing-flame"
+                      transition={springIn}
+                    />
+                  )}
+                  <span className="relative z-10">{tab}</span>
+                </motion.button>
+              ))}
+            </div>
+          </motion.div>
         </div>
 
-        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <AnimatePresence>
-            {filtered.length > 0 ? (
-              filtered.map(d => (
-                <motion.div 
-                  key={d._id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className={`bg-white/70 backdrop-blur-lg border rounded-[3rem] p-8 relative overflow-hidden flex flex-col transition-all group ${d.isEmergency ? 'border-blazing-flame/50 shadow-[0_10px_30px_rgba(255,74,28,0.15)] ring-1 ring-blazing-flame/30' : 'border-white shadow-[0_20px_40px_rgba(41,82,74,0.08)]'}`}
-                >
-                  {d.isEmergency && (
-                    <div className="absolute top-0 right-0 px-6 py-2 bg-blazing-flame text-white font-black text-[10px] uppercase tracking-widest rounded-bl-[2rem] flex items-center gap-2 animate-pulse shadow-md">
-                      <FaExclamationTriangle /> Urgent
-                    </div>
-                  )}
+        {/* ── CONTENT ── */}
+        <div className="-mt-10 px-4">
+          {/* Near me button */}
+          <div className="flex justify-end mb-4">
+            <motion.button
+              whileTap={{ scale: 0.93 }}
+              transition={springIn}
+              onClick={handleFindNearMe}
+              disabled={locating}
+              className="flex items-center gap-2 bg-surface border border-pine-teal/15 text-pine-teal px-4 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-sm hover:bg-surface-2 transition disabled:opacity-50"
+            >
+              {locating ? <FaSpinner className="animate-spin" /> : <><FaMapMarkerAlt /> Near Me</>}
+            </motion.button>
+          </div>
 
-                  <div className="flex items-center gap-6 mb-6 mt-2">
-                    <div className="w-20 h-20 rounded-3xl bg-blazing-flame/10 border border-blazing-flame/30 flex items-center justify-center text-blazing-flame font-black text-3xl shadow-inner">
-                      {d.bloodGroup}
-                    </div>
-                    <div>
-                      <p className="text-dusty-lavender font-bold uppercase tracking-widest text-[10px] mb-1">Required</p>
-                      <h3 className="text-pine-teal font-black text-2xl leading-tight">{d.quantity}</h3>
-                    </div>
-                  </div>
-
-                  <p className="text-pine-teal/80 font-medium text-sm mb-6 flex-1 line-clamp-3">
-                    {d.description}
-                  </p>
-
-                  <div className="space-y-3 mb-8">
-                    <div className="flex items-start gap-3 text-dusty-lavender text-xs font-medium">
-                      <FaMapMarkerAlt className="mt-1 flex-shrink-0 text-dark-raspberry" />
-                      <span className="leading-snug text-pine-teal font-bold">{d.location?.formattedAddress || 'Location hidden until accepted'}</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-dusty-lavender text-xs font-medium">
-                      <FaPhoneAlt className="text-dark-raspberry" />
-                      <span className="text-pine-teal font-bold">{d.donor?.name || 'Unknown Requestor'}</span>
-                    </div>
-                  </div>
-
-                  <button 
-                    onClick={() => handleRespond(d._id)}
-                    className={`w-full py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all active:scale-95 shadow-md uppercase tracking-widest ${d.isEmergency ? 'bg-blazing-flame text-white hover:bg-[#e03a12] shadow-blazing-flame/30' : 'bg-pine-teal text-white hover:bg-[#1a3630]'}`}
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <FaSpinner className="animate-spin text-3xl text-blazing-flame" />
+            </div>
+          ) : filtered.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+              className="flex flex-col items-center justify-center py-24 text-center"
+            >
+              <FaTint className="text-4xl text-dusty-lavender/30 mb-4" />
+              <p className="text-lg font-black text-pine-teal">No matching requests</p>
+              <p className="text-sm text-dusty-lavender/60 mt-2">Try a different blood group filter.</p>
+            </motion.div>
+          ) : (
+            <motion.div
+              variants={containerVariants} initial="hidden" animate="show"
+              className="space-y-3"
+            >
+              <AnimatePresence>
+                {filtered.map((d) => (
+                  <motion.div
+                    key={d._id}
+                    variants={cardVariants}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className={`bg-surface rounded-3xl border p-5 relative overflow-hidden shadow-sm ${
+                      d.isEmergency
+                        ? "border-blazing-flame/30 shadow-[0_0_20px_rgba(255,74,28,0.12)]"
+                        : "border-pine-teal/8"
+                    }`}
                   >
-                    <FaTint /> RESPOND NOW
-                  </button>
-                </motion.div>
-              ))
-            ) : (
-              <div className="col-span-full py-24 bg-white/50 backdrop-blur-md rounded-[3rem] border border-dashed border-dusty-lavender/40 text-center flex flex-col items-center justify-center">
-                <FaTint className="text-dusty-lavender/30 text-6xl mb-4" />
-                <p className="text-dusty-lavender font-bold text-lg uppercase tracking-widest">No matching requests found.</p>
-              </div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      </main>
+                    {d.isEmergency && (
+                      <div className="absolute top-0 right-0 px-4 py-1.5 bg-blazing-flame text-white font-black text-[9px] uppercase tracking-widest rounded-bl-2xl flex items-center gap-1.5">
+                        <FaExclamationTriangle className="animate-pulse" /> Urgent
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-4 mb-4">
+                      <motion.div
+                        initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={springIn}
+                        className="w-16 h-16 rounded-2xl bg-blazing-flame/10 border border-blazing-flame/25 flex items-center justify-center text-blazing-flame font-black text-2xl shadow-inner shrink-0"
+                      >
+                        {d.bloodGroup}
+                      </motion.div>
+                      <div>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-dusty-lavender mb-0.5">Required</p>
+                        <h3 className="text-pine-teal font-black text-xl leading-tight">{d.quantity}</h3>
+                      </div>
+                    </div>
+
+                    <p className="text-pine-teal/70 font-medium text-sm mb-4 line-clamp-2 leading-relaxed">
+                      {d.description}
+                    </p>
+
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-start gap-2 text-dusty-lavender text-xs">
+                        <FaMapMarkerAlt className="mt-0.5 shrink-0 text-dark-raspberry" />
+                        <span className="text-pine-teal font-bold leading-snug">
+                          {d.location?.formattedAddress || "Location hidden until accepted"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-dusty-lavender text-xs">
+                        <FaPhoneAlt className="shrink-0 text-dark-raspberry" />
+                        <span className="text-pine-teal font-bold">{d.donor?.name || "Unknown Requestor"}</span>
+                      </div>
+                    </div>
+
+                    <motion.button
+                      whileTap={{ scale: 0.96 }}
+                      transition={springIn}
+                      onClick={() => handleRespond(d._id)}
+                      className={`w-full py-3.5 rounded-2xl font-black text-sm flex items-center justify-center gap-2 transition-all uppercase tracking-widest text-white ${
+                        d.isEmergency
+                          ? "bg-blazing-flame shadow-[0_8px_20px_rgba(255,74,28,0.35)]"
+                          : "bg-pine-teal shadow-[0_8px_20px_rgba(41,82,74,0.25)]"
+                      }`}
+                    >
+                      <FaTint /> Respond Now
+                    </motion.button>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          )}
+        </div>
+      </div>
     </Layout>
   );
 };

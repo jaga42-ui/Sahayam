@@ -266,12 +266,12 @@ const Chat = () => {
 
   return (
     <Layout>
-      <main className="w-full h-[calc(100dvh-80px)] md:h-[85vh] md:max-w-4xl md:mx-auto md:my-4 flex flex-col bg-pearl-beige md:border md:border-surface md:rounded-[2.5rem] overflow-hidden md:shadow-[0_20px_40px_rgba(41,82,74,0.08)] relative font-sans">
-        <header className="bg-surface/80 backdrop-blur-md p-3 md:p-5 flex items-center justify-between z-20 shadow-sm border-b border-surface shrink-0">
+      <main className="w-full h-[calc(100dvh-80px)] md:h-[85vh] md:max-w-4xl md:mx-auto md:my-4 flex flex-col bg-pearl-beige md:border md:border-pine-teal/10 md:rounded-[2.5rem] overflow-hidden md:shadow-[0_20px_60px_rgba(8,20,16,0.18)] relative font-sans">
+        <header className="bg-[#081410]/90 backdrop-blur-md p-3 md:p-5 flex items-center justify-between z-20 border-b border-white/8 shrink-0 shadow-[0_4px_20px_rgba(8,20,16,0.3)]">
           <div className="flex items-center gap-3 md:gap-5">
             <button
               onClick={() => navigate("/chat/inbox")}
-              className="text-dusty-lavender hover:text-pine-teal transition-colors p-2.5 active:scale-90 bg-surface hover:bg-pearl-beige border border-dusty-lavender/30 rounded-full shadow-sm"
+              className="text-white/60 hover:text-white transition-colors p-2.5 active:scale-90 bg-white/8 hover:bg-white/15 border border-white/15 rounded-full"
             >
               <FaArrowLeft className="text-sm md:text-base" />
             </button>
@@ -279,18 +279,14 @@ const Chat = () => {
               className="flex items-center gap-3 cursor-pointer group"
               onClick={() => navigate(`/profile/${otherUserId}`)}
             >
-              <div
-                className={`w-11 h-11 md:w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg md:text-xl uppercase shadow-sm border ${roleTheme.border} ${roleTheme.avatarBg} group-hover:scale-105 transition-transform`}
-              >
+              <div className="w-11 h-11 rounded-2xl flex items-center justify-center font-black text-lg uppercase border border-white/15 bg-white/10 text-white group-hover:scale-105 transition-transform">
                 {otherUserName.charAt(0)}
               </div>
               <div className="flex flex-col">
-                <h2 className="text-[15px] md:text-[17px] font-black text-pine-teal leading-tight truncate max-w-[150px] sm:max-w-xs flex items-center gap-2">
+                <h2 className="text-[15px] md:text-[17px] font-black text-white leading-tight truncate max-w-[150px] sm:max-w-xs">
                   {otherUserName}
                 </h2>
-                <p
-                  className={`text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 mt-0.5 ${roleTheme.text} truncate max-w-[150px] sm:max-w-xs opacity-80`}
-                >
+                <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 mt-0.5 text-white/50 truncate max-w-[150px] sm:max-w-xs">
                   <FaShieldAlt className="text-[8px]" /> {itemTitle}
                 </p>
               </div>
@@ -299,7 +295,7 @@ const Chat = () => {
           <div className="flex gap-2">
             <button
               onClick={() => setShowETA(!showETA)}
-              className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${showETA ? "bg-pine-teal text-white border-pine-teal shadow-[0_0_15px_rgba(41,82,74,0.4)]" : "bg-surface text-pine-teal border-pine-teal/20 hover:bg-pine-teal hover:text-white"}`}
+              className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${showETA ? "bg-pine-teal text-white border-pine-teal shadow-[0_0_15px_rgba(41,82,74,0.6)]" : "bg-white/8 text-white/70 border-white/15 hover:bg-pine-teal hover:text-white hover:border-pine-teal"}`}
             >
               <FaMapMarkerAlt /> {showETA ? "Tracking" : "ETA"}
             </button>

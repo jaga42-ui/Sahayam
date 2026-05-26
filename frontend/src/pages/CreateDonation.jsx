@@ -131,24 +131,50 @@ const CreateDonation = () => {
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto px-4 pb-32 min-h-screen text-pine-teal">
-        <header className="mb-8 pt-4 text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <h1 className="text-3xl md:text-5xl font-black text-pine-teal tracking-tight uppercase transition-colors duration-500">
-              {isRequest ? "Request An " : "List An "} <span className={themeAccent}>Item.</span>
-            </h1>
-            <p className="text-dusty-lavender font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-[9px] md:text-[10px] mt-2">
-              {isRequest ? "Ask the Sahayam community for help" : "Provide details to help the community"}
-            </p>
-          </div>
-          <div className="flex bg-white/50 backdrop-blur-md border border-dusty-lavender/30 rounded-full p-1 shadow-sm relative overflow-hidden w-full md:w-auto">
-            <div className={`absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full transition-all duration-300 ease-out ${themeBg}`} style={{ left: !isRequest ? "4px" : "calc(50%)" }}></div>
-            <button type="button" onClick={() => setFormData({ ...formData, listingType: "donation" })} className={`relative z-10 flex-1 px-2 sm:px-6 py-3.5 md:py-3 font-black text-[9px] sm:text-xs uppercase tracking-widest transition-colors ${!isRequest ? "text-white" : "text-dusty-lavender hover:text-blazing-flame"}`}>I Want To Donate</button>
-            <button type="button" onClick={() => setFormData({ ...formData, listingType: "request" })} className={`relative z-10 flex-1 px-2 sm:px-6 py-3.5 md:py-3 font-black text-[9px] sm:text-xs uppercase tracking-widest transition-colors ${isRequest ? "text-white" : "text-dusty-lavender hover:text-dark-raspberry"}`}>I Need An Item</button>
-          </div>
-        </header>
+      <div className="min-h-screen bg-pearl-beige font-sans pb-32 md:pb-16">
 
-        <form onSubmit={handleSubmit} className={`bg-white/70 backdrop-blur-lg border rounded-3xl md:rounded-[2.5rem] p-5 md:p-10 shadow-[0_20px_40px_rgba(41,82,74,0.08)] space-y-8 transition-colors duration-500 border-white`}>
+        {/* ── AURORA HEADER ── */}
+        <div className="aurora-header relative px-4 pt-8 pb-20 overflow-hidden">
+          <div className="dark-dot-grid absolute inset-0 opacity-20" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="relative z-10 text-center"
+          >
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 mb-4">
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/70">
+                {isRequest ? "Request Help" : "Share Support"}
+              </span>
+            </div>
+            <h1 className="text-3xl font-black text-white tracking-tight leading-tight">
+              {isRequest ? "Request" : "List"} an<br />
+              <span className="gradient-text-aurora">Item.</span>
+            </h1>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 300, damping: 26 }}
+            className="relative z-10 mt-5 flex bg-white/10 p-1 rounded-2xl border border-white/15 max-w-xs mx-auto"
+          >
+            <button type="button" onClick={() => setFormData({ ...formData, listingType: "donation" })}
+              className={`flex-1 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${!isRequest ? "bg-white text-blazing-flame shadow-md" : "text-white/60 hover:text-white"}`}
+            >I Want To Donate</button>
+            <button type="button" onClick={() => setFormData({ ...formData, listingType: "request" })}
+              className={`flex-1 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest transition-all ${isRequest ? "bg-white text-dark-raspberry shadow-md" : "text-white/60 hover:text-white"}`}
+            >I Need An Item</button>
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, type: "spring", stiffness: 300, damping: 26 }}
+          className="-mt-10 px-4"
+        >
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-5 md:space-y-6">
             <h3 className="text-pine-teal text-sm md:text-base font-bold flex items-center gap-2 border-b border-dusty-lavender/20 pb-3">
               <FaInfoCircle className={themeAccent} /> Basic Information
@@ -264,6 +290,7 @@ const CreateDonation = () => {
             {isSubmitting ? <FaSpinner className="animate-spin text-xl" /> : isRequest ? <><FaSearch className="text-lg" /> Broadcast Request</> : <><FaHandHoldingHeart className="text-lg" /> Publish Donation</>}
           </button>
         </form>
+        </motion.div>
       </div>
 
       {/* 👉 THE MASTERPIECE: Viral Growth Loop Share Modal */}

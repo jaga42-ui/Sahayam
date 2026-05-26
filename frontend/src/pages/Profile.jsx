@@ -1,364 +1,363 @@
-// Developed by guruprasad and team
-import { useState, useEffect, useContext } from 'react';
-import axios from 'axios'; 
-import AuthContext from '../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  FaUser, FaEnvelope, FaMapMarkerAlt, FaTint, FaBoxOpen, 
-  FaAward, FaHistory, FaEdit, FaSave, FaTimes, FaPhone, 
-  FaLocationArrow, FaSpinner, FaStar, FaShieldAlt, FaSignOutAlt 
-} from 'react-icons/fa';
-import toast from 'react-hot-toast';
+import { useState, useEffect, useContext } from "react";
+import axios from "axios";
+import AuthContext from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import Layout from "../components/Layout";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  FaUser, FaEnvelope, FaMapMarkerAlt, FaTint, FaBoxOpen,
+  FaAward, FaHistory, FaEdit, FaSave, FaTimes, FaPhone,
+  FaLocationArrow, FaSpinner, FaStar, FaShieldAlt, FaSignOutAlt,
+  FaShareAlt, FaCheckCircle,
+} from "react-icons/fa";
+import toast from "react-hot-toast";
+import api from "../utils/api";
 
-import api from '../utils/api';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
+  ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
+  : "https://hopelink-api.onrender.com";
+
+const springIn = { type: "spring", stiffness: 300, damping: 26 };
+
+const StatChip = ({ icon: Icon, label, value, color, delay = 0 }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 16 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ ...springIn, delay }}
+    className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/8 px-4 py-3 shrink-0"
+  >
+    <div className={`h-9 w-9 flex items-center justify-center rounded-xl bg-white/10`}>
+      <Icon className={`text-sm ${color}`} />
+    </div>
+    <div>
+      <p className={`text-xl font-black leading-none ${color}`}>{value}</p>
+      <p className="text-[10px] font-bold text-white/40 mt-0.5 uppercase tracking-wider">{label}</p>
+    </div>
+  </motion.div>
+);
 
 const Profile = () => {
   const { user, login, logout } = useContext(AuthContext);
   const navigate = useNavigate();
-  const [stats, setStats] = useState({ totalDonations: 0, activeListings: 0, bloodDonations: 0 });
-  const [loading, setLoading] = useState(true);
-  const [generatedStory, setGeneratedStory] = useState("");
-  
-  const [isEditing, setIsEditing] = useState(false);
-  const [isFetchingLocation, setIsFetchingLocation] = useState(false);
-  const [formData, setFormData] = useState({
-    name: user?.name || '', bloodGroup: user?.bloodGroup || '', phone: user?.phone || '', addressText: user?.addressText || ''
+
+  const [stats,             setStats]             = useState({ totalDonations: 0, activeListings: 0, bloodDonations: 0 });
+  const [loading,           setLoading]           = useState(true);
+  const [generatedStory,    setGeneratedStory]    = useState("");
+  const [isEditing,         setIsEditing]         = useState(false);
+  const [isFetchingLocation, setFetchingLocation] = useState(false);
+  const [formData,          setFormData]          = useState({
+    name: user?.name || "", bloodGroup: user?.bloodGroup || "",
+    phone: user?.phone || "", addressText: user?.addressText || "",
   });
 
-  const themeAccent = 'text-dark-raspberry';
-  const themeBg = 'bg-dark-raspberry hover:bg-[#850e53]';
-  const themeFocusBorder = 'focus:border-dark-raspberry';
-  const themeGradient = 'from-dark-raspberry to-pine-teal';
-
   useEffect(() => {
-    const fetchImpactStats = async () => {
+    setFormData({
+      name: user?.name || "", bloodGroup: user?.bloodGroup || "",
+      phone: user?.phone || "", addressText: user?.addressText || "",
+    });
+    const fetchStats = async () => {
       if (!user?.token) return;
       try {
-        const { data } = await api.get('/donations/my-history');
-        const active = data.filter(d => d.status === 'available' || d.status === 'pending').length;
-        const blood = data.filter(d => d.category === 'blood').length;
+        const { data } = await api.get("/donations/my-history");
+        const active = data.filter((d) => d.status === "available" || d.status === "pending").length;
+        const blood  = data.filter((d) => d.category === "blood").length;
         setStats({ totalDonations: data.length, activeListings: active, bloodDonations: blood });
-        setLoading(false);
-      } catch (error) { setLoading(false); }
+      } catch { /* silently */ }
+      finally { setLoading(false); }
     };
-
-    setFormData({
-      name: user?.name || '', bloodGroup: user?.bloodGroup || '', phone: user?.phone || '', addressText: user?.addressText || ''
-    });
-
-    fetchImpactStats();
+    fetchStats();
   }, [user]);
 
-  // 👉 MAPBOX REVERSE GEOCODING (GPS)
   const handleGetLocation = async () => {
-    if (!navigator.geolocation) return toast.error('Geolocation not supported');
-    setIsFetchingLocation(true);
-    const toastId = toast.loading("Locking onto GPS via Mapbox...");
-
+    if (!navigator.geolocation) return toast.error("Geolocation not supported");
+    setFetchingLocation(true);
+    const tid = toast.loading("Locking GPS…");
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
+      async ({ coords: { latitude, longitude } }) => {
         try {
-          const { latitude, longitude } = position.coords;
           const apiKey = import.meta.env.VITE_MAPBOX_TOKEN;
           if (!apiKey) throw new Error("Mapbox Token Missing");
-
-          const { data } = await axios.get(`https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${apiKey}`);
-          
-          if (data && data.features && data.features.length > 0) {
-            const cityString = data.features[0].place_name.split(",")[0];
-            setFormData({ ...formData, addressText: cityString });
-            toast.success(`Location locked: ${cityString}`, { id: toastId });
-          } else { throw new Error("Location unresolvable"); }
-        } catch (error) { toast.error("Could not resolve location via Mapbox", { id: toastId }); } 
-        finally { setIsFetchingLocation(false); }
+          const { data } = await axios.get(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?access_token=${apiKey}`,
+          );
+          if (data?.features?.length) {
+            const city = data.features[0].place_name.split(",")[0];
+            setFormData((p) => ({ ...p, addressText: city }));
+            toast.success(`Location: ${city}`, { id: tid });
+          }
+        } catch { toast.error("Could not resolve location", { id: tid }); }
+        finally { setFetchingLocation(false); }
       },
-      () => {
-        setIsFetchingLocation(false);
-        toast.error('Please allow location permissions', { id: toastId });
-      }
+      () => { setFetchingLocation(false); toast.error("Location denied", { id: tid }); },
     );
   };
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await api.put('/auth/profile', formData);
-      login(data); 
+      const { data } = await api.put("/auth/profile", formData);
+      login(data);
       setIsEditing(false);
-      toast.success("Identity updated successfully.");
-    } catch (error) { toast.error(error.response?.data?.message || "Failed to update profile"); }
-  };
-
-  const handleMobileLogout = () => {
-    logout();
-    navigate('/');
-    toast.success("Successfully logged out.");
+      toast.success("Profile updated.");
+    } catch (err) { toast.error(err.response?.data?.message || "Update failed"); }
   };
 
   if (!user) return null;
 
+  const inputCls = "w-full rounded-xl border border-white/10 bg-white/6 px-4 py-3.5 text-sm font-medium text-white placeholder-white/30 outline-none focus:border-blazing-flame/60 focus:ring-2 focus:ring-blazing-flame/10 transition-all";
+
+  const statData = [
+    { icon: FaBoxOpen,     label: "Posts",   value: loading ? "—" : (user.donationsCount || stats.totalDonations), color: "text-blazing-flame" },
+    { icon: FaHistory,     label: "Active",  value: loading ? "—" : stats.activeListings,                          color: "text-pine-teal" },
+    { icon: FaTint,        label: "Blood",   value: loading ? "—" : stats.bloodDonations,                          color: "text-dark-raspberry" },
+    { icon: FaStar,        label: "Points",  value: user.points || 0,                                              color: "text-yellow-400" },
+  ];
+
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto px-4 pb-32 md:pb-24 text-pine-teal min-h-screen"> 
-        
-        <header className="mb-8 md:mb-12 border-b border-dusty-lavender/30 pt-6 pb-6 md:pb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <motion.h1 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="text-4xl md:text-6xl font-black text-pine-teal tracking-tight">
-              Your <span className={themeAccent}>Profile</span>
-            </motion.h1>
-            <p className="text-dusty-lavender font-bold uppercase tracking-[0.2em] md:tracking-[0.3em] text-[9px] md:text-[10px] mt-1 md:mt-2">Account details and settings</p>
-          </div>
-          
-          {!isEditing && (
-            <button onClick={() => setIsEditing(true)} className="w-full md:w-auto px-6 py-4 md:py-3 rounded-2xl md:rounded-full font-black text-[10px] md:text-xs uppercase tracking-widest bg-surface border border-dusty-lavender/30 text-dusty-lavender hover:text-pine-teal hover:shadow-md active:scale-95 transition-all flex items-center justify-center gap-2">
-              <FaEdit /> Edit Profile
-            </button>
-          )}
-        </header>
+      <div className="min-h-screen bg-pearl-beige font-sans pb-32 md:pb-16">
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 md:gap-8">
-          
-          <div className="lg:col-span-4 space-y-6 md:space-y-8">
-            <div className="bg-surface/70 backdrop-blur-lg border border-surface rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden transition-all duration-500 shadow-[0_20px_40px_rgba(41,82,74,0.08)] group hover:shadow-[0_24px_50px_rgba(41,82,74,0.12)]">
-              <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/70 to-transparent dashboard-card-sheen pointer-events-none" />
-              
-              <div className="flex flex-col items-center text-center relative z-10">
-                <div className="relative mb-5 md:mb-6 group">
-                  {user.profilePic ? (
-                    <img src={user.profilePic} alt="Profile" referrerPolicy="no-referrer" className="w-28 h-28 md:w-36 md:h-36 rounded-full object-cover shadow-lg border-4 border-surface relative z-10" />
-                  ) : (
-                    <div className={`w-28 h-28 md:w-36 md:h-36 rounded-full flex items-center justify-center text-white font-black text-5xl md:text-6xl shadow-lg border-4 border-surface relative z-10 bg-gradient-to-tr ${themeGradient}`}>
-                      {user.name.charAt(0)}
-                    </div>
-                  )}
-                  <div className="absolute -bottom-1 -right-1 md:-bottom-2 md:-right-2 bg-dark-raspberry text-white p-2 md:p-2.5 rounded-full shadow-lg border-4 border-surface z-20" title={user.rank || 'Member'}>
-                    <FaShieldAlt className="text-xs md:text-sm" />
-                  </div>
-                </div>
-                
-                {!isEditing && (
-                  <>
-                    <h2 className="text-2xl md:text-3xl font-black text-pine-teal tracking-tight leading-tight">{user.name}</h2>
-                    <p className={`text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-1 md:mt-2 ${themeAccent}`}>
-                      {user.rank || (user.isAdmin ? <span className="text-dark-raspberry">System Admin</span> : 'Community Member')}
-                    </p>
+        {/* ── AURORA COVER HEADER ── */}
+        <div className="aurora-header relative px-4 pt-8 pb-20">
+          <div className="dark-dot-grid absolute inset-0 opacity-20" />
 
-                    <div className="mt-5 md:mt-6 flex items-center justify-center gap-4 bg-surface px-5 py-3 rounded-xl md:rounded-2xl border border-dusty-lavender/20 w-full shadow-sm">
-                      <div className="flex items-center gap-3">
-                        <FaStar className="text-dark-raspberry text-lg md:text-xl" />
-                        {user.totalRatings > 0 ? (
-                          <div className="flex flex-col items-start leading-none">
-                            <span className="text-pine-teal font-black text-lg md:text-xl">{user.rating?.toFixed(1)}</span>
-                            <span className="text-dusty-lavender text-[8px] md:text-[9px] uppercase font-bold tracking-widest mt-0.5">{user.totalRatings} Endorsements</span>
-                          </div>
-                        ) : (
-                          <span className="text-dusty-lavender font-black text-[10px] md:text-xs tracking-widest uppercase ml-1">Unranked</span>
-                        )}
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              <AnimatePresence mode="wait">
-                {!isEditing ? (
-                  <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-6 md:mt-8 space-y-2 md:space-y-3 relative z-10">
-                    <div className="flex items-center gap-4 text-pine-teal bg-surface/50 border border-surface p-3.5 md:p-4 rounded-xl md:rounded-2xl shadow-sm">
-                      <FaEnvelope className={`${themeAccent} shrink-0`} /> <span className="text-xs md:text-sm font-bold truncate">{user.email}</span>
-                    </div>
-                    <div className="flex items-center gap-4 text-pine-teal bg-surface/50 border border-surface p-3.5 md:p-4 rounded-xl md:rounded-2xl shadow-sm">
-                      <FaPhone className={`${themeAccent} shrink-0`} /> <span className="text-xs md:text-sm font-bold truncate">{user.phone || 'Phone Classified'}</span>
-                    </div>
-                    <div className="flex items-center gap-4 text-pine-teal bg-surface/50 border border-surface p-3.5 md:p-4 rounded-xl md:rounded-2xl shadow-sm">
-                      <FaTint className="text-blazing-flame shrink-0" /> <span className="text-xs md:text-sm font-bold truncate">Type: {user.bloodGroup || 'Unknown'}</span>
-                    </div>
-                    <div className="flex items-center gap-4 text-pine-teal bg-surface/50 border border-surface p-3.5 md:p-4 rounded-xl md:rounded-2xl shadow-sm">
-                      <FaMapMarkerAlt className={`${themeAccent} shrink-0`} /> <span className="text-xs md:text-sm font-bold truncate">{user.addressText || 'Sector Unknown'}</span>
-                    </div>
-                  </motion.div>
-                ) : (
-                  <motion.form key="edit" onSubmit={handleUpdateProfile} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-5 md:mt-6 space-y-4 relative z-10">
-                    <div>
-                      <label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-dusty-lavender ml-2 md:ml-4 mb-1.5 block">Full Name</label>
-                      <input value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className={`w-full bg-pearl-beige/30 border border-dusty-lavender/40 rounded-xl md:rounded-2xl px-4 py-3.5 text-pine-teal text-base md:text-sm outline-none transition-all shadow-inner bg-surface focus:bg-surface ${themeFocusBorder}`} required />
-                    </div>
-
-                    <div>
-                      <label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-dusty-lavender ml-2 md:ml-4 mb-1.5 block">Secure Phone</label>
-                      <input value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} placeholder="+91 XXXXXXXXXX" className={`w-full bg-pearl-beige/30 border border-dusty-lavender/40 rounded-xl md:rounded-2xl px-4 py-3.5 text-pine-teal text-base md:text-sm outline-none transition-all shadow-inner placeholder-dusty-lavender/70 focus:bg-surface ${themeFocusBorder}`} />
-                    </div>
-
-                    <div>
-                      <label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-dusty-lavender ml-2 md:ml-4 mb-1.5 block">Blood Type</label>
-                      <select value={formData.bloodGroup} onChange={(e) => setFormData({...formData, bloodGroup: e.target.value})} className={`w-full bg-pearl-beige/30 border border-dusty-lavender/40 rounded-xl md:rounded-2xl px-4 py-3.5 text-pine-teal text-base md:text-sm outline-none appearance-none transition-all shadow-inner cursor-pointer focus:bg-surface ${themeFocusBorder}`}>
-                        <option value="" className="text-dusty-lavender">Select Blood Group</option>
-                        {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map(bg => <option key={bg} value={bg}>{bg}</option>)}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-dusty-lavender ml-2 md:ml-4 mb-1.5 block">Sector / Base</label>
-                      <div className="flex gap-2">
-                        <input value={formData.addressText} onChange={(e) => setFormData({...formData, addressText: e.target.value})} placeholder="e.g. Bhubaneswar" className={`flex-1 w-full bg-pearl-beige/30 border border-dusty-lavender/40 rounded-xl md:rounded-2xl px-4 py-3.5 text-pine-teal text-base md:text-sm outline-none transition-all shadow-inner placeholder-dusty-lavender/70 focus:bg-surface ${themeFocusBorder}`} />
-                        <button 
-                          type="button" onClick={handleGetLocation} disabled={isFetchingLocation}
-                          className="px-4 bg-surface text-blazing-flame border border-dusty-lavender/40 rounded-xl md:rounded-2xl active:scale-95 transition-all disabled:opacity-50 flex items-center justify-center shrink-0 shadow-sm hover:shadow-md"
-                        >
-                          {isFetchingLocation ? <FaSpinner className="animate-spin text-lg" /> : <FaLocationArrow className="text-lg" />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2 md:gap-3 mt-6 md:mt-8 pt-4 border-t border-dusty-lavender/20">
-                      <button type="button" onClick={() => setIsEditing(false)} className="w-12 md:w-14 shrink-0 py-4 rounded-xl md:rounded-2xl font-black text-xs uppercase bg-surface hover:bg-pearl-beige text-dusty-lavender hover:text-dark-raspberry active:scale-95 transition-all flex items-center justify-center shadow-sm border border-dusty-lavender/30">
-                        <FaTimes className="text-lg" />
-                      </button>
-                      <button type="submit" className={`flex-1 py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all text-white shadow-md active:scale-95 border border-transparent ${themeBg}`}>
-                        <FaSave className="text-lg" /> Save Changes
-                      </button>
-                    </div>
-                  </motion.form>
-                )}
-              </AnimatePresence>
+          {/* Top row */}
+          <div className="relative z-10 flex items-center justify-between mb-6">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white/40">Your Profile</p>
+              <h1 className="text-2xl font-black text-white tracking-tight mt-0.5">{user.name?.split(" ")[0]}</h1>
+            </div>
+            <div className="flex items-center gap-2">
+              {!isEditing && (
+                <motion.button whileTap={{ scale: 0.88 }} onClick={() => setIsEditing(true)}
+                  className="flex items-center gap-1.5 rounded-2xl border border-white/15 bg-white/10 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white">
+                  <FaEdit className="text-xs" /> Edit
+                </motion.button>
+              )}
+              <motion.button whileTap={{ scale: 0.88 }} onClick={() => { logout(); navigate("/"); }}
+                className="md:hidden h-10 w-10 flex items-center justify-center rounded-2xl border border-white/10 bg-white/8 text-white/50">
+                <FaSignOutAlt className="text-sm" />
+              </motion.button>
             </div>
           </div>
 
-          <div className="lg:col-span-8 space-y-5 md:space-y-6">
-            
-            <div className="bg-surface/70 backdrop-blur-lg border border-surface rounded-[2rem] md:rounded-[2.5rem] p-6 md:p-10 relative overflow-hidden group shadow-[0_20px_40px_rgba(41,82,74,0.08)]">
-              <div className="absolute -right-8 -bottom-8 md:-right-10 md:-bottom-10 text-8xl md:text-9xl text-dark-raspberry/5 pointer-events-none">
-                <FaAward />
-              </div>
-              <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-5 md:gap-6">
-                <div>
-                  <p className="text-dark-raspberry text-[10px] md:text-xs font-black uppercase tracking-[0.2em] md:tracking-[0.3em] mb-1 md:mb-2 flex items-center gap-2">
-                    <FaStar /> Community Standing
-                  </p>
-                  <h3 className="text-5xl sm:text-6xl md:text-8xl font-black text-pine-teal tracking-tighter">{user.points || 0}</h3>
-                  <p className="text-dusty-lavender font-bold uppercase tracking-widest text-[9px] md:text-[10px] mt-1 md:mt-2">Total Contributions</p>
+          {/* Avatar */}
+          <div className="relative z-10 flex flex-col items-center text-center">
+            <div className="relative mb-3">
+              {user.profilePic ? (
+                <img src={user.profilePic} alt="Profile" referrerPolicy="no-referrer"
+                  className="w-24 h-24 rounded-3xl object-cover border-4 border-white/20 shadow-2xl" />
+              ) : (
+                <div className="w-24 h-24 rounded-3xl flex items-center justify-center bg-gradient-to-br from-dark-raspberry to-pine-teal text-white font-black text-4xl border-4 border-white/20 shadow-2xl">
+                  {user.name?.charAt(0)}
                 </div>
-                <div className="w-full md:w-auto bg-surface px-5 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl border border-dusty-lavender/30 text-center md:min-w-[140px] shadow-sm">
-                  <p className="text-dusty-lavender text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1">Current Rank</p>
-                  <p className="text-dark-raspberry font-bold text-sm md:text-base tracking-wider truncate">{user.rank || 'Initiate'}</p>
-                </div>
+              )}
+              <div className="absolute -bottom-1.5 -right-1.5 bg-blazing-flame text-white h-8 w-8 rounded-xl flex items-center justify-center shadow-lg border-2 border-white/30">
+                <FaShieldAlt className="text-xs" />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 md:gap-6">
-              <div className="bg-surface/70 backdrop-blur-lg border border-surface rounded-2xl md:rounded-[2.5rem] p-5 md:p-8 relative overflow-hidden group shadow-[0_10px_30px_rgba(41,82,74,0.05)] hover:scale-105 hover:shadow-[0_20px_40px_rgba(41,82,74,0.12)] transition-all duration-300">
-                <div className="absolute top-0 right-0 w-24 md:w-32 h-24 md:h-32 bg-gradient-to-bl from-pearl-beige to-transparent rounded-bl-[80px] md:rounded-bl-[100px] pointer-events-none"></div>
-                <div className="absolute -right-6 -bottom-6 opacity-5 group-hover:opacity-10 group-hover:scale-150 transition-all duration-500 pointer-events-none">
-                  <FaBoxOpen className="text-[120px]" />
-                </div>
-                <div className={`text-3xl md:text-4xl mb-4 md:mb-6 opacity-90 ${themeAccent}`}><FaBoxOpen /></div>
-                {loading ? (
-                  <div className="h-10 md:h-14 w-16 md:w-24 bg-dusty-lavender/20 animate-pulse rounded-lg md:rounded-xl relative z-10"></div>
-                ) : (
-                  <h3 className="text-4xl md:text-5xl font-black text-pine-teal relative z-10">{user.donationsCount || stats.totalDonations}</h3>
-                )}
-                <p className="text-dusty-lavender text-[9px] md:text-[10px] uppercase font-black tracking-widest mt-2 md:mt-3 leading-tight relative z-10">Moments of Support</p>
-              </div>
-
-              <div className="bg-surface/70 backdrop-blur-lg border border-surface rounded-2xl md:rounded-[2.5rem] p-5 md:p-8 relative overflow-hidden group shadow-[0_10px_30px_rgba(41,82,74,0.05)] hover:scale-105 hover:shadow-[0_20px_40px_rgba(41,82,74,0.12)] transition-all duration-300">
-                <div className="absolute top-0 right-0 w-24 md:w-32 h-24 md:h-32 bg-gradient-to-bl from-pearl-beige to-transparent rounded-bl-[80px] md:rounded-bl-[100px] pointer-events-none"></div>
-                <div className="absolute -right-6 -bottom-6 opacity-5 group-hover:opacity-10 group-hover:scale-150 transition-all duration-500 pointer-events-none">
-                  <FaHistory className="text-[120px]" />
-                </div>
-                <div className={`text-3xl md:text-4xl mb-4 md:mb-6 opacity-90 ${themeAccent}`}><FaHistory /></div>
-                {loading ? (
-                  <div className="h-10 md:h-14 w-16 md:w-24 bg-dusty-lavender/20 animate-pulse rounded-lg md:rounded-xl relative z-10"></div>
-                ) : (
-                  <h3 className="text-4xl md:text-5xl font-black text-pine-teal relative z-10">{stats.activeListings}</h3>
-                )}
-                <p className="text-dusty-lavender text-[9px] md:text-[10px] uppercase font-black tracking-widest mt-2 md:mt-3 leading-tight relative z-10">Ongoing Support</p>
-              </div>
+            <h2 className="text-xl font-black text-white">{user.name}</h2>
+            <div className="flex items-center gap-1.5 mt-1">
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/50">{user.rank || "Community Member"}</span>
+              {user.rating > 0 && (
+                <span className="flex items-center gap-1 rounded-full bg-yellow-400/20 border border-yellow-400/30 px-2 py-0.5 text-[10px] font-black text-yellow-300">
+                  <FaStar className="text-[8px]" /> {user.rating?.toFixed(1)}
+                </span>
+              )}
             </div>
+          </div>
+        </div>
 
-            <div className="mt-6 bg-surface/70 backdrop-blur-lg border border-pine-teal/20 rounded-[2rem] p-6 shadow-sm relative overflow-hidden">
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-pine-teal flex items-center gap-2 mb-1">
-                    <FaAward className="text-pine-teal" /> Grow Our Community
-                  </h3>
-                  <p className="text-[10px] text-dusty-lavender uppercase font-bold tracking-wider">Invite friends to help grow the Sahayam network.</p>
-                </div>
-                <button 
-                  onClick={() => {
-                    navigator.clipboard.writeText(`${window.location.origin}/?ref=${user?.referralCode || ''}`);
-                    toast.success("Invite Link Copied!");
-                  }}
-                  className="w-full md:w-auto py-3 px-6 bg-pine-teal hover:bg-[#1a3630] text-white font-black uppercase tracking-widest text-[10px] rounded-xl shadow-md transition-all active:scale-95"
-                >
-                  Copy Link
+        {/* ── STAT CHIPS (overlapping header) ── */}
+        <div className="-mt-10 px-4 mb-6">
+          <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-0.5">
+            {statData.map((s, i) => <StatChip key={s.label} {...s} delay={i * 0.06} />)}
+          </div>
+        </div>
+
+        <div className="px-4 space-y-4">
+
+          {/* ── INFO / EDIT CARD ── */}
+          <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
+            <div className="px-5 py-4 border-b border-pine-teal/8 flex items-center justify-between">
+              <h3 className="text-sm font-black text-pine-teal uppercase tracking-widest">Details</h3>
+              {isEditing && (
+                <button onClick={() => setIsEditing(false)} className="text-dusty-lavender hover:text-blazing-flame transition-colors">
+                  <FaTimes className="text-sm" />
                 </button>
-              </div>
-            </div>
-
-            <div className="md:hidden mt-8 pt-6 border-t border-dusty-lavender/30">
-              <button 
-                onClick={handleMobileLogout} 
-                className="w-full py-4 bg-surface hover:bg-pearl-beige text-dark-raspberry border border-dark-raspberry/30 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-xs flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm"
-              >
-                <FaSignOutAlt className="text-lg" /> Secure Logout
-              </button>
-            </div>
-
-            {/* 👉 NEW: AI Hero Story Engine */}
-            <div className="mt-8 bg-surface/70 backdrop-blur-lg border border-dark-raspberry/20 rounded-[2rem] p-6 shadow-sm relative overflow-hidden group flex flex-col">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-dark-raspberry to-pine-teal" />
-              <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
-                <div className="text-center md:text-left">
-                  <h3 className="text-sm font-black uppercase tracking-widest text-pine-teal flex items-center justify-center md:justify-start gap-2 mb-1">
-                    <FaAward className="text-dark-raspberry" /> Share Your Impact
-                  </h3>
-                  <p className="text-[10px] text-dusty-lavender uppercase font-bold tracking-wider">Generate a short story of your contributions to share with friends.</p>
-                </div>
-                <button 
-                  onClick={async () => {
-                    const toastId = toast.loading("AI is crafting your story...");
-                    try {
-                      const { data } = await api.get('/donations/hero-story');
-                      toast.dismiss(toastId);
-                      setGeneratedStory(data.story);
-                      toast.success("Story Generated!");
-                    } catch (err) {
-                      toast.error("Failed to generate story", { id: toastId });
-                    }
-                  }}
-                  className="w-full md:w-auto py-3 px-6 bg-dark-raspberry hover:bg-[#850e53] text-white font-black uppercase tracking-widest text-[10px] rounded-xl shadow-md transition-all active:scale-95 flex items-center justify-center gap-2"
-                >
-                  <FaStar /> Generate Story
-                </button>
-              </div>
-
-              {generatedStory && (
-                <div className="mt-4 p-4 bg-surface border border-dusty-lavender/30 rounded-xl relative">
-                  <p className="text-pine-teal font-medium text-sm italic">"{generatedStory}"</p>
-                  <div className="flex justify-end mt-3">
-                    <button onClick={() => {
-                        if (navigator.share) {
-                          navigator.share({ title: 'My Community Impact', text: generatedStory, url: window.location.origin }).catch(console.error);
-                        } else {
-                          navigator.clipboard.writeText(generatedStory + " " + window.location.origin);
-                          toast.success("Copied to clipboard!");
-                        }
-                    }} className="text-[10px] uppercase font-black tracking-widest text-dark-raspberry hover:underline flex items-center gap-1">
-                      <FaAward /> Share Now
-                    </button>
-                  </div>
-                </div>
               )}
             </div>
 
-            <div className="text-center pt-6 md:pt-8 px-4">
-              <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.1em] md:tracking-[0.2em] italic leading-relaxed text-dusty-lavender">
-                "A community is only as strong as its willingness to protect one another."
-              </p>
+            <AnimatePresence mode="wait">
+              {!isEditing ? (
+                <motion.div key="view" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="p-4 space-y-2">
+                  {[
+                    { icon: FaEnvelope,    value: user.email,                   label: "Email" },
+                    { icon: FaPhone,       value: user.phone || "Not set",       label: "Phone" },
+                    { icon: FaTint,        value: user.bloodGroup || "Unknown",  label: "Blood" },
+                    { icon: FaMapMarkerAlt,value: user.addressText || "Not set", label: "Area" },
+                  ].map(({ icon: Icon, value, label }) => (
+                    <div key={label} className="flex items-center gap-3 rounded-2xl border border-pine-teal/8 bg-surface-2 px-4 py-3.5">
+                      <Icon className="text-sm text-dark-raspberry shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-[9px] font-black uppercase tracking-widest text-dusty-lavender">{label}</p>
+                        <p className="text-sm font-bold text-pine-teal truncate">{value}</p>
+                      </div>
+                    </div>
+                  ))}
+                </motion.div>
+              ) : (
+                <motion.form key="edit" onSubmit={handleUpdateProfile}
+                  initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  className="p-4 space-y-3 bg-[#0a1f1a]">
+
+                  {[
+                    { key: "name",        label: "Full Name",   type: "text",     placeholder: "Your name" },
+                    { key: "phone",       label: "Phone",       type: "tel",      placeholder: "+91 9XXXXXXXX" },
+                  ].map(({ key, label, type, placeholder }) => (
+                    <div key={key}>
+                      <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">{label}</label>
+                      <input type={type} value={formData[key]} placeholder={placeholder} required={key === "name"}
+                        onChange={(e) => setFormData((p) => ({ ...p, [key]: e.target.value }))}
+                        className={inputCls} />
+                    </div>
+                  ))}
+
+                  <div>
+                    <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Blood Group</label>
+                    <select value={formData.bloodGroup}
+                      onChange={(e) => setFormData((p) => ({ ...p, bloodGroup: e.target.value }))}
+                      className={inputCls + " appearance-none cursor-pointer"}>
+                      <option value="" className="bg-[#0a1f1a]">Select</option>
+                      {["A+","A-","B+","B-","AB+","AB-","O+","O-"].map((g) => (
+                        <option key={g} value={g} className="bg-[#0a1f1a]">{g}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Location</label>
+                    <div className="flex gap-2">
+                      <input type="text" value={formData.addressText} placeholder="City / Area"
+                        onChange={(e) => setFormData((p) => ({ ...p, addressText: e.target.value }))}
+                        className={inputCls} />
+                      <motion.button type="button" whileTap={{ scale: 0.85 }}
+                        onClick={handleGetLocation} disabled={isFetchingLocation}
+                        className="h-[52px] w-[52px] shrink-0 flex items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white/60 disabled:opacity-50">
+                        {isFetchingLocation ? <FaSpinner className="animate-spin" /> : <FaLocationArrow />}
+                      </motion.button>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <motion.button type="button" whileTap={{ scale: 0.95 }} onClick={() => setIsEditing(false)}
+                      className="h-12 w-12 shrink-0 flex items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white/50">
+                      <FaTimes />
+                    </motion.button>
+                    <motion.button type="submit" whileTap={{ scale: 0.97 }}
+                      className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-dark-raspberry py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-md">
+                      <FaSave /> Save Changes
+                    </motion.button>
+                  </div>
+                </motion.form>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* ── POINTS CARD ── */}
+          <div className="aurora-header rounded-3xl p-5 relative overflow-hidden">
+            <div className="dark-dot-grid absolute inset-0 opacity-15" />
+            <div className="relative z-10 flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Community Standing</p>
+                <p className="text-6xl font-black text-white tracking-tighter">{user.points || 0}</p>
+                <p className="text-[10px] font-bold text-white/40 mt-1 uppercase tracking-widest">Total Points</p>
+              </div>
+              <div className="text-right">
+                <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-white/40 mb-1">Rank</p>
+                  <p className="text-sm font-black text-dark-raspberry">{user.rank || "Initiate"}</p>
+                </div>
+              </div>
+            </div>
+            <div className="pointer-events-none absolute -bottom-8 -right-8 text-white/4">
+              <FaAward className="text-[120px]" />
             </div>
           </div>
 
+          {/* ── REFERRAL ── */}
+          <div className="rounded-3xl border border-pine-teal/10 bg-surface p-5 flex items-center justify-between gap-4 shadow-sm">
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-widest text-dusty-lavender mb-0.5">Referral</p>
+              <p className="text-sm font-bold text-pine-teal">Invite friends, grow the community</p>
+            </div>
+            <motion.button whileTap={{ scale: 0.9 }}
+              onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/?ref=${user?.referralCode || ""}`);
+                toast.success("Link copied!");
+              }}
+              className="shrink-0 flex items-center gap-1.5 rounded-2xl bg-pine-teal px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-sm">
+              <FaShareAlt className="text-xs" /> Copy
+            </motion.button>
+          </div>
+
+          {/* ── AI STORY ── */}
+          <div className="rounded-3xl border border-dark-raspberry/20 bg-surface p-5 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-dark-raspberry via-pine-teal to-blazing-flame" />
+            <div className="flex items-center justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-widest text-dusty-lavender mb-0.5">AI Feature</p>
+                <p className="text-sm font-bold text-pine-teal">Share your impact story</p>
+              </div>
+              <motion.button whileTap={{ scale: 0.9 }}
+                onClick={async () => {
+                  const tid = toast.loading("Crafting your story…");
+                  try {
+                    const { data } = await api.get("/donations/hero-story");
+                    toast.dismiss(tid);
+                    setGeneratedStory(data.story);
+                    toast.success("Story generated!");
+                  } catch { toast.error("Failed", { id: tid }); }
+                }}
+                className="shrink-0 flex items-center gap-1.5 rounded-2xl bg-dark-raspberry px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-sm">
+                <FaStar className="text-xs" /> Generate
+              </motion.button>
+            </div>
+
+            <AnimatePresence>
+              {generatedStory && (
+                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                  className="mt-4 rounded-2xl border border-pine-teal/10 bg-surface-2 p-4">
+                  <p className="text-sm text-pine-teal italic leading-relaxed">"{generatedStory}"</p>
+                  <motion.button whileTap={{ scale: 0.95 }}
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({ title: "My Community Impact", text: generatedStory, url: window.location.origin }).catch(() => {});
+                      } else {
+                        navigator.clipboard.writeText(generatedStory + " " + window.location.origin);
+                        toast.success("Copied!");
+                      }
+                    }}
+                    className="mt-3 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-dark-raspberry">
+                    <FaShareAlt /> Share Now
+                  </motion.button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* ── LOGOUT (mobile) ── */}
+          <motion.button whileTap={{ scale: 0.97 }}
+            onClick={() => { logout(); navigate("/"); }}
+            className="md:hidden w-full flex items-center justify-center gap-2 rounded-2xl border border-blazing-flame/25 bg-blazing-flame/8 py-4 text-sm font-black uppercase tracking-widest text-blazing-flame">
+            <FaSignOutAlt /> Log Out
+          </motion.button>
+
+          <p className="text-center text-[10px] italic font-medium text-dusty-lavender/50 pb-4">
+            "A community is only as strong as its willingness to protect one another."
+          </p>
         </div>
       </div>
     </Layout>

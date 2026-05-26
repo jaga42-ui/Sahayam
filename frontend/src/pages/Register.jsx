@@ -2,7 +2,8 @@ import { useState, useContext } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  FaUserPlus, FaEnvelope, FaLock, FaPhone, FaTint, FaShieldAlt, FaTimes, FaCheck, FaSpinner,
+  FaUserPlus, FaEnvelope, FaLock, FaPhone, FaTint,
+  FaShieldAlt, FaCheck, FaSpinner, FaArrowRight, FaHeartbeat,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
 import AuthContext from "../context/AuthContext";
@@ -10,309 +11,268 @@ import api from "../utils/api";
 import logo from "../assets/logo.png";
 import PolicyModal from "../components/PolicyModal";
 
+const ROLES = [
+  { id: "donor",    label: "Donor",       desc: "Give blood, food, or supplies",    color: "blazing-flame",  gradient: "from-[#ff4a1c] to-[#ff8c1a]" },
+  { id: "receiver", label: "Receiver",    desc: "Request help from your community", color: "dark-raspberry", gradient: "from-[#a0116a] to-[#e040a0]" },
+  { id: "ngo",      label: "Institution", desc: "Coordinate large-scale aid",       color: "pine-teal",      gradient: "from-[#1d4a42] to-[#2a7a6a]" },
+];
+
+const springIn = { type: "spring", stiffness: 300, damping: 26 };
+
+const inputBase =
+  "w-full rounded-xl border bg-white/8 px-4 py-3.5 text-sm font-medium text-white placeholder-white/30 outline-none transition-all";
+
 const Register = () => {
   const [searchParams] = useSearchParams();
-  const refCode = searchParams.get('ref') || '';
+  const refCode = searchParams.get("ref") || "";
+
   const [formData, setFormData] = useState({
     name: "", email: "", password: "", phone: "", bloodGroup: "", organizationName: "",
   });
-  const [activeRole, setActiveRole] = useState("donor");
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Privacy Policy States
+  const [activeRole,     setActiveRole]     = useState("donor");
+  const [isLoading,      setIsLoading]      = useState(false);
   const [agreedToPolicy, setAgreedToPolicy] = useState(false);
-  const [showPolicyModal, setShowPolicyModal] = useState(false);
+  const [showPolicy,     setShowPolicy]     = useState(false);
 
   const { login } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
 
-  // 👉 DYNAMIC THEME HANDLERS BASED ON ROLE
-  const getThemeAccent = () => {
-    if (activeRole === "donor") return "text-blazing-flame";
-    if (activeRole === "ngo") return "text-pine-teal";
-    return "text-dark-raspberry";
-  };
-  const getThemeBg = () => {
-    if (activeRole === "donor") return "bg-blazing-flame hover:bg-[#e03a12]";
-    if (activeRole === "ngo") return "bg-pine-teal hover:bg-[#1a3630]";
-    return "bg-dark-raspberry hover:bg-[#850e53]";
-  };
-  const getThemeFocusBorder = () => {
-    if (activeRole === "donor") return "focus:border-blazing-flame focus:ring-blazing-flame/10";
-    if (activeRole === "ngo") return "focus:border-pine-teal focus:ring-pine-teal/10";
-    return "focus:border-dark-raspberry focus:ring-dark-raspberry/10";
-  };
-  const getThemeShadow = () => {
-    if (activeRole === "donor") return "shadow-[0_10px_25px_rgba(255,74,28,0.3)]";
-    if (activeRole === "ngo") return "shadow-[0_10px_25px_rgba(41,82,74,0.3)]";
-    return "shadow-[0_10px_25px_rgba(159,17,100,0.3)]";
-  };
-
-  const themeAccent = getThemeAccent();
-  const themeBg = getThemeBg();
-  const themeFocusBorder = getThemeFocusBorder();
-  const themeShadow = getThemeShadow();
+  const role = ROLES.find((r) => r.id === activeRole);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!agreedToPolicy) {
-      return toast.error("You must agree to the Terms & Privacy Policy to join Sahayam.", {
-        style: { background: '#ffffff', color: '#ff4a1c', border: '1px solid #ff4a1c' }
-      });
-    }
-
+    if (!agreedToPolicy) return toast.error("Please agree to Terms & Privacy Policy first.");
     setIsLoading(true);
     try {
       const payload = { ...formData, activeRole, refCode };
       if (!payload.bloodGroup) delete payload.bloodGroup;
-
       const { data } = await api.post("/auth/register", payload);
       login(data);
-      toast.success("Welcome to the Sahayam Community!", {
-        style: { background: '#ffffff', color: '#29524a', border: '1px solid #846b8a' }
-      });
+      toast.success("Welcome to Sahayam!");
       navigate("/dashboard");
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Registration failed. Please check your inputs.", {
-        style: { background: '#ffffff', color: '#ff4a1c', border: '1px solid #ff4a1c' }
-      });
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Registration failed.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleAcceptPolicy = () => {
-    setAgreedToPolicy(true);
-    setShowPolicyModal(false);
-  };
+  const borderColor =
+    activeRole === "donor"    ? "border-blazing-flame/50  focus:border-blazing-flame  focus:ring-blazing-flame/10" :
+    activeRole === "receiver" ? "border-dark-raspberry/50 focus:border-dark-raspberry focus:ring-dark-raspberry/10" :
+                                "border-pine-teal/50      focus:border-pine-teal      focus:ring-pine-teal/10";
+
+  const accentGlow =
+    activeRole === "donor"    ? "shadow-[0_0_28px_rgba(255,74,28,0.35)]" :
+    activeRole === "receiver" ? "shadow-[0_0_28px_rgba(160,17,106,0.35)]" :
+                                "shadow-[0_0_28px_rgba(29,74,66,0.45)]";
 
   return (
-    <main className="min-h-screen bg-pearl-beige flex flex-col lg:flex-row relative selection:bg-dark-raspberry selection:text-white overflow-hidden font-sans">
-      
-      {/* LEFT SIDE STORY/BRANDING (Hidden on mobile, visible on lg+) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-pine-teal relative items-center justify-center p-12 overflow-hidden border-r border-dusty-lavender/20 shadow-2xl z-20">
-         <div className="absolute top-[-20%] left-[-20%] w-[40vw] h-[40vw] bg-blazing-flame/20 blur-[120px] rounded-full pointer-events-none"></div>
-         <div className="absolute bottom-[-10%] right-[-10%] w-[30vw] h-[30vw] bg-dark-raspberry/20 blur-[100px] rounded-full pointer-events-none"></div>
-         
-         <div className="relative z-10 max-w-xl text-pearl-beige">
-             <Link to="/" className="flex items-center gap-3 mb-12 group inline-flex">
-               <img src={logo} alt="Sahayam Logo" className="h-10 w-auto group-hover:scale-110 transition-transform drop-shadow-[0_0_15px_rgba(255,74,28,0.4)]" />
-               <span className="text-2xl font-black italic tracking-tighter text-white">SAHA<span className="text-blazing-flame">YAM.</span></span>
-             </Link>
-             
-             <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }}>
-               <h1 className="text-5xl lg:text-6xl font-black mb-6 leading-[1.1] tracking-tight">
-                 Join our <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-dark-raspberry to-pine-teal">Caring Community.</span>
-               </h1>
-               <p className="text-lg lg:text-xl font-medium text-pearl-beige/80 mb-10 leading-relaxed border-l-4 border-dark-raspberry pl-6">
-                 Create an account to ask for help when you need it, or offer support to neighbors when they do. Kindness starts here.
-               </p>
-               
-               <div className="bg-surface/5 backdrop-blur-xl border border-surface/10 p-6 rounded-[2rem] shadow-xl hover:bg-surface/10 transition-colors">
-                  <p className="text-sm font-black uppercase tracking-widest text-white mb-3 flex items-center gap-3">
-                    <FaShieldAlt className="text-blazing-flame text-xl" /> Secure & Private
-                  </p>
-                  <p className="text-sm text-pearl-beige/70 leading-relaxed font-medium">
-                    Your data is strictly encrypted. We only use your location to match you with verified, hyper-local emergencies. No spam. No compromises. Just life-saving connections.
-                  </p>
-               </div>
-             </motion.div>
-         </div>
+    <main className="min-h-screen aurora-bg flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden selection:bg-white/20 selection:text-white">
+
+      {/* Ambient blobs */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-32 -left-24 h-80 w-80 rounded-full bg-blazing-flame/10 blur-[100px] float-slow" />
+        <div className="absolute top-1/2 -right-24 h-72 w-72 rounded-full bg-dark-raspberry/12 blur-[100px] float-delay" />
+        <div className="absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-pine-teal/15 blur-[80px] float-gentle" />
+        <div className="dark-dot-grid absolute inset-0 opacity-25" />
       </div>
 
-      {/* RIGHT SIDE FORM */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-8 relative z-10 overflow-y-auto min-h-screen">
-        {/* VIBRANT BACKGROUND GLOWS */}
-        <div className="absolute top-[10%] right-[-10%] w-[50vw] max-w-[600px] h-[50vh] bg-dark-raspberry/10 blur-[100px] rounded-full pointer-events-none"></div>
+      {/* Card */}
+      <motion.div
+        initial={{ opacity: 0, y: 32, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 w-full max-w-md"
+      >
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-2.5 mb-6">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <motion.img
+              whileHover={{ scale: 1.1, rotate: -5 }}
+              src={logo} alt="Sahayam"
+              className="h-9 w-auto drop-shadow-[0_0_14px_rgba(255,74,28,0.55)]"
+            />
+            <span className="text-2xl font-black italic tracking-tighter text-white">
+              SAHA<span className="text-blazing-flame drop-shadow-[0_0_10px_rgba(255,74,28,0.8)]">YAM.</span>
+            </span>
+          </Link>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="w-full max-w-md bg-surface/70 backdrop-blur-lg border border-surface rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_40px_rgba(41,82,74,0.08)] relative z-10 my-8"
-        >
-          {/* Mobile Logo (Only visible on small screens) */}
-          <div className="lg:hidden text-center mb-8">
-             <Link to="/" className="inline-flex items-center gap-2 mb-4 group">
-               <img src={logo} alt="Sahayam Logo" className="h-8 w-auto group-hover:scale-110 transition-transform" />
-               <span className="text-xl font-black italic tracking-tighter text-pine-teal">SAHA<span className="text-blazing-flame">YAM.</span></span>
-             </Link>
+        {/* Role selector */}
+        <div className="mb-5 grid grid-cols-3 gap-2">
+          {ROLES.map((r) => (
+            <motion.button
+              key={r.id}
+              type="button"
+              whileTap={{ scale: 0.93 }}
+              onClick={() => setActiveRole(r.id)}
+              className={`relative overflow-hidden rounded-2xl border px-3 py-3.5 text-center transition-all ${
+                activeRole === r.id
+                  ? `border-white/20 bg-gradient-to-br ${r.gradient} text-white ${accentGlow}`
+                  : "border-white/10 bg-white/5 text-white/50 hover:bg-white/8 hover:text-white/80"
+              }`}
+            >
+              {activeRole === r.id && (
+                <motion.div
+                  layoutId="roleHighlight"
+                  className="absolute inset-0 bg-white/10 rounded-2xl"
+                  transition={springIn}
+                />
+              )}
+              <p className="relative text-[11px] font-black uppercase tracking-widest">{r.label}</p>
+              <p className="relative text-[9px] font-medium mt-0.5 opacity-75 leading-tight">{r.desc}</p>
+            </motion.button>
+          ))}
+        </div>
+
+        {/* Form card */}
+        <div className="glass-dark rounded-3xl p-6 border border-white/10">
+          <div className="mb-5">
+            <h2 className="text-xl font-black text-white tracking-tight">Create your account</h2>
+            <p className="text-[11px] font-medium text-white/40 mt-0.5">Join thousands making a difference</p>
           </div>
 
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-black text-pine-teal tracking-tight mb-1">
-              Join Sahayam
-            </h2>
-            <p className="text-dusty-lavender text-xs font-bold tracking-widest mt-1">
-              Create your account.
-            </p>
-          </div>
-
-          {/* Role Selector */}
-          <div className="flex bg-surface/50 backdrop-blur-md p-1.5 rounded-2xl mb-6 border border-dusty-lavender/30 shadow-sm flex-wrap sm:flex-nowrap gap-1 sm:gap-0">
-            <button
-              type="button"
-              onClick={() => setActiveRole("donor")}
-              className={`flex-1 py-3 px-1 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeRole === "donor" ? "bg-blazing-flame text-white shadow-md" : "text-dusty-lavender hover:text-pine-teal hover:bg-surface"}`}
-            >
-              Donor
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveRole("receiver")}
-              className={`flex-1 py-3 px-1 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeRole === "receiver" ? "bg-dark-raspberry text-white shadow-md" : "text-dusty-lavender hover:text-pine-teal hover:bg-surface"}`}
-            >
-              Receiver
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveRole("ngo")}
-              className={`flex-1 py-3 px-1 rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all ${activeRole === "ngo" ? "bg-pine-teal text-white shadow-md" : "text-dusty-lavender hover:text-pine-teal hover:bg-surface"}`}
-            >
-              Institution
-            </button>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
-              <FaUserPlus className="absolute left-4 top-1/2 -translate-y-1/2 text-dusty-lavender/80" />
+          <form onSubmit={handleSubmit} className="space-y-3">
+            {/* Name */}
+            <div>
+              <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">
+                {activeRole === "ngo" ? "Representative Name" : "Full Name"} *
+              </label>
               <input
-                required
-                aria-label={activeRole === "ngo" ? "Representative Name" : "Full Name"}
-                type="text"
-                placeholder={activeRole === "ngo" ? "Representative Name" : "Full Name"}
+                required type="text"
+                placeholder={activeRole === "ngo" ? "Dr. Priya Sharma" : "Arjun Mehta"}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className={`w-full bg-surface border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
+                className={`${inputBase} border ${borderColor} focus:ring-2`}
               />
             </div>
 
-            {activeRole === "ngo" && (
-              <div className="relative">
-                <FaShieldAlt className="absolute left-4 top-1/2 -translate-y-1/2 text-dusty-lavender/80" />
-                <input
-                  required
-                  aria-label="Organization/Hospital Name"
-                  type="text"
-                  placeholder="Organization/Hospital Name"
-                  value={formData.organizationName}
-                  onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
-                  className={`w-full bg-surface border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
-                />
-              </div>
-            )}
+            {/* Org name (NGO only) */}
+            <AnimatePresence>
+              {activeRole === "ngo" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
+                >
+                  <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Organization / Hospital *</label>
+                  <input
+                    required type="text" placeholder="Apollo Hospitals"
+                    value={formData.organizationName}
+                    onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
+                    className={`${inputBase} border ${borderColor} focus:ring-2`}
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-            <div className="relative">
-              <FaEnvelope className="absolute left-4 top-1/2 -translate-y-1/2 text-dusty-lavender/80" />
+            {/* Email */}
+            <div>
+              <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Email *</label>
               <input
-                required
-                aria-label="Email Address"
-                type="email"
-                placeholder="operator@sahayam.com"
+                required type="email" placeholder="you@example.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className={`w-full bg-surface border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
+                className={`${inputBase} border ${borderColor} focus:ring-2`}
               />
             </div>
 
-            <div className="relative">
-              <FaPhone className="absolute left-4 top-1/2 -translate-y-1/2 text-dusty-lavender/80" />
-              <input
-                required
-                aria-label="Phone Number"
-                type="tel"
-                placeholder="+91 XXXXXXXXXX"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className={`w-full bg-surface border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
-              />
-            </div>
-
-            <div className="relative">
-              <FaLock className="absolute left-4 top-1/2 -translate-y-1/2 text-dusty-lavender/80" />
-              <input
-                required
-                aria-label="Secure Password"
-                type="password"
-                placeholder="Secure Password"
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                className={`w-full bg-surface border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all shadow-inner placeholder-dusty-lavender/70 ${themeFocusBorder}`}
-              />
-            </div>
-
-            {activeRole === "donor" && (
-              <div className="relative">
-                <FaTint className="absolute left-4 top-1/2 -translate-y-1/2 text-blazing-flame" />
-                <select
-                  aria-label="Blood Group"
-                  value={formData.bloodGroup}
-                  onChange={(e) => setFormData({ ...formData, bloodGroup: e.target.value })}
-                  className={`w-full bg-surface border border-dusty-lavender/40 rounded-xl pl-11 pr-4 py-3.5 text-pine-teal text-base md:text-sm outline-none focus:ring-4 transition-all appearance-none shadow-inner cursor-pointer ${themeFocusBorder}`}
-                >
-                  <option value="" disabled className="text-dusty-lavender">Blood Group (Optional)</option>
-                  {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((bg) => (
-                    <option key={bg} value={bg}>{bg}</option>
-                  ))}
-                </select>
+            {/* Phone + Password row */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Phone *</label>
+                <input
+                  required type="tel" placeholder="+91 9XXXXXXXX"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className={`${inputBase} border ${borderColor} focus:ring-2`}
+                />
               </div>
-            )}
+              <div>
+                <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Password *</label>
+                <input
+                  required type="password" placeholder="••••••••"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className={`${inputBase} border ${borderColor} focus:ring-2`}
+                />
+              </div>
+            </div>
 
-            {/* 👉 THE LEGAL SHIELD: A11y Compliant Checkbox */}
-            <div className="flex items-start gap-3 mt-6 mb-2 bg-surface/50 p-4 rounded-xl border border-surface shadow-sm">
-              <button
-                type="button"
-                role="checkbox"
-                aria-checked={agreedToPolicy}
-                onClick={() => setAgreedToPolicy(!agreedToPolicy)}
-                className={`w-5 h-5 mt-0.5 rounded border flex items-center justify-center shrink-0 transition-all ${agreedToPolicy ? (activeRole === "donor" ? "bg-blazing-flame border-blazing-flame" : "bg-dark-raspberry border-dark-raspberry") : "bg-surface border-dusty-lavender/50 shadow-inner"}`}
-              >
-                {agreedToPolicy && <FaCheck className="text-white text-[10px]" />}
-              </button>
-              <p className="text-[10px] sm:text-xs text-pine-teal leading-relaxed font-medium">
-                I agree to the{" "}
-                <button
-                  type="button"
-                  onClick={() => setShowPolicyModal(true)}
-                  className={`font-bold underline decoration-dusty-lavender underline-offset-4 transition-all ${themeAccent}`}
+            {/* Blood group (donor only) */}
+            <AnimatePresence>
+              {activeRole === "donor" && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="overflow-hidden"
                 >
+                  <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Blood Group</label>
+                  <select
+                    value={formData.bloodGroup}
+                    onChange={(e) => setFormData({ ...formData, bloodGroup: e.target.value })}
+                    className={`${inputBase} border ${borderColor} focus:ring-2 appearance-none cursor-pointer`}
+                  >
+                    <option value="" className="bg-[#100d0d]">Select (optional)</option>
+                    {["A+","A-","B+","B-","AB+","AB-","O+","O-"].map((g) => (
+                      <option key={g} value={g} className="bg-[#100d0d]">{g}</option>
+                    ))}
+                  </select>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Policy checkbox */}
+            <div className="flex items-start gap-3 rounded-2xl border border-white/8 bg-white/4 p-3.5 mt-2">
+              <motion.button
+                type="button" whileTap={{ scale: 0.85 }}
+                onClick={() => setAgreedToPolicy((v) => !v)}
+                className={`mt-0.5 h-5 w-5 shrink-0 rounded-md border flex items-center justify-center transition-all ${
+                  agreedToPolicy ? "bg-blazing-flame border-blazing-flame" : "border-white/25 bg-white/5"
+                }`}
+              >
+                <AnimatePresence>
+                  {agreedToPolicy && (
+                    <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} exit={{ scale: 0 }} transition={{ type: "spring", stiffness: 500 }}>
+                      <FaCheck className="text-white text-[9px]" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+              <p className="text-[11px] text-white/50 leading-relaxed">
+                I agree to the{" "}
+                <button type="button" onClick={() => setShowPolicy(true)} className="text-white/80 underline underline-offset-2 hover:text-white">
                   Terms & Privacy Policy
                 </button>
-                .
-                <br /><br />
-                <span className="text-dusty-lavender block leading-tight">
-                  <strong className="text-pine-teal">Disclaimer:</strong> Sahayam
-                  is a community coordination tool, not an official emergency
-                  service. I take full legal responsibility for any
-                  exchanges made through this platform.
-                </span>
+                . Sahayam is a community tool, not an emergency service.
               </p>
             </div>
 
-            {/* The Submit Button */}
-            <button
+            {/* Submit */}
+            <motion.button
               type="submit"
+              whileTap={{ scale: 0.97 }}
               disabled={isLoading || !agreedToPolicy}
-              className={`w-full py-4 mt-4 rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs text-white transition-all active:scale-95 disabled:opacity-50 disabled:active:scale-100 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${themeBg} ${themeShadow}`}
+              className={`ripple-btn w-full mt-1 flex items-center justify-center gap-2.5 rounded-2xl py-4 text-[11px] font-black uppercase tracking-widest text-white shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r ${role.gradient}`}
             >
-              {isLoading ? <FaSpinner className="animate-spin text-xl" /> : "Create Account"}
-            </button>
+              {isLoading
+                ? <FaSpinner className="animate-spin text-lg" />
+                : <><FaHeartbeat /> Join Sahayam <FaArrowRight className="text-xs" /></>
+              }
+            </motion.button>
           </form>
 
-          <p className="text-center text-dusty-lavender text-[10px] uppercase font-bold tracking-widest mt-8">
-            Already have an account?{" "}
-            <Link to="/login" className="text-pine-teal font-black hover:text-dark-raspberry transition-colors">
-              Sign In
+          <p className="mt-5 text-center text-[11px] font-medium text-white/35">
+            Already a member?{" "}
+            <Link to="/login" className="text-white/70 font-bold hover:text-white transition-colors">
+              Sign in
             </Link>
           </p>
-        </motion.div>
-      </div>
+        </div>
+      </motion.div>
 
-      <PolicyModal 
-        isOpen={showPolicyModal} 
-        onClose={() => setShowPolicyModal(false)} 
-        onAccept={handleAcceptPolicy} 
-      />
+      <PolicyModal isOpen={showPolicy} onClose={() => setShowPolicy(false)} onAccept={() => { setAgreedToPolicy(true); setShowPolicy(false); }} />
     </main>
   );
 };

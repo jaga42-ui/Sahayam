@@ -13,14 +13,25 @@ import logo from "../assets/logo.png";
 import FeedbackModal from "./FeedbackModal";
 import OnboardingModal from "./OnboardingModal";
 
+const NAV_ITEMS = [
+  { name: "Feed",     path: "/dashboard",  icon: FaHome },
+  { name: "Radar",    path: "/radar",       icon: FaMapMarkerAlt, isSpecial: true },
+  { name: "Donate",   path: "/donations",  icon: FaBoxOpen, hideOnMobileBottom: true },
+  { name: "Ranks",    path: "/leaderboard", icon: FaTrophy },
+  { name: "Inbox",    path: "/chat/inbox",  icon: FaEnvelope },
+  { name: "Profile",  path: "/profile",     icon: FaUser },
+];
+
+const springTransition = { type: "spring", stiffness: 320, damping: 28 };
+
 const Layout = ({ children }) => {
   const { user, logout, switchRole } = useContext(AuthContext);
-  const location = useLocation();
-  const navigate = useNavigate();
+  const location  = useLocation();
+  const navigate  = useNavigate();
 
-  const [isOffline, setIsOffline]       = useState(!navigator.onLine);
-  const [hasUnread, setHasUnread]       = useState(false);
-  const [isFeedbackOpen, setIsFeedback] = useState(false);
+  const [isOffline,     setIsOffline]     = useState(!navigator.onLine);
+  const [hasUnread,     setHasUnread]     = useState(false);
+  const [isFeedbackOpen, setIsFeedback]   = useState(false);
 
   useEffect(() => {
     const up   = () => setIsOffline(false);
@@ -75,48 +86,55 @@ const Layout = ({ children }) => {
     return () => socket.disconnect();
   }, []);
 
-  const isDonor        = user?.activeRole === "donor";
-  const accentText     = isDonor ? "text-blazing-flame" : "text-dark-raspberry";
-  const accentBg       = isDonor ? "bg-blazing-flame"   : "bg-dark-raspberry";
+  const isDonor    = user?.activeRole === "donor";
+  const accentText = isDonor ? "text-blazing-flame" : "text-dark-raspberry";
+  const accentBg   = isDonor ? "bg-blazing-flame"   : "bg-dark-raspberry";
 
-  const menuItems = [
-    { name: "Feed",     path: "/dashboard",  icon: <FaHome /> },
-    { name: "Radar",    path: "/radar",       icon: <FaMapMarkerAlt />, isSpecial: true },
-    { name: isDonor ? "Post" : "Request", path: "/donations", icon: <FaBoxOpen />, hideOnMobileBottom: true },
-    { name: "Ranks",    path: "/leaderboard", icon: <FaTrophy /> },
-    { name: "Inbox",    path: "/chat/inbox",  icon: <FaEnvelope /> },
-    { name: "Profile",  path: "/profile",     icon: <FaUser /> },
-  ];
-
-  const NavLink = ({ item }) => {
-    const isActive = location.pathname === item.path;
-    const isRadar  = item.path === "/radar";
-
-    const base = "flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200";
-    const active   = isRadar
-      ? "bg-blazing-flame/12 text-blazing-flame border border-blazing-flame/25"
-      : "bg-surface-2 text-pine-teal shadow-sm border border-pine-teal/10";
-    const inactive = isRadar
-      ? "text-blazing-flame/60 hover:bg-surface-2 hover:text-blazing-flame border border-transparent"
-      : "text-dusty-lavender hover:bg-surface-2 hover:text-pine-teal border border-transparent";
+  /* ── Sidebar NavLink ── */
+  const SideNavLink = ({ item }) => {
+    const isActive  = location.pathname === item.path;
+    const isRadar   = item.path === "/radar";
+    const Icon      = item.icon;
 
     return (
-      <Link to={item.path} className={`${base} ${isActive ? active : inactive}`}>
-        <div className="relative shrink-0">
-          <span className={`text-base ${
-            isActive ? (isRadar ? "text-blazing-flame" : accentText) :
-            isRadar ? "text-blazing-flame/60 animate-pulse" : "text-dusty-lavender"
-          }`}>
-            {item.icon}
-          </span>
-          {item.name === "Inbox" && hasUnread && !isActive && (
-            <span className="absolute -top-1 -right-1 flex h-2 w-2">
-              <span className="animate-ping absolute h-full w-full rounded-full bg-blazing-flame opacity-75" />
-              <span className="relative h-2 w-2 rounded-full bg-blazing-flame" />
-            </span>
+      <Link to={item.path}>
+        <motion.div
+          whileHover={{ x: 3 }}
+          whileTap={{ scale: 0.96 }}
+          className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-bold transition-colors relative overflow-hidden ${
+            isActive
+              ? isRadar
+                ? "bg-blazing-flame/20 text-blazing-flame"
+                : "bg-white/12 text-white"
+              : isRadar
+                ? "text-blazing-flame/60 hover:bg-white/6 hover:text-blazing-flame"
+                : "text-white/50 hover:bg-white/6 hover:text-white/90"
+          }`}
+        >
+          {isActive && !isRadar && (
+            <motion.div
+              layoutId="sidebarActive"
+              className="absolute inset-0 rounded-2xl bg-white/10 border border-white/15"
+              transition={springTransition}
+            />
           )}
-        </div>
-        {item.name}
+          <div className="relative shrink-0">
+            <Icon className={`text-base ${
+              isActive ? (isRadar ? "text-blazing-flame" : "text-white") :
+              isRadar ? "text-blazing-flame/50 animate-pulse" : "text-white/40"
+            }`} />
+            {item.name === "Inbox" && hasUnread && !isActive && (
+              <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                <span className="animate-ping absolute h-full w-full rounded-full bg-blazing-flame opacity-75" />
+                <span className="relative h-2 w-2 rounded-full bg-blazing-flame" />
+              </span>
+            )}
+          </div>
+          <span className="relative">{item.name}</span>
+          {isActive && !isRadar && (
+            <motion.div layoutId="sidebarDot" className="ml-auto w-1.5 h-1.5 rounded-full bg-white/60" transition={springTransition} />
+          )}
+        </motion.div>
       </Link>
     );
   };
@@ -124,7 +142,7 @@ const Layout = ({ children }) => {
   return (
     <div className="h-screen bg-pearl-beige flex flex-col md:flex-row font-sans selection:bg-dark-raspberry selection:text-white overflow-hidden">
 
-      {/* Offline banner */}
+      {/* ── Offline banner ── */}
       <AnimatePresence>
         {isOffline && (
           <motion.div
@@ -137,8 +155,10 @@ const Layout = ({ children }) => {
         )}
       </AnimatePresence>
 
-      {/* ── MOBILE TOP BAR ── */}
-      <div className="md:hidden bg-surface/85 backdrop-blur-xl border-b border-pine-teal/10 px-4 py-3 flex justify-between items-center z-50 shrink-0 shadow-sm">
+      {/* ══════════════════════════════════
+          MOBILE TOP BAR
+      ══════════════════════════════════ */}
+      <div className="md:hidden bg-surface/90 backdrop-blur-xl border-b border-pine-teal/10 px-4 py-3 flex justify-between items-center z-50 shrink-0 shadow-sm">
         <Link to="/dashboard" className="flex items-center gap-2">
           <img src={logo} alt="Sahayam" className="h-8 w-auto" />
           <span className="text-xl font-black italic tracking-tighter text-pine-teal">
@@ -147,96 +167,120 @@ const Layout = ({ children }) => {
         </Link>
         <div className="flex items-center gap-2">
           {user && !user.isAdmin && (
-            <motion.button whileTap={{ scale: 0.88 }} onClick={switchRole}
-              className="p-2.5 rounded-xl bg-surface-2 border border-pine-teal/10 text-pine-teal hover:border-pine-teal/25 transition-all">
+            <motion.button whileTap={{ scale: 0.85 }} onClick={switchRole}
+              className="h-9 w-9 flex items-center justify-center rounded-xl bg-surface-2 border border-pine-teal/10 text-pine-teal">
               <FaExchangeAlt className="text-xs" />
             </motion.button>
           )}
-          <motion.button whileTap={{ scale: 0.88 }} onClick={() => setIsFeedback(true)}
-            className="p-2.5 rounded-xl bg-surface-2 border border-pine-teal/10 text-pine-teal hover:border-pine-teal/25 transition-all">
+          <motion.button whileTap={{ scale: 0.85 }} onClick={() => setIsFeedback(true)}
+            className="h-9 w-9 flex items-center justify-center rounded-xl bg-surface-2 border border-pine-teal/10 text-pine-teal">
             <FaCommentAlt className="text-xs" />
           </motion.button>
         </div>
       </div>
 
-      {/* ── DESKTOP SIDEBAR ── */}
-      <aside className="hidden md:flex flex-col w-64 bg-surface/85 backdrop-blur-xl border-r border-pine-teal/10 shrink-0 z-40 shadow-lg">
-        <div className="flex flex-col h-full px-5 py-6">
+      {/* ══════════════════════════════════
+          DESKTOP SIDEBAR (dark aurora)
+      ══════════════════════════════════ */}
+      <aside className="hidden md:flex flex-col w-60 sidebar-aurora shrink-0 z-40 shadow-2xl">
+        <div className="relative z-10 flex flex-col h-full px-4 py-6">
 
           {/* Logo */}
-          <Link to="/dashboard" className="flex items-center gap-2.5 mb-7 group">
-            <img src={logo} alt="Sahayam" className="h-9 w-auto group-hover:scale-110 transition-transform duration-300" />
-            <span className="text-2xl font-black italic tracking-tighter text-pine-teal">
-              SAHA<span className={accentText}>YAM.</span>
+          <Link to="/dashboard" className="flex items-center gap-2.5 mb-7 group px-1">
+            <motion.img
+              whileHover={{ scale: 1.08, rotate: -3 }}
+              src={logo} alt="Sahayam"
+              className="h-9 w-auto drop-shadow-[0_0_12px_rgba(255,74,28,0.5)]"
+            />
+            <span className="text-2xl font-black italic tracking-tighter text-white">
+              SAHA<span className="text-blazing-flame drop-shadow-[0_0_8px_rgba(255,74,28,0.7)]">YAM.</span>
             </span>
           </Link>
 
-          {/* Profile card */}
+          {/* Profile chip */}
           {user && (
             <motion.button
-              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
               onClick={() => navigate("/profile")}
-              className="mb-6 w-full flex items-center gap-3 p-3.5 rounded-2xl border border-pine-teal/10 bg-surface-2 hover:border-pine-teal/20 hover:shadow-sm transition-all text-left"
+              className="mb-5 w-full flex items-center gap-3 p-3 rounded-2xl border border-white/8 bg-white/6 hover:bg-white/10 transition-all text-left"
             >
               {user.profilePic ? (
                 <img src={user.profilePic} alt="Profile" referrerPolicy="no-referrer"
-                  className="w-10 h-10 rounded-xl object-cover border border-pine-teal/10 shrink-0" />
+                  className="w-9 h-9 rounded-xl object-cover border border-white/15 shrink-0" />
               ) : (
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-base uppercase shrink-0 ${accentBg}`}>
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-sm uppercase shrink-0 ${accentBg}`}>
                   {user.name?.charAt(0)}
                 </div>
               )}
               <div className="min-w-0">
-                <p className="text-sm font-bold text-pine-teal truncate leading-tight">{user.name}</p>
+                <p className="text-sm font-bold text-white truncate leading-tight">{user.name}</p>
                 <p className={`text-[10px] font-black uppercase tracking-widest mt-0.5 ${accentText}`}>
                   {user.activeRole} mode
                 </p>
               </div>
+              {!user.isAdmin && (
+                <motion.button
+                  whileTap={{ scale: 0.85 }}
+                  onClick={(e) => { e.stopPropagation(); switchRole(); }}
+                  className="ml-auto shrink-0 h-7 w-7 flex items-center justify-center rounded-lg bg-white/8 hover:bg-white/16 text-white/50 hover:text-white transition-all"
+                >
+                  <FaExchangeAlt className="text-[10px]" />
+                </motion.button>
+              )}
             </motion.button>
           )}
 
           {/* Admin link */}
           {user?.isAdmin && (
-            <div className="mb-4 pb-4 border-b border-pine-teal/10">
-              <Link to="/admin"
-                className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold transition-all border ${
-                  location.pathname === "/admin"
-                    ? "bg-dark-raspberry/10 text-dark-raspberry border-dark-raspberry/20"
-                    : "text-dusty-lavender hover:bg-surface-2 hover:text-pine-teal border-transparent"
-                }`}>
-                <FaShieldAlt /> Admin Console
+            <div className="mb-4 pb-4 border-b border-white/8">
+              <Link to="/admin">
+                <motion.div whileHover={{ x: 3 }} whileTap={{ scale: 0.96 }}
+                  className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-bold transition-all ${
+                    location.pathname === "/admin"
+                      ? "bg-dark-raspberry/30 text-dark-raspberry border border-dark-raspberry/30"
+                      : "text-white/50 hover:bg-white/6 hover:text-white/90"
+                  }`}>
+                  <FaShieldAlt /> Admin Console
+                </motion.div>
               </Link>
             </div>
           )}
 
           {/* Nav */}
-          <nav className="flex-1 space-y-1 overflow-y-auto no-scrollbar">
-            {menuItems.map((item) => <NavLink key={item.name} item={item} />)}
+          <nav className="flex-1 space-y-0.5 overflow-y-auto no-scrollbar">
+            {NAV_ITEMS.map((item) => <SideNavLink key={item.name} item={item} />)}
           </nav>
 
+          {/* Dark dot grid overlay */}
+          <div className="pointer-events-none absolute inset-0 dark-dot-grid opacity-30 rounded-none" />
+
           {/* Bottom actions */}
-          <div className="mt-4 pt-4 border-t border-pine-teal/10 space-y-1">
-            <button onClick={() => setIsFeedback(true)}
-              className="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold text-dusty-lavender hover:bg-surface-2 hover:text-pine-teal transition-all border border-transparent">
-              <FaCommentAlt /> Feedback
-            </button>
-            <button onClick={() => { logout(); navigate("/"); }}
-              className="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold text-dusty-lavender hover:bg-surface-2 hover:text-blazing-flame transition-all border border-transparent">
-              <FaSignOutAlt /> Log Out
-            </button>
+          <div className="relative z-10 mt-4 pt-4 border-t border-white/8 space-y-0.5">
+            <motion.button whileHover={{ x: 3 }} whileTap={{ scale: 0.96 }}
+              onClick={() => setIsFeedback(true)}
+              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-bold text-white/40 hover:bg-white/6 hover:text-white/80 transition-all">
+              <FaCommentAlt className="text-base" /> Feedback
+            </motion.button>
+            <motion.button whileHover={{ x: 3 }} whileTap={{ scale: 0.96 }}
+              onClick={() => { logout(); navigate("/"); }}
+              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-bold text-white/40 hover:bg-blazing-flame/12 hover:text-blazing-flame transition-all">
+              <FaSignOutAlt className="text-base" /> Log Out
+            </motion.button>
           </div>
         </div>
       </aside>
 
-      {/* ── MAIN CONTENT ── */}
+      {/* ══════════════════════════════════
+          MAIN CONTENT
+      ══════════════════════════════════ */}
       <main className="flex-1 overflow-y-auto no-scrollbar relative w-full h-full bg-pearl-beige">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            transition={{ duration: 0.22, ease: "easeOut" }}
             className="h-full"
           >
             {children}
@@ -244,57 +288,76 @@ const Layout = ({ children }) => {
         </AnimatePresence>
       </main>
 
-      {/* ── MOBILE BOTTOM NAV ── */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-surface/92 backdrop-blur-xl border-t border-pine-teal/10 z-50 shadow-[0_-8px_24px_rgba(29,74,66,0.08)]">
-        <nav className="flex justify-around items-center h-16 px-2">
-          {menuItems.filter((i) => !i.hideOnMobileBottom).map((item) => {
-            const isActive = location.pathname === item.path;
-            const isRadar  = item.path === "/radar";
-            return (
-              <Link key={item.name} to={item.path}
-                className="flex flex-col items-center justify-center w-full h-full gap-1 relative">
-                {isActive && !isRadar && (
-                  <motion.div layoutId="mobileNavBar"
-                    className={`absolute -top-px w-6 h-0.5 rounded-b-full ${accentBg}`} />
-                )}
-                <motion.div whileTap={{ scale: 0.8 }}
-                  className={`text-xl transition-all duration-200 ${
-                    isActive ? (isRadar ? "text-blazing-flame" : accentText) :
-                    isRadar ? "text-blazing-flame/60 animate-pulse" : "text-dusty-lavender"
-                  }`}>
-                  <div className="relative">
-                    {item.icon}
+      {/* ══════════════════════════════════
+          MOBILE BOTTOM NAV
+      ══════════════════════════════════ */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
+        {/* Frosted glass bar */}
+        <div className="bg-surface/94 backdrop-blur-2xl border-t border-pine-teal/8 shadow-[0_-12px_40px_rgba(29,74,66,0.10)]">
+          <nav className="flex justify-around items-center h-16 px-1 relative">
+            {NAV_ITEMS.filter((i) => !i.hideOnMobileBottom).map((item) => {
+              const isActive = location.pathname === item.path;
+              const isRadar  = item.path === "/radar";
+              const Icon     = item.icon;
+
+              return (
+                <Link key={item.name} to={item.path}
+                  className="flex flex-col items-center justify-center w-full h-full gap-1 relative">
+
+                  {/* Active top bar indicator */}
+                  {isActive && !isRadar && (
+                    <motion.div
+                      layoutId="mobileNavIndicator"
+                      className={`absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-b-full ${accentBg}`}
+                      transition={springTransition}
+                    />
+                  )}
+
+                  {/* Icon with spring tap */}
+                  <motion.div
+                    whileTap={{ scale: 0.72, rotate: isRadar ? 15 : 0 }}
+                    transition={{ type: "spring", stiffness: 500, damping: 20 }}
+                    className="relative"
+                  >
+                    <Icon className={`text-xl transition-all duration-200 ${
+                      isActive
+                        ? isRadar ? "text-blazing-flame" : (isDonor ? "text-blazing-flame" : "text-dark-raspberry")
+                        : isRadar ? "text-blazing-flame/50 animate-pulse" : "text-dusty-lavender"
+                    }`} />
                     {item.name === "Inbox" && hasUnread && !isActive && (
                       <span className="absolute -top-1 -right-1 flex h-2 w-2">
                         <span className="animate-ping absolute h-full w-full rounded-full bg-blazing-flame opacity-75" />
                         <span className="relative h-2 w-2 rounded-full bg-blazing-flame" />
                       </span>
                     )}
-                  </div>
+                  </motion.div>
+
+                  <span className={`text-[9px] font-black uppercase tracking-wider transition-all duration-200 ${
+                    isActive
+                      ? isRadar ? "text-blazing-flame" : "text-pine-teal"
+                      : "text-dusty-lavender/70"
+                  }`}>
+                    {item.name}
+                  </span>
+                </Link>
+              );
+            })}
+
+            {user?.isAdmin && (
+              <Link to="/admin" className="flex flex-col items-center justify-center w-full h-full gap-1 relative">
+                {location.pathname === "/admin" && (
+                  <motion.div layoutId="mobileNavIndicator" className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-b-full bg-dark-raspberry" transition={springTransition} />
+                )}
+                <motion.div whileTap={{ scale: 0.72 }} transition={{ type: "spring", stiffness: 500, damping: 20 }}>
+                  <FaShieldAlt className={`text-xl ${location.pathname === "/admin" ? "text-dark-raspberry" : "text-dusty-lavender"}`} />
                 </motion.div>
-                <span className={`text-[9px] font-black uppercase tracking-wider ${
-                  isActive ? (isRadar ? "text-blazing-flame" : "text-pine-teal") : "text-dusty-lavender"
-                }`}>
-                  {item.name}
+                <span className={`text-[9px] font-black uppercase tracking-wider ${location.pathname === "/admin" ? "text-pine-teal" : "text-dusty-lavender/70"}`}>
+                  Admin
                 </span>
               </Link>
-            );
-          })}
-
-          {user?.isAdmin && (
-            <Link to="/admin" className="flex flex-col items-center justify-center w-full h-full gap-1 relative">
-              {location.pathname === "/admin" && (
-                <motion.div layoutId="mobileNavBar" className="absolute -top-px w-6 h-0.5 rounded-b-full bg-dark-raspberry" />
-              )}
-              <div className={`text-xl ${location.pathname === "/admin" ? "text-dark-raspberry" : "text-dusty-lavender"}`}>
-                <FaShieldAlt />
-              </div>
-              <span className={`text-[9px] font-black uppercase tracking-wider ${location.pathname === "/admin" ? "text-pine-teal" : "text-dusty-lavender"}`}>
-                Admin
-              </span>
-            </Link>
-          )}
-        </nav>
+            )}
+          </nav>
+        </div>
       </div>
 
       <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedback(false)} />

@@ -204,48 +204,77 @@ const Admin = () => {
       ]
     : [];
 
+  const TABS = [
+    { id: "overview",   label: "Overview",    icon: <FaChartPie /> },
+    { id: "users",      label: "Users",       icon: <FaUsers /> },
+    { id: "listings",   label: "Content",     icon: <FaBoxOpen /> },
+    { id: "events",     label: "Events",      icon: <FaCalendarAlt /> },
+    { id: "moderation", label: "Moderation",  icon: <FaFlag /> },
+    { id: "feedback",   label: "Feedback",    icon: <FaCommentAlt /> },
+    { id: "heatmap",    label: "Heatmap",     icon: <FaMapMarkerAlt /> },
+  ];
+
   return (
     <Layout>
-      <div className="max-w-6xl mx-auto px-4 pb-32 min-h-screen text-pine-teal relative">
-        <header className="mb-8 border-b border-dusty-lavender/30 pt-6 pb-6 flex flex-col xl:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4 text-dark-raspberry w-full xl:w-auto justify-center xl:justify-start shrink-0">
-            <FaShieldAlt className="text-4xl md:text-5xl drop-shadow-[0_0_15px_rgba(159,17,100,0.3)]" />
-            <div>
-              <h1 className="text-2xl md:text-3xl font-black text-pine-teal tracking-tighter drop-shadow-sm uppercase">
-                SAHAYAM <span className="text-dark-raspberry">ADMIN</span>
-              </h1>
-              <p className="text-dusty-lavender text-[10px] uppercase font-black tracking-[0.3em]">
-                System Administrator
-              </p>
-            </div>
-          </div>
+      <div className="min-h-screen bg-pearl-beige font-sans pb-32 md:pb-16">
 
-          <div className="w-full xl:w-auto overflow-x-auto no-scrollbar pb-2 xl:pb-0">
-            <div className="flex bg-white/50 backdrop-blur-md p-1.5 rounded-2xl border border-dusty-lavender/30 min-w-max shadow-sm">
-              {[
-                { id: "overview", label: "Overview", icon: <FaChartPie /> },
-                { id: "users", label: "Users", icon: <FaUsers /> },
-                { id: "listings", label: "Content", icon: <FaBoxOpen /> },
-                { id: "events", label: "Events", icon: <FaCalendarAlt /> },
-                { id: "moderation", label: "Moderation", icon: <FaFlag /> },
-                { id: "feedback", label: "Feedback", icon: <FaCommentAlt /> }, // 👉 Added Feedback Tab
-                { id: "heatmap", label: "Heatmap", icon: <FaMapMarkerAlt /> }, // 👉 Added Heatmap Tab
-              ].map((tab) => (
+        {/* ── AURORA HEADER ── */}
+        <div className="aurora-header relative px-4 pt-8 pb-20 overflow-hidden">
+          <div className="dark-dot-grid absolute inset-0 opacity-20" />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="relative z-10 flex flex-col items-center text-center"
+          >
+            <motion.div
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+              className="mb-3"
+            >
+              <FaShieldAlt className="text-4xl text-dark-raspberry drop-shadow-[0_0_20px_rgba(160,17,106,0.8)]" />
+            </motion.div>
+            <h1 className="text-3xl font-black text-white tracking-tight uppercase">
+              Sahayam <span className="gradient-text-aurora">Admin</span>
+            </h1>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mt-1">System Administrator</p>
+          </motion.div>
+
+          {/* Tabs */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25, type: "spring", stiffness: 300, damping: 26 }}
+            className="relative z-10 mt-5 overflow-x-auto no-scrollbar"
+          >
+            <div className="flex bg-white/10 p-1 rounded-2xl border border-white/15 min-w-max mx-auto w-full max-w-2xl">
+              {TABS.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-5 py-3 md:py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 flex-1 md:flex-none ${
+                  className={`relative px-3 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 flex-1 ${
                     activeTab === tab.id
-                      ? "bg-dark-raspberry text-white shadow-md"
-                      : "text-dusty-lavender hover:text-pine-teal hover:bg-white"
-                  } ${tab.id === "moderation" && stats?.reportedPosts?.length > 0 ? "text-blazing-flame animate-pulse" : ""}`}
+                      ? "text-white"
+                      : "text-white/50 hover:text-white/80"
+                  } ${tab.id === "moderation" && stats?.reportedPosts?.length > 0 ? "text-blazing-flame" : ""}`}
                 >
-                  {tab.icon} <span>{tab.label}</span>
+                  {activeTab === tab.id && (
+                    <motion.div
+                      layoutId="adminTabBg"
+                      className="absolute inset-0 rounded-xl bg-dark-raspberry shadow-md"
+                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <span className="relative z-10">{tab.icon}</span>
+                  <span className="relative z-10 hidden sm:inline">{tab.label}</span>
                 </button>
               ))}
             </div>
-          </div>
-        </header>
+          </motion.div>
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 -mt-10">
 
         {loading ? (
           <div className="flex justify-center py-20">
@@ -258,46 +287,28 @@ const Admin = () => {
               <div className="space-y-6">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                   {[
-                    {
-                      title: "Total Users",
-                      value: stats.totalUsers,
-                      color: "text-pine-teal",
-                    },
-                    {
-                      title: "Active SOS",
-                      value: stats.activeSOS || 0,
-                      color: "text-blazing-flame",
-                      icon: <FaExclamationTriangle className="animate-pulse" />,
-                    },
-                    {
-                      title: "Support Fulfilled",
-                      value: stats.fulfilledItems,
-                      color: "text-[#1a3630]",
-                    },
-                    {
-                      title: "Total Hub Content",
-                      value: stats.totalDonations + stats.totalRequests,
-                      color: "text-dark-raspberry",
-                    },
+                    { title: "Total Users",      value: stats.totalUsers,                         color: "text-pine-teal" },
+                    { title: "Active SOS",        value: stats.activeSOS || 0,                     color: "text-blazing-flame", icon: <FaExclamationTriangle className="animate-pulse" /> },
+                    { title: "Support Fulfilled", value: stats.fulfilledItems,                     color: "text-[#1a3630]" },
+                    { title: "Total Content",     value: stats.totalDonations + stats.totalRequests, color: "text-dark-raspberry" },
                   ].map((stat, i) => (
-                    <div
+                    <motion.div
                       key={i}
-                      className="bg-white/70 backdrop-blur-lg border border-white rounded-3xl p-5 md:p-8 relative overflow-hidden group shadow-[0_10px_30px_rgba(41,82,74,0.08)] flex flex-col justify-between"
+                      initial={{ opacity: 0, y: 24 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 26, delay: i * 0.07 }}
+                      className="bg-surface rounded-3xl border border-pine-teal/8 p-5 md:p-8 relative overflow-hidden shadow-sm flex flex-col justify-between"
                     >
                       <div className="flex items-center gap-2 mb-2">
-                        {stat.icon && (
-                          <span className={stat.color}>{stat.icon}</span>
-                        )}
+                        {stat.icon && <span className={stat.color}>{stat.icon}</span>}
                         <p className="text-dusty-lavender text-[8px] md:text-[10px] uppercase font-black tracking-widest">
                           {stat.title}
                         </p>
                       </div>
-                      <h3
-                        className={`text-4xl md:text-6xl font-black ${stat.color} drop-shadow-sm`}
-                      >
+                      <h3 className={`text-4xl md:text-6xl font-black ${stat.color} drop-shadow-sm`}>
                         {stat.value}
                       </h3>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
 
@@ -1045,6 +1056,7 @@ const Admin = () => {
             )}
           </div>
         )}
+        </div>
       </div>
     </Layout>
   );

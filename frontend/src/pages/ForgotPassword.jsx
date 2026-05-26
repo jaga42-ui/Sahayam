@@ -1,95 +1,125 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import toast from 'react-hot-toast';
-import { FaEnvelope, FaSpinner, FaLock } from 'react-icons/fa';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import toast from "react-hot-toast";
+import { FaEnvelope, FaSpinner, FaLock, FaArrowRight } from "react-icons/fa";
+import api from "../utils/api";
+import logo from "../assets/logo.png";
 
-import api from '../utils/api';
-import logo from '../assets/logo.png';
+const inputBase =
+  "w-full rounded-xl border bg-white/8 px-4 py-3.5 text-sm font-medium text-white placeholder-white/30 outline-none transition-all";
 
 const ForgotPassword = () => {
-  const [email, setEmail] = useState('');
+  const [email,   setEmail]   = useState("");
   const [loading, setLoading] = useState(false);
+  const [sent,    setSent]    = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const toastId = toast.loading('Transmitting override link...', {
-      style: { background: '#ffffff', color: '#29524a', border: '1px solid #846b8a' }
-    });
-
     try {
-      await api.post('/auth/forgotpassword', { email });
-      toast.success('Transmission sent. Check your secure inbox.', { 
-        id: toastId,
-        style: { background: '#ffffff', color: '#29524a', border: '1px solid #846b8a' }
-      });
-      setEmail('');
+      await api.post("/auth/forgotpassword", { email });
+      setSent(true);
+      toast.success("Override link sent. Check your inbox.");
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Transmission failed.', { 
-        id: toastId,
-        style: { background: '#ffffff', color: '#ff4a1c', border: '1px solid #ff4a1c' }
-      });
+      toast.error(error.response?.data?.message || "Transmission failed.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-pearl-beige flex items-center justify-center p-4 relative selection:bg-dark-raspberry selection:text-white overflow-hidden font-sans">
-      {/* VIBRANT BACKGROUND GLOWS */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] left-[-10%] w-[50vw] max-w-[600px] h-[50vh] bg-blazing-flame/10 blur-[100px] rounded-full"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50vw] max-w-[600px] h-[50vh] bg-pine-teal/10 blur-[100px] rounded-full"></div>
+    <main className="min-h-screen aurora-bg flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden selection:bg-white/20 selection:text-white font-sans">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-32 -left-24 h-80 w-80 rounded-full bg-blazing-flame/10 blur-[100px] float-slow" />
+        <div className="absolute top-1/2 -right-24 h-72 w-72 rounded-full bg-dark-raspberry/12 blur-[100px] float-delay" />
+        <div className="absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-pine-teal/12 blur-[80px] float-gentle" />
+        <div className="dark-dot-grid absolute inset-0 opacity-25" />
       </div>
 
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }} 
-        animate={{ opacity: 1, y: 0 }} 
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="w-full max-w-md bg-white/70 backdrop-blur-lg border border-white rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_40px_rgba(41,82,74,0.08)] relative z-10"
+      <motion.div
+        initial={{ opacity: 0, y: 32, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="relative z-10 w-full max-w-md"
       >
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-white border border-dusty-lavender/30 rounded-2xl flex items-center justify-center text-3xl text-dark-raspberry mx-auto mb-4 shadow-sm">
-            <FaLock />
-          </div>
-          <h2 className="text-3xl font-black text-pine-teal tracking-tight uppercase">
-            SYSTEM <span className="text-blazing-flame">OVERRIDE.</span>
-          </h2>
-          <p className="text-dusty-lavender text-xs font-bold uppercase tracking-widest mt-1">
-            Request a secure link to regain access.
-          </p>
+        <div className="flex items-center justify-center gap-2.5 mb-6">
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <motion.img
+              whileHover={{ scale: 1.1, rotate: -5 }}
+              src={logo} alt="Sahayam"
+              className="h-9 w-auto drop-shadow-[0_0_14px_rgba(255,74,28,0.55)]"
+            />
+            <span className="text-2xl font-black italic tracking-tighter text-white">
+              SAHA<span className="text-blazing-flame drop-shadow-[0_0_10px_rgba(255,74,28,0.8)]">YAM.</span>
+            </span>
+          </Link>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="emailInput" className="text-dusty-lavender text-[10px] sm:text-xs font-black uppercase tracking-widest mb-2 flex items-center gap-2 ml-1">
-              <FaEnvelope className="text-dark-raspberry" /> Account Email
-            </label>
-            <input 
-              id="emailInput"
-              type="email" 
-              value={email} 
-              onChange={(e) => setEmail(e.target.value)} 
-              required
-              className="w-full bg-white border border-dusty-lavender/40 rounded-2xl px-5 py-4 text-pine-teal text-base md:text-sm placeholder-dusty-lavender/70 focus:border-dark-raspberry focus:ring-4 focus:ring-dark-raspberry/10 outline-none transition-all shadow-inner"
-              placeholder="operator@sahayam.com"
-            />
+        <div className="glass-dark rounded-3xl p-6 border border-white/10">
+          <div className="flex flex-col items-center mb-6">
+            <motion.div
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+              className="w-14 h-14 rounded-2xl bg-dark-raspberry/20 border border-dark-raspberry/40 flex items-center justify-center mb-3"
+            >
+              <FaLock className="text-dark-raspberry text-xl drop-shadow-[0_0_8px_rgba(160,17,106,0.8)]" />
+            </motion.div>
+            <h2 className="text-xl font-black text-white tracking-tight text-center">System Override</h2>
+            <p className="text-[11px] font-medium text-white/40 mt-0.5 text-center">
+              {sent ? "Check your inbox for the recovery link." : "Request a secure link to regain access."}
+            </p>
           </div>
 
-          <button 
-            type="submit"
-            disabled={loading || !email}
-            className="w-full bg-pine-teal hover:bg-[#1a3630] text-white font-black tracking-widest uppercase text-xs sm:text-sm py-4 rounded-2xl transition-all shadow-[0_10px_25px_rgba(41,82,74,0.3)] active:scale-95 disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2"
-          >
-            {loading ? <FaSpinner className="animate-spin text-xl" /> : 'Send Override Link'}
-          </button>
-        </form>
+          {sent ? (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+              className="flex flex-col items-center gap-4 py-4"
+            >
+              <div className="w-16 h-16 rounded-2xl bg-pine-teal/20 border border-pine-teal/40 flex items-center justify-center">
+                <FaEnvelope className="text-pine-teal text-2xl drop-shadow-[0_0_8px_rgba(41,82,74,0.8)]" />
+              </div>
+              <p className="text-white/60 text-sm text-center font-medium leading-relaxed">
+                We've sent a recovery link to <span className="text-white font-bold">{email}</span>. Follow it to reset your password.
+              </p>
+              <Link to="/login" className="text-[10px] font-bold text-white/40 uppercase tracking-widest hover:text-white/70 transition-colors mt-2">
+                Back to Login
+              </Link>
+            </motion.div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <div>
+                <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">
+                  Account Email *
+                </label>
+                <input
+                  type="email" value={email}
+                  onChange={(e) => setEmail(e.target.value)} required
+                  placeholder="operator@sahayam.com"
+                  className={`${inputBase} border border-dark-raspberry/50 focus:border-dark-raspberry focus:ring-2 focus:ring-dark-raspberry/10`}
+                />
+              </div>
 
-        <div className="mt-8 text-center bg-white/50 py-4 rounded-2xl border border-white shadow-sm">
-          <Link to="/login" className="text-dusty-lavender hover:text-dark-raspberry text-[10px] font-bold uppercase tracking-widest transition-colors">
-            Abort & Return to Login
-          </Link>
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                type="submit"
+                disabled={loading || !email}
+                className="ripple-btn w-full mt-2 flex items-center justify-center gap-2.5 rounded-2xl py-4 text-[11px] font-black uppercase tracking-widest text-white shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-dark-raspberry to-[#850e53]"
+              >
+                {loading
+                  ? <FaSpinner className="animate-spin text-lg" />
+                  : <>Send Override Link <FaArrowRight className="text-xs" /></>
+                }
+              </motion.button>
+
+              <p className="text-center pt-2">
+                <Link to="/login" className="text-[11px] font-bold text-white/35 hover:text-white/60 uppercase tracking-widest transition-colors">
+                  Abort & Return to Login
+                </Link>
+              </p>
+            </form>
+          )}
         </div>
       </motion.div>
     </main>

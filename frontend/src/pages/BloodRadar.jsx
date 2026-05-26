@@ -148,26 +148,33 @@ const BloodRadar = () => {
     <Layout>
       <div className="relative w-full h-[calc(100dvh-70px)] md:h-screen md:-mt-8 md:-ml-8 overflow-hidden bg-pearl-beige font-sans">
         
-        {/* 👉 THE MASTERPIECE: Glassmorphic Floating Top Bar */}
-        <div className="absolute top-4 left-4 right-4 z-[400] flex flex-wrap items-center justify-between gap-3 pointer-events-none">
-          <div className="bg-white/60 backdrop-blur-xl border border-dusty-lavender/30 px-5 py-3.5 rounded-2xl flex items-center gap-4 shadow-[0_20px_40px_rgba(41,82,74,0.08)] pointer-events-auto">
-            <div className={`w-3 h-3 rounded-full ${loading ? "bg-blazing-flame animate-pulse" : "bg-pine-teal animate-pulse shadow-[0_0_15px_rgba(41,82,74,0.8)]"}`} />
+        {/* Glassmorphic Floating Top Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 26, delay: 0.3 }}
+          className="absolute top-4 left-4 right-4 z-[400] flex flex-wrap items-center justify-between gap-3 pointer-events-none"
+        >
+          <div className="glass-dark border border-white/12 px-5 py-3.5 rounded-2xl flex items-center gap-4 shadow-[0_20px_40px_rgba(8,20,16,0.4)] pointer-events-auto">
+            <div className={`w-3 h-3 rounded-full ${loading ? "bg-blazing-flame animate-pulse" : "bg-pine-teal animate-pulse shadow-[0_0_12px_rgba(41,82,74,1)]"}`} />
             <div>
-              <p className="text-pine-teal text-xs font-black uppercase tracking-widest leading-none">{donors.length} Community Members Nearby</p>
-              <p className="text-dusty-lavender text-[9px] font-bold uppercase tracking-widest mt-1 flex items-center gap-1"><FaMapMarkerAlt /> {myAddressText}</p>
+              <p className="text-white text-xs font-black uppercase tracking-widest leading-none">{donors.length} Members Nearby</p>
+              <p className="text-white/50 text-[9px] font-bold uppercase tracking-widest mt-1 flex items-center gap-1"><FaMapMarkerAlt /> {myAddressText}</p>
             </div>
           </div>
 
-          <div className="flex gap-2 pointer-events-auto shadow-[0_20px_40px_rgba(41,82,74,0.08)]">
-            <select value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} className="bg-white/60 backdrop-blur-xl border border-dusty-lavender/30 rounded-2xl px-5 py-3 text-pine-teal text-[10px] uppercase tracking-widest font-black outline-none focus:border-pine-teal transition-all appearance-none cursor-pointer hover:bg-white/80">
-              <option value="All">All Types</option>
-              {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((bg) => (<option key={bg} value={bg}>{bg}</option>))}
+          <div className="flex gap-2 pointer-events-auto">
+            <select value={bloodGroup} onChange={(e) => setBloodGroup(e.target.value)} className="glass-dark border border-white/12 rounded-2xl px-4 py-3 text-white text-[10px] uppercase tracking-widest font-black outline-none transition-all appearance-none cursor-pointer hover:bg-white/12 shadow-[0_10px_30px_rgba(8,20,16,0.4)]">
+              <option value="All" className="bg-[#0f2620]">All Types</option>
+              {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((bg) => (<option key={bg} value={bg} className="bg-[#0f2620]">{bg}</option>))}
             </select>
-            <select value={radius} onChange={(e) => setRadius(Number(e.target.value))} className="bg-white/60 backdrop-blur-xl border border-dusty-lavender/30 rounded-2xl px-5 py-3 text-pine-teal text-[10px] uppercase tracking-widest font-black outline-none focus:border-pine-teal transition-all appearance-none cursor-pointer hover:bg-white/80">
-              <option value={5000}>5 KM Scan</option><option value={15000}>15 KM Scan</option><option value={50000}>50 KM Scan</option>
+            <select value={radius} onChange={(e) => setRadius(Number(e.target.value))} className="glass-dark border border-white/12 rounded-2xl px-4 py-3 text-white text-[10px] uppercase tracking-widest font-black outline-none transition-all appearance-none cursor-pointer hover:bg-white/12 shadow-[0_10px_30px_rgba(8,20,16,0.4)]">
+              <option value={5000} className="bg-[#0f2620]">5 KM Scan</option>
+              <option value={15000} className="bg-[#0f2620]">15 KM Scan</option>
+              <option value={50000} className="bg-[#0f2620]">50 KM Scan</option>
             </select>
           </div>
-        </div>
+        </motion.div>
 
         <AnimatePresence>
           {blastId && (
@@ -224,14 +231,21 @@ const BloodRadar = () => {
           )}
         </div>
 
-        {/* 👉 THE MASTERPIECE: Floating Neon Blast Button */}
+        {/* Floating Blast Button */}
         <div className="absolute bottom-24 md:bottom-10 left-0 right-0 z-[400] flex justify-center pointer-events-none">
-          <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setShowBlastModal(true)} className="group relative flex items-center justify-center pointer-events-auto">
-            <div className="absolute inset-0 bg-dark-raspberry rounded-2xl animate-ping opacity-40 blur-sm" />
-            <div className="relative bg-white/90 backdrop-blur-xl border border-dark-raspberry/50 text-pine-teal px-8 py-4 md:px-10 md:py-5 rounded-2xl flex items-center gap-3 shadow-[0_15px_30px_rgba(159,17,100,0.2)] transition-all overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-dark-raspberry/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
-              <FaBullhorn className="text-xl text-dark-raspberry animate-pulse" />
-              <span className="text-xs md:text-[11px] font-black uppercase tracking-[0.2em]">Ask for Help</span>
+          <motion.button
+            whileTap={{ scale: 0.93 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            onClick={() => setShowBlastModal(true)}
+            className="group relative flex items-center justify-center pointer-events-auto"
+          >
+            {/* Pulsing rings */}
+            <span className="absolute inset-0 rounded-2xl bg-dark-raspberry animate-ping opacity-30" />
+            <span className="absolute -inset-2 rounded-3xl bg-dark-raspberry/20 animate-ping opacity-20" style={{ animationDelay: "0.4s", animationDuration: "1.8s" }} />
+            <div className="relative glass-dark border border-dark-raspberry/60 px-8 py-4 md:px-10 md:py-5 rounded-2xl flex items-center gap-3 shadow-[0_15px_40px_rgba(160,17,106,0.45)] transition-all overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-dark-raspberry/15 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
+              <FaBullhorn className="text-xl text-dark-raspberry drop-shadow-[0_0_8px_rgba(160,17,106,0.9)]" />
+              <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white">Ask for Help</span>
             </div>
           </motion.button>
         </div>
