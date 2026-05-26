@@ -98,9 +98,9 @@ const getInbox = asyncHandler(async (req, res) => {
     otherUserId: convo.otherUserDetails._id,
     otherUserName: convo.otherUserDetails.name,
     otherUserProfilePic: convo.otherUserDetails.profilePic,
-    latestMessage: convo.latestMessage.startsWith("[AUDIO]")
+    latestMessage: convo.latestMessage?.startsWith("[AUDIO]")
       ? "🎤 Voice message"
-      : convo.latestMessage,
+      : convo.latestMessage ?? "",
     updatedAt: convo.updatedAt,
     unreadCount: convo.unreadCount,
   }));

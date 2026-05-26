@@ -89,8 +89,8 @@ const getDashboardStats = asyncHandler(async (req, res) => {
 // @desc    Get all users (with pagination limits)
 // @route   GET /api/admin/users
 const getAllUsers = asyncHandler(async (req, res) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 100;
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const limit = Math.min(Number(req.query.limit) || 100, 500);
   const skip = (page - 1) * limit;
 
   // 👉 THE FIX: Never load the whole database. Limit to 100 per page.
@@ -106,8 +106,8 @@ const getAllUsers = asyncHandler(async (req, res) => {
 // @desc    Get all listings (with pagination limits)
 // @route   GET /api/admin/listings
 const getAllListings = asyncHandler(async (req, res) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 100;
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const limit = Math.min(Number(req.query.limit) || 100, 500);
   const skip = (page - 1) * limit;
 
   // 👉 THE FIX: Strict limits to prevent OOM

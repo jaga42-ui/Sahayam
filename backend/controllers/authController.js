@@ -398,7 +398,7 @@ const sendEmergencyBlast = asyncHandler(async (req, res) => {
       requesterPhone: req.user.phone,
       lat,
       lng,
-    });
+    }).catch(console.error);
   }
 
   res.status(200).json({

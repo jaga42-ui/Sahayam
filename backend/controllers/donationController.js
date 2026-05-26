@@ -203,8 +203,8 @@ const createDonation = asyncHandler(async (req, res) => {
 
 const getDonations = asyncHandler(async (req, res) => {
   const { lat, lng } = req.query;
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 12;
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const limit = Math.min(Number(req.query.limit) || 12, 100);
   const skip = (page - 1) * limit;
 
   let query = { status: { $nin: ["fulfilled", "hidden"] } };
@@ -238,8 +238,8 @@ const getDonations = asyncHandler(async (req, res) => {
 });
 
 const getNearbyFeed = asyncHandler(async (req, res) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 12;
+  const page = Math.max(1, Number(req.query.page) || 1);
+  const limit = Math.min(Number(req.query.limit) || 12, 100);
   const skip = (page - 1) * limit;
 
   // 👉 THE FIX: Removed countDocuments() here as well
@@ -426,19 +426,21 @@ const markFulfilled = asyncHandler(async (req, res) => {
   if (donor) {
     donor.points += 10;
     donor.donationsCount += 1;
-    await donor.save();
 
-    // 👉 NEW: Automated Certificate logic
     if (donor.donationsCount === 1 || donor.donationsCount === 5 || donor.donationsCount === 10) {
       const { sendCertificateEmail } = require('../utils/sendEmail');
       sendCertificateEmail(donor.email, donor.name, donor.donationsCount).catch(console.error);
     }
+
+    donor.rank = calculateRank(donor.points);
+    await donor.save();
   }
-  donor.rank = calculateRank(donor.points);
-  await donor.save();
 
   if (donation.receiverId) {
     const receiver = await User.findById(donation.receiverId);
+    if (!receiver) {
+      return res.json({ message: "Handshake Successful", pointsEarned: 50 });
+    }
     receiver.points += getPointsForAction('RECEIVE_DONATION');
     receiver.requestsCount += 1;
     receiver.rank = calculateRank(receiver.points);

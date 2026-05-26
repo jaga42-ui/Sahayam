@@ -34,43 +34,36 @@ function App() {
       <AuthProvider>
         <Router>
           {/* 👉 PREMIUM SAHAYAM TOAST ALERTS */}
-          <Toaster 
-            position="top-center" 
-            toastOptions={{ 
+          <Toaster
+            position="top-center"
+            toastOptions={{
               duration: 4000,
-              className: 'font-sans font-black tracking-widest', // Forces Sahayam typography
               style: {
-                background: 'rgba(255, 255, 255, 0.85)',
-                backdropFilter: 'blur(12px)',
-                WebkitBackdropFilter: 'blur(12px)',
-                color: '#29524a', // Pine Teal text
-                border: '1px solid rgba(255, 255, 255, 0.5)',
-                borderRadius: '2rem', // Pill shape
-                padding: '16px 28px',
-                boxShadow: '0 20px 40px rgba(41, 82, 74, 0.12)',
-                fontSize: '11px',
-                textTransform: 'uppercase',
+                background: 'rgba(255, 255, 255, 0.92)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                color: '#1d4a42',
+                border: '1px solid rgba(29, 74, 66, 0.12)',
+                borderRadius: '14px',
+                padding: '12px 20px',
+                boxShadow: '0 8px 32px rgba(29, 74, 66, 0.10), 0 2px 8px rgba(0,0,0,0.05)',
+                fontSize: '13px',
+                fontWeight: '600',
+                fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+                maxWidth: '420px',
               },
               success: {
-                iconTheme: {
-                  primary: '#29524a', // Pine Teal
-                  secondary: '#ffffff',
-                },
-                style: {
-                  border: '1px solid rgba(41, 82, 74, 0.2)',
-                }
+                iconTheme: { primary: '#1d4a42', secondary: '#ffffff' },
+                style: { borderLeft: '3px solid #1d4a42' },
               },
               error: {
-                iconTheme: {
-                  primary: '#ff4a1c', // Blazing Flame
-                  secondary: '#ffffff',
-                },
-                style: {
-                  border: '1px solid rgba(255, 74, 28, 0.2)',
-                  color: '#ff4a1c',
-                }
-              }
-            }} 
+                iconTheme: { primary: '#ff4a1c', secondary: '#ffffff' },
+                style: { borderLeft: '3px solid #ff4a1c', color: '#c0381a' },
+              },
+              loading: {
+                iconTheme: { primary: '#7a6882', secondary: '#ffffff' },
+              },
+            }}
           />
 
           <ErrorBoundary>

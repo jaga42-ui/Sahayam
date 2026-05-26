@@ -1,4 +1,3 @@
-// Developed by guruprasad and team
 import { useState, useEffect, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -6,58 +5,38 @@ import AuthContext from "../context/AuthContext";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 import {
-  FaHome,
-  FaUser,
-  FaSignOutAlt,
-  FaExchangeAlt,
-  FaShieldAlt,
-  FaTrophy,
-  FaBoxOpen,
-  FaEnvelope,
-  FaMapMarkerAlt,
-  FaWifi,
-  FaExclamationTriangle,
-  FaTimes,
-  FaCommentAlt, // 👉 Imported Feedback Icon
+  FaHome, FaUser, FaSignOutAlt, FaExchangeAlt, FaShieldAlt,
+  FaTrophy, FaBoxOpen, FaEnvelope, FaMapMarkerAlt,
+  FaWifi, FaExclamationTriangle, FaTimes, FaCommentAlt,
 } from "react-icons/fa";
-
 import logo from "../assets/logo.png";
-import FeedbackModal from "./FeedbackModal"; // 👉 Imported the Modal
-import OnboardingModal from "./OnboardingModal"; // 👉 Imported the Onboarding Modal
+import FeedbackModal from "./FeedbackModal";
+import OnboardingModal from "./OnboardingModal";
 
 const Layout = ({ children }) => {
   const { user, logout, switchRole } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [isOffline, setIsOffline] = useState(!navigator.onLine);
-  const [hasUnread, setHasUnread] = useState(false);
-
-  // 👉 THE FIX: Added Feedback State
-  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [isOffline, setIsOffline]       = useState(!navigator.onLine);
+  const [hasUnread, setHasUnread]       = useState(false);
+  const [isFeedbackOpen, setIsFeedback] = useState(false);
 
   useEffect(() => {
-    const handleOnline = () => setIsOffline(false);
-    const handleOffline = () => setIsOffline(true);
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-    return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-    };
+    const up   = () => setIsOffline(false);
+    const down = () => setIsOffline(true);
+    window.addEventListener("online",  up);
+    window.addEventListener("offline", down);
+    return () => { window.removeEventListener("online", up); window.removeEventListener("offline", down); };
   }, []);
 
   useEffect(() => {
-    const handleNewMessage = () => {
-      if (!location.pathname.includes("/chat")) setHasUnread(true);
-    };
-    window.addEventListener("new_unread_message", handleNewMessage);
-    return () =>
-      window.removeEventListener("new_unread_message", handleNewMessage);
+    const handler = () => { if (!location.pathname.includes("/chat")) setHasUnread(true); };
+    window.addEventListener("new_unread_message", handler);
+    return () => window.removeEventListener("new_unread_message", handler);
   }, [location.pathname]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (location.pathname.includes("/chat")) setHasUnread(false);
   }, [location.pathname]);
 
@@ -69,278 +48,195 @@ const Layout = ({ children }) => {
       toast.custom(
         (t) => (
           <motion.div
-            initial={{ opacity: 0, y: -50, scale: 0.9 }}
+            initial={{ opacity: 0, y: -40, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className={`w-full max-w-sm border-l-4 p-4 rounded-xl shadow-[0_10px_30px_rgba(41,82,74,0.1)] flex items-start gap-3 bg-surface ${data.level === "critical"
-                ? "border-blazing-flame"
-                : "border-pine-teal"
-              }`}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className={`w-full max-w-sm border-l-4 p-4 rounded-2xl shadow-2xl flex items-start gap-3 bg-surface ${
+              data.level === "critical" ? "border-blazing-flame" : "border-pine-teal"
+            }`}
           >
-            <div
-              className={`mt-1 ${data.level === "critical" ? "text-blazing-flame animate-pulse" : "text-pine-teal"}`}
-            >
-              <FaExclamationTriangle className="text-xl" />
+            <div className={`mt-0.5 ${data.level === "critical" ? "text-blazing-flame animate-pulse" : "text-pine-teal"}`}>
+              <FaExclamationTriangle className="text-lg" />
             </div>
             <div className="flex-1">
-              <h3
-                className={`font-black uppercase tracking-widest text-[10px] mb-1 ${data.level === "critical" ? "text-blazing-flame" : "text-pine-teal"}`}
-              >
+              <h3 className={`font-black uppercase tracking-widest text-[10px] mb-1 ${data.level === "critical" ? "text-blazing-flame" : "text-pine-teal"}`}>
                 Sahayam Broadcast
               </h3>
-              <p className="text-sm font-medium leading-relaxed text-pine-teal/80">
-                {data.message}
-              </p>
+              <p className="text-sm font-medium leading-relaxed text-pine-teal/75">{data.message}</p>
             </div>
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="text-dusty-lavender hover:text-dark-raspberry transition-colors"
-            >
+            <button onClick={() => toast.dismiss(t.id)} className="text-dusty-lavender hover:text-dark-raspberry transition-colors mt-0.5">
               <FaTimes />
             </button>
           </motion.div>
         ),
-        {
-          duration: data.level === "critical" ? 20000 : 8000,
-          position: "top-center",
-        },
+        { duration: data.level === "critical" ? 20000 : 8000, position: "top-center" },
       );
     });
     return () => socket.disconnect();
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
-  };
-
-  const isDonor = user?.activeRole === "donor";
-  const themeTextAccent = isDonor
-    ? "text-blazing-flame"
-    : "text-dark-raspberry";
-  const themeBgAccent = isDonor ? "bg-blazing-flame" : "bg-dark-raspberry";
+  const isDonor        = user?.activeRole === "donor";
+  const accentText     = isDonor ? "text-blazing-flame" : "text-dark-raspberry";
+  const accentBg       = isDonor ? "bg-blazing-flame"   : "bg-dark-raspberry";
 
   const menuItems = [
-    { name: "Feed", path: "/dashboard", icon: <FaHome /> },
-    {
-      name: "Radar",
-      path: "/radar",
-      icon: <FaMapMarkerAlt />,
-      isSpecial: true,
-    },
-    {
-      name: isDonor ? "Post" : "Request",
-      path: "/donations",
-      icon: <FaBoxOpen />,
-      hideOnMobileBottom: true,
-    },
-    {
-      name: "Ranks",
-      path: "/leaderboard",
-      icon: <FaTrophy />,
-    },
-    { name: "Inbox", path: "/chat/inbox", icon: <FaEnvelope /> },
-    { name: "Profile", path: "/profile", icon: <FaUser /> },
+    { name: "Feed",     path: "/dashboard",  icon: <FaHome /> },
+    { name: "Radar",    path: "/radar",       icon: <FaMapMarkerAlt />, isSpecial: true },
+    { name: isDonor ? "Post" : "Request", path: "/donations", icon: <FaBoxOpen />, hideOnMobileBottom: true },
+    { name: "Ranks",    path: "/leaderboard", icon: <FaTrophy /> },
+    { name: "Inbox",    path: "/chat/inbox",  icon: <FaEnvelope /> },
+    { name: "Profile",  path: "/profile",     icon: <FaUser /> },
   ];
+
+  const NavLink = ({ item }) => {
+    const isActive = location.pathname === item.path;
+    const isRadar  = item.path === "/radar";
+
+    const base = "flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200";
+    const active   = isRadar
+      ? "bg-blazing-flame/12 text-blazing-flame border border-blazing-flame/25"
+      : "bg-surface-2 text-pine-teal shadow-sm border border-pine-teal/10";
+    const inactive = isRadar
+      ? "text-blazing-flame/60 hover:bg-surface-2 hover:text-blazing-flame border border-transparent"
+      : "text-dusty-lavender hover:bg-surface-2 hover:text-pine-teal border border-transparent";
+
+    return (
+      <Link to={item.path} className={`${base} ${isActive ? active : inactive}`}>
+        <div className="relative shrink-0">
+          <span className={`text-base ${
+            isActive ? (isRadar ? "text-blazing-flame" : accentText) :
+            isRadar ? "text-blazing-flame/60 animate-pulse" : "text-dusty-lavender"
+          }`}>
+            {item.icon}
+          </span>
+          {item.name === "Inbox" && hasUnread && !isActive && (
+            <span className="absolute -top-1 -right-1 flex h-2 w-2">
+              <span className="animate-ping absolute h-full w-full rounded-full bg-blazing-flame opacity-75" />
+              <span className="relative h-2 w-2 rounded-full bg-blazing-flame" />
+            </span>
+          )}
+        </div>
+        {item.name}
+      </Link>
+    );
+  };
 
   return (
     <div className="h-screen bg-pearl-beige flex flex-col md:flex-row font-sans selection:bg-dark-raspberry selection:text-white overflow-hidden">
+
+      {/* Offline banner */}
       <AnimatePresence>
         {isOffline && (
           <motion.div
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: -50, opacity: 0 }}
-            className="fixed top-0 left-0 w-full bg-blazing-flame z-[9999] px-4 py-3 shadow-2xl flex items-center justify-center gap-3"
+            initial={{ y: -48, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -48, opacity: 0 }}
+            className="fixed top-0 left-0 w-full bg-blazing-flame z-[9999] px-4 py-2.5 flex items-center justify-center gap-3"
           >
-            <div className="w-8 h-8 bg-surface/20 rounded-full flex items-center justify-center shrink-0">
-              <FaWifi className="text-white text-sm animate-pulse" />
-            </div>
-            <div>
-              <p className="text-white font-black text-xs uppercase tracking-widest leading-tight">
-                Signal Lost
-              </p>
-              <p className="text-white/80 text-[10px] font-bold">
-                Waiting for network to refresh local emergencies...
-              </p>
-            </div>
+            <FaWifi className="text-white animate-pulse" />
+            <p className="text-white font-black text-xs uppercase tracking-widest">Signal Lost — waiting for network…</p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ---------------- MOBILE TOP BAR ---------------- */}
-      <div className="md:hidden bg-surface/80 backdrop-blur-md border-b border-dusty-lavender/30 px-4 py-3 flex justify-between items-center z-50 shrink-0 shadow-sm">
+      {/* ── MOBILE TOP BAR ── */}
+      <div className="md:hidden bg-surface/85 backdrop-blur-xl border-b border-pine-teal/10 px-4 py-3 flex justify-between items-center z-50 shrink-0 shadow-sm">
         <Link to="/dashboard" className="flex items-center gap-2">
-          <img
-            src={logo}
-            alt="Sahayam Logo"
-            className="h-8 w-auto object-contain drop-shadow-sm"
-          />
-          <span className="text-xl font-black text-pine-teal italic tracking-tighter">
-            SAHA<span className={themeTextAccent}>YAM.</span>
+          <img src={logo} alt="Sahayam" className="h-8 w-auto" />
+          <span className="text-xl font-black italic tracking-tighter text-pine-teal">
+            SAHA<span className={accentText}>YAM.</span>
           </span>
         </Link>
-
-        {/* 👉 THE FIX: Added Feedback Button to Mobile Header */}
         <div className="flex items-center gap-2">
           {user && !user.isAdmin && (
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={switchRole}
-              className="p-2.5 rounded-xl bg-pearl-beige border border-dusty-lavender/30 text-pine-teal hover:text-dark-raspberry transition-all shadow-sm"
-            >
+            <motion.button whileTap={{ scale: 0.88 }} onClick={switchRole}
+              className="p-2.5 rounded-xl bg-surface-2 border border-pine-teal/10 text-pine-teal hover:border-pine-teal/25 transition-all">
               <FaExchangeAlt className="text-xs" />
             </motion.button>
           )}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setIsFeedbackOpen(true)}
-            className="p-2.5 rounded-xl bg-pearl-beige border border-dusty-lavender/30 text-pine-teal hover:text-pine-teal transition-all shadow-sm"
-          >
+          <motion.button whileTap={{ scale: 0.88 }} onClick={() => setIsFeedback(true)}
+            className="p-2.5 rounded-xl bg-surface-2 border border-pine-teal/10 text-pine-teal hover:border-pine-teal/25 transition-all">
             <FaCommentAlt className="text-xs" />
           </motion.button>
         </div>
       </div>
 
-      {/* ---------------- DESKTOP SIDEBAR ---------------- */}
-      <aside className="hidden md:flex flex-col w-72 bg-surface/60 backdrop-blur-xl border-r border-dusty-lavender/30 shrink-0 relative z-40 shadow-xl">
-        <div className="h-full flex flex-col pt-8 pb-8 px-6">
-          <div className="mb-10 flex justify-center">
-            <Link to="/dashboard" className="flex items-center gap-3 group">
-              <img
-                src={logo}
-                alt="Sahayam Logo"
-                className="h-12 w-auto object-contain group-hover:scale-110 transition-transform duration-500"
-              />
-              <span className="text-3xl font-black text-pine-teal italic tracking-tighter">
-                SAHA<span className={themeTextAccent}>YAM.</span>
-              </span>
-            </Link>
-          </div>
+      {/* ── DESKTOP SIDEBAR ── */}
+      <aside className="hidden md:flex flex-col w-64 bg-surface/85 backdrop-blur-xl border-r border-pine-teal/10 shrink-0 z-40 shadow-lg">
+        <div className="flex flex-col h-full px-5 py-6">
 
+          {/* Logo */}
+          <Link to="/dashboard" className="flex items-center gap-2.5 mb-7 group">
+            <img src={logo} alt="Sahayam" className="h-9 w-auto group-hover:scale-110 transition-transform duration-300" />
+            <span className="text-2xl font-black italic tracking-tighter text-pine-teal">
+              SAHA<span className={accentText}>YAM.</span>
+            </span>
+          </Link>
+
+          {/* Profile card */}
           {user && (
-            <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="mb-8 bg-surface border border-dusty-lavender/30 rounded-[2rem] p-4 flex items-center gap-4 cursor-pointer shadow-sm"
+            <motion.button
+              whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}
               onClick={() => navigate("/profile")}
+              className="mb-6 w-full flex items-center gap-3 p-3.5 rounded-2xl border border-pine-teal/10 bg-surface-2 hover:border-pine-teal/20 hover:shadow-sm transition-all text-left"
             >
               {user.profilePic ? (
-                <img
-                  src={user.profilePic}
-                  alt="Profile"
-                  referrerPolicy="no-referrer"
-                  className="w-12 h-12 rounded-2xl object-cover shadow-sm"
-                />
+                <img src={user.profilePic} alt="Profile" referrerPolicy="no-referrer"
+                  className="w-10 h-10 rounded-xl object-cover border border-pine-teal/10 shrink-0" />
               ) : (
-                <div
-                  className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-xl uppercase shadow-sm ${themeBgAccent}`}
-                >
-                  {user.name ? user.name.charAt(0) : "?"}
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-black text-base uppercase shrink-0 ${accentBg}`}>
+                  {user.name?.charAt(0)}
                 </div>
               )}
-              <div className="overflow-hidden">
-                <p className="text-pine-teal font-bold truncate text-sm">
-                  {user.name}
-                </p>
-                <p
-                  className={`text-[9px] uppercase font-black tracking-widest mt-0.5 ${themeTextAccent}`}
-                >
-                  {user.activeRole} Mode
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-pine-teal truncate leading-tight">{user.name}</p>
+                <p className={`text-[10px] font-black uppercase tracking-widest mt-0.5 ${accentText}`}>
+                  {user.activeRole} mode
                 </p>
               </div>
-            </motion.div>
+            </motion.button>
           )}
 
-          <nav className="flex-1 space-y-2 overflow-y-auto no-scrollbar pb-6">
-            {user?.isAdmin && (
-              <div className="mb-6 pb-6 border-b border-dusty-lavender/20">
-                <Link
-                  to="/admin"
-                  className={`flex items-center gap-4 px-5 py-4 rounded-2xl font-bold transition-all duration-300 border ${location.pathname === "/admin" ? "bg-dark-raspberry/10 text-dark-raspberry border-dark-raspberry/30 shadow-inner" : "bg-transparent text-dusty-lavender border-transparent hover:bg-surface hover:text-pine-teal"}`}
-                >
-                  <span
-                    className={
-                      location.pathname === "/admin"
-                        ? "text-dark-raspberry"
-                        : "text-dusty-lavender"
-                    }
-                  >
-                    <FaShieldAlt />
-                  </span>
-                  Command Center
-                </Link>
-              </div>
-            )}
+          {/* Admin link */}
+          {user?.isAdmin && (
+            <div className="mb-4 pb-4 border-b border-pine-teal/10">
+              <Link to="/admin"
+                className={`flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold transition-all border ${
+                  location.pathname === "/admin"
+                    ? "bg-dark-raspberry/10 text-dark-raspberry border-dark-raspberry/20"
+                    : "text-dusty-lavender hover:bg-surface-2 hover:text-pine-teal border-transparent"
+                }`}>
+                <FaShieldAlt /> Admin Console
+              </Link>
+            </div>
+          )}
 
-            {menuItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              const isRadar = item.path === "/radar";
-
-              let linkClass =
-                "bg-transparent border-transparent text-dusty-lavender hover:bg-surface hover:text-pine-teal hover:shadow-sm";
-              if (isActive) {
-                if (isRadar) {
-                  linkClass =
-                    "bg-blazing-flame/10 border-blazing-flame/30 text-blazing-flame shadow-inner";
-                } else {
-                  linkClass = `bg-surface text-pine-teal border-dusty-lavender/30 shadow-md`;
-                }
-              } else if (isRadar) {
-                linkClass =
-                  "bg-transparent border-transparent text-blazing-flame/70 hover:bg-surface hover:text-blazing-flame";
-              }
-
-              return (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={`flex items-center gap-4 px-5 py-3.5 rounded-2xl font-bold transition-all duration-300 border ${linkClass}`}
-                >
-                  <div className="relative">
-                    <span
-                      className={`text-lg ${isActive && !isRadar ? themeTextAccent : isActive ? "text-blazing-flame" : isRadar ? "text-blazing-flame/70" : "text-dusty-lavender"} ${isRadar && !isActive ? "animate-pulse" : ""}`}
-                    >
-                      {item.icon}
-                    </span>
-                    {item.name === "Inbox" && hasUnread && !isActive && (
-                      <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blazing-flame opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blazing-flame shadow-[0_0_8px_rgba(255,74,28,0.8)]"></span>
-                      </span>
-                    )}
-                  </div>
-                  {item.name}
-                </Link>
-              );
-            })}
+          {/* Nav */}
+          <nav className="flex-1 space-y-1 overflow-y-auto no-scrollbar">
+            {menuItems.map((item) => <NavLink key={item.name} item={item} />)}
           </nav>
 
-          {/* 👉 THE FIX: Added Feedback Button to Desktop Sidebar */}
-          <button
-            onClick={() => setIsFeedbackOpen(true)}
-            className="mt-auto flex items-center gap-4 px-5 py-3 mb-2 rounded-2xl font-bold text-dusty-lavender hover:bg-surface hover:text-pine-teal transition-all"
-          >
-            <FaCommentAlt /> Feedback
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-4 px-5 py-4 rounded-2xl font-bold text-dusty-lavender hover:bg-surface hover:text-blazing-flame transition-all"
-          >
-            <FaSignOutAlt /> Logout
-          </button>
+          {/* Bottom actions */}
+          <div className="mt-4 pt-4 border-t border-pine-teal/10 space-y-1">
+            <button onClick={() => setIsFeedback(true)}
+              className="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold text-dusty-lavender hover:bg-surface-2 hover:text-pine-teal transition-all border border-transparent">
+              <FaCommentAlt /> Feedback
+            </button>
+            <button onClick={() => { logout(); navigate("/"); }}
+              className="w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl text-sm font-bold text-dusty-lavender hover:bg-surface-2 hover:text-blazing-flame transition-all border border-transparent">
+              <FaSignOutAlt /> Log Out
+            </button>
+          </div>
         </div>
       </aside>
 
-      {/* ---------------- MAIN CONTENT AREA ---------------- */}
+      {/* ── MAIN CONTENT ── */}
       <main className="flex-1 overflow-y-auto no-scrollbar relative w-full h-full bg-pearl-beige">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
             className="h-full"
           >
             {children}
@@ -348,78 +244,52 @@ const Layout = ({ children }) => {
         </AnimatePresence>
       </main>
 
-      {/* ---------------- MOBILE BOTTOM NAVIGATION ---------------- */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-surface/90 backdrop-blur-md border-t border-dusty-lavender/30 z-50 px-2 pb-safe shadow-[0_-10px_30px_rgba(132,107,138,0.1)]">
-        <nav className="flex justify-around items-center h-16">
-          {menuItems
-            .filter((item) => !item.hideOnMobileBottom)
-            .map((item) => {
-              const isActive = location.pathname === item.path;
-              const isRadar = item.path === "/radar";
-
-              return (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className="flex flex-col items-center justify-center w-full h-full space-y-1 relative"
-                >
-                  {isActive && !isRadar && (
-                    <motion.div
-                      layoutId="mobileNavIndicator"
-                      className={`absolute -top-px w-8 h-1 rounded-b-full ${themeBgAccent} shadow-[0_0_10px_currentColor]`}
-                    />
-                  )}
-
+      {/* ── MOBILE BOTTOM NAV ── */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-surface/92 backdrop-blur-xl border-t border-pine-teal/10 z-50 shadow-[0_-8px_24px_rgba(29,74,66,0.08)]">
+        <nav className="flex justify-around items-center h-16 px-2">
+          {menuItems.filter((i) => !i.hideOnMobileBottom).map((item) => {
+            const isActive = location.pathname === item.path;
+            const isRadar  = item.path === "/radar";
+            return (
+              <Link key={item.name} to={item.path}
+                className="flex flex-col items-center justify-center w-full h-full gap-1 relative">
+                {isActive && !isRadar && (
+                  <motion.div layoutId="mobileNavBar"
+                    className={`absolute -top-px w-6 h-0.5 rounded-b-full ${accentBg}`} />
+                )}
+                <motion.div whileTap={{ scale: 0.8 }}
+                  className={`text-xl transition-all duration-200 ${
+                    isActive ? (isRadar ? "text-blazing-flame" : accentText) :
+                    isRadar ? "text-blazing-flame/60 animate-pulse" : "text-dusty-lavender"
+                  }`}>
                   <div className="relative">
-                    <motion.div
-                      whileTap={{ scale: 0.8 }}
-                      className={`text-xl transition-transform duration-300 ${isActive
-                          ? isRadar
-                            ? "text-blazing-flame scale-110"
-                            : `${themeTextAccent} scale-110`
-                          : isRadar
-                            ? "text-blazing-flame/70 animate-pulse"
-                            : "text-dusty-lavender"
-                        }`}
-                    >
-                      {item.icon}
-                    </motion.div>
+                    {item.icon}
                     {item.name === "Inbox" && hasUnread && !isActive && (
                       <span className="absolute -top-1 -right-1 flex h-2 w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blazing-flame opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2 w-2 bg-blazing-flame shadow-[0_0_8px_rgba(255,74,28,0.8)]"></span>
+                        <span className="animate-ping absolute h-full w-full rounded-full bg-blazing-flame opacity-75" />
+                        <span className="relative h-2 w-2 rounded-full bg-blazing-flame" />
                       </span>
                     )}
                   </div>
-
-                  <span
-                    className={`text-[9px] font-black uppercase tracking-wider ${isActive ? (isRadar ? "text-blazing-flame" : "text-pine-teal") : "text-dusty-lavender"}`}
-                  >
-                    {item.name}
-                  </span>
-                </Link>
-              );
-            })}
+                </motion.div>
+                <span className={`text-[9px] font-black uppercase tracking-wider ${
+                  isActive ? (isRadar ? "text-blazing-flame" : "text-pine-teal") : "text-dusty-lavender"
+                }`}>
+                  {item.name}
+                </span>
+              </Link>
+            );
+          })}
 
           {user?.isAdmin && (
-            <Link
-              to="/admin"
-              className="flex flex-col items-center justify-center w-full h-full space-y-1 relative"
-            >
+            <Link to="/admin" className="flex flex-col items-center justify-center w-full h-full gap-1 relative">
               {location.pathname === "/admin" && (
-                <motion.div
-                  layoutId="mobileNavIndicator"
-                  className="absolute -top-px w-8 h-1 rounded-b-full bg-dark-raspberry shadow-[0_0_10px_currentColor]"
-                />
+                <motion.div layoutId="mobileNavBar" className="absolute -top-px w-6 h-0.5 rounded-b-full bg-dark-raspberry" />
               )}
-              <div
-                className={`text-xl transition-transform duration-300 ${location.pathname === "/admin" ? "text-dark-raspberry scale-110" : "text-dusty-lavender"}`}
-              >
+              <div className={`text-xl ${location.pathname === "/admin" ? "text-dark-raspberry" : "text-dusty-lavender"}`}>
                 <FaShieldAlt />
               </div>
-              <span
-                className={`text-[9px] font-black uppercase tracking-wider ${location.pathname === "/admin" ? "text-pine-teal" : "text-dusty-lavender"}`}
-              >
+              <span className={`text-[9px] font-black uppercase tracking-wider ${location.pathname === "/admin" ? "text-pine-teal" : "text-dusty-lavender"}`}>
                 Admin
               </span>
             </Link>
@@ -427,8 +297,7 @@ const Layout = ({ children }) => {
         </nav>
       </div>
 
-      {/* 👉 THE FIX: Added Feedback Modal Component */}
-      <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedbackOpen(false)} />
+      <FeedbackModal isOpen={isFeedbackOpen} onClose={() => setIsFeedback(false)} />
       <OnboardingModal />
     </div>
   );

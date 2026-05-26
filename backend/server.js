@@ -351,6 +351,15 @@ app.use((err, req, res, next) => {
   });
 });
 
+process.on("unhandledRejection", (reason, promise) => {
+  logger.error("Unhandled Promise Rejection:", { reason, promise });
+});
+
+process.on("uncaughtException", (err) => {
+  logger.error("Uncaught Exception:", err);
+  process.exit(1);
+});
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
