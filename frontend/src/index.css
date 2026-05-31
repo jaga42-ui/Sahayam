@@ -187,6 +187,20 @@ input, textarea, select { user-select: auto; -webkit-user-select: auto; }
 .glow-teal    { animation: glow-teal 3.5s ease-in-out infinite; }
 .emergency-glow { animation: emergency-pulse 2.4s ease-in-out infinite; }
 
+/* ── URGENT (emergency only) — the one place we shout ── */
+@keyframes urgent-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(214,69,63,0.45); }
+  70%  { box-shadow: 0 0 0 12px rgba(214,69,63,0); }
+  100% { box-shadow: 0 0 0 0 rgba(214,69,63,0); }
+}
+.urgent-pulse { animation: urgent-ring 2s ease-out infinite; }
+@keyframes urgent-sheen { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.urgent-ribbon {
+  background-image: linear-gradient(110deg, #d6453f 0%, #b8322c 45%, #d6453f 60%, #b8322c 100%);
+  background-size: 200% 100%;
+  animation: urgent-sheen 4s linear infinite;
+}
+
 .shadow-flame  { box-shadow: 0 10px 30px rgba(138,111,176,0.22); }
 .shadow-teal   { box-shadow: 0 10px 30px rgba(59,107,84,0.20); }
 .shadow-berry  { box-shadow: 0 10px 30px rgba(110,79,160,0.20); }

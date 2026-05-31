@@ -181,7 +181,7 @@ const Dashboard = () => {
 
   const stats = useMemo(() => [
     { label: "Live",       value: processedFeed.length,                                      icon: FaBoxOpen,     color: "text-pine-teal",      bg: "bg-pine-teal/10" },
-    { label: "SOS",        value: feed.filter((i) => i.isEmergency).length,                   icon: FaHeartbeat,   color: "text-blazing-flame",  bg: "bg-blazing-flame/10" },
+    { label: "SOS",        value: feed.filter((i) => i.isEmergency).length,                   icon: FaHeartbeat,   color: "text-[#c0392b]",      bg: "bg-[#d6453f]/12" },
     { label: "Responders", value: feed.reduce((t, i) => t + (i.requestedBy?.length || 0), 0), icon: FaUsers,       color: "text-dark-raspberry", bg: "bg-dark-raspberry/10" },
     { label: "Done",       value: feed.filter((i) => i.status === "fulfilled").length,         icon: FaCheckCircle, color: "text-dusty-lavender", bg: "bg-dusty-lavender/10" },
   ], [feed, processedFeed.length]);
@@ -389,7 +389,7 @@ const Dashboard = () => {
                 {isDarkMode ? <FaSun className="text-sm text-yellow-500" /> : <FaMoon className="text-sm text-dusty-lavender" />}
               </motion.button>
               <motion.button whileTap={{ scale: 0.88 }} onClick={() => setShowSOS(true)}
-                className="flex items-center gap-1.5 rounded-2xl bg-blazing-flame px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-blazing-flame/30">
+                className="urgent-pulse flex items-center gap-1.5 rounded-2xl bg-[#d6453f] px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-[#d6453f]/35">
                 <FaHeartbeat className="animate-pulse text-xs" /> SOS
               </motion.button>
             </div>
@@ -492,167 +492,190 @@ const Dashboard = () => {
                   return (
                     <motion.article key={item._id} layout custom={idx}
                       variants={cardVariants} initial="hidden" animate="show" exit="exit"
-                      className={`overflow-hidden rounded-2xl border bg-surface shadow-sm ${
-                        item.isEmergency ? "border-blazing-flame/35" : "border-pine-teal/8"
+                      className={`group relative overflow-hidden rounded-3xl bg-surface ${
+                        item.isEmergency
+                          ? "border border-[#d6453f]/40 shadow-[0_16px_44px_rgba(214,69,63,0.16)]"
+                          : "border border-pine-teal/10 shadow-[0_8px_28px_rgba(59,107,84,0.06)] hover:shadow-[0_16px_38px_rgba(59,107,84,0.10)] transition-shadow"
                       }`}>
 
+                      {/* ── Emergency ribbon ── */}
                       {item.isEmergency && (
-                        <div className="h-0.5 w-full bg-gradient-to-r from-blazing-flame via-[#ff7a4a] to-blazing-flame" />
+                        <div className="urgent-ribbon flex items-center justify-between gap-2 px-4 py-2.5">
+                          <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-white">
+                            <span className="relative flex h-2.5 w-2.5">
+                              <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-70 animate-ping" />
+                              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
+                            </span>
+                            Live emergency
+                          </span>
+                          <span className="flex items-center gap-2 text-[10px] font-bold text-white/95">
+                            {item.severityLevel && item.severityLevel !== "Unverified" && (
+                              <span className="rounded-full bg-white/20 px-2 py-0.5">{item.severityLevel}</span>
+                            )}
+                            {item.criticalDeadline && (
+                              <span className="flex items-center gap-1">
+                                <FaClock className="text-[9px]" />
+                                {new Date(item.criticalDeadline) > new Date()
+                                  ? `${Math.round((new Date(item.criticalDeadline) - Date.now()) / 3600000)}h left`
+                                  : "Overdue"}
+                              </span>
+                            )}
+                          </span>
+                        </div>
                       )}
 
-                      {/* ── Visual ── */}
-                      <div className="relative h-40 w-full overflow-hidden bg-pearl-beige/60">
-                        {item.image ? (
+                      {/* ── Image (only when present) ── */}
+                      {item.image && (
+                        <div className="relative h-44 w-full overflow-hidden">
                           <img src={optimizeImageUrl(item.image)} alt={item.title}
-                            className="h-full w-full object-cover" />
-                        ) : item.category?.toLowerCase() === "blood" ? (
-                          <div className={`flex h-full w-full flex-col items-center justify-center gap-1 text-white ${
-                            item.isEmergency
-                              ? "bg-gradient-to-br from-blazing-flame to-[#c73200]"
-                              : "bg-gradient-to-br from-dark-raspberry to-[#720b47]"
-                          }`}>
-                            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.12),transparent_60%)]" />
-                            <FaHeartbeat className="relative text-4xl drop-shadow-lg" />
-                            <span className="relative text-4xl font-black drop-shadow-lg">{item.bloodGroup || "Blood"}</span>
-                          </div>
-                        ) : (
-                          <div className={`flex h-full w-full flex-col items-center justify-center gap-2 ${meta.soft}`}>
-                            <CategoryIcon className="text-3xl" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">{meta.label}</span>
-                          </div>
-                        )}
-
-                        <div className="absolute top-2.5 right-2.5 flex gap-1.5">
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/25 to-transparent" />
                           {item.verifiedByInstitution && (
-                            <span className="flex items-center gap-1 rounded-lg bg-[#2b7fff]/90 backdrop-blur px-2 py-1 text-[9px] font-black uppercase tracking-widest text-white">
+                            <span className="absolute top-3 right-3 flex items-center gap-1 rounded-lg bg-[#2b7fff]/90 backdrop-blur px-2 py-1 text-[9px] font-black uppercase tracking-widest text-white">
                               <FaShieldAlt className="text-[8px]" /> Verified
                             </span>
                           )}
-                          {item.isEmergency ? (
-                            <span className="flex items-center gap-1 rounded-lg bg-blazing-flame/90 backdrop-blur px-2 py-1 text-[9px] font-black uppercase tracking-widest text-white">
-                              <FaExclamationTriangle className="text-[8px]" /> SOS
-                            </span>
-                          ) : (
-                            <span className="rounded-lg bg-surface/85 backdrop-blur px-2 py-1 text-[9px] font-black uppercase tracking-widest text-pine-teal">
-                              {meta.label}
-                            </span>
-                          )}
                         </div>
-                        <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-surface/40 to-transparent" />
-                      </div>
+                      )}
 
                       {/* ── Body ── */}
-                      <div className="p-4">
-                        {/* Donor row */}
-                        <div className="flex items-center gap-2 mb-3">
-                          <img
-                            src={item.donorId?.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.donorId?.name || "S")}&background=1d4a42&color=fff&bold=true&size=64`}
-                            alt="" referrerPolicy="no-referrer"
-                            className="h-8 w-8 shrink-0 rounded-xl object-cover border border-pine-teal/10" />
-                          <div className="flex-1 min-w-0 flex items-center gap-1.5">
-                            <span className="text-xs font-bold text-pine-teal truncate">{item.donorId?.name || "Anonymous"}</span>
-                            {item.donorId?.points >= 50 && <FaMedal className="text-[9px] text-yellow-500 shrink-0" />}
+                      <div className="p-4 sm:p-5">
+                        {/* Hero row: medallion + title */}
+                        <div className="flex items-start gap-3.5">
+                          {!item.image && (
+                            item.category?.toLowerCase() === "blood" ? (
+                              <div className={`relative shrink-0 h-16 w-16 rounded-2xl flex flex-col items-center justify-center text-white ${
+                                item.isEmergency
+                                  ? "bg-gradient-to-br from-[#d6453f] to-[#a82820] urgent-pulse"
+                                  : "bg-gradient-to-br from-dark-raspberry to-[#56327e]"
+                              }`}>
+                                <FaHeartbeat className="text-sm" />
+                                <span className="text-lg font-black leading-none mt-0.5">{item.bloodGroup || "—"}</span>
+                              </div>
+                            ) : (
+                              <div className={`shrink-0 h-16 w-16 rounded-2xl flex items-center justify-center border ${meta.soft}`}>
+                                <CategoryIcon className="text-2xl" />
+                              </div>
+                            )
+                          )}
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2 mb-1.5">
+                              <span className={`rounded-full border px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest ${
+                                item.isEmergency ? "border-[#d6453f]/30 bg-[#d6453f]/10 text-[#c0392b]" : meta.soft
+                              }`}>
+                                {meta.label}
+                              </span>
+                              {item.verifiedByInstitution && !item.image && (
+                                <span className="flex items-center gap-1 rounded-full bg-[#2b7fff]/10 border border-[#2b7fff]/25 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[#2b7fff]">
+                                  <FaShieldAlt className="text-[8px]" /> Verified
+                                </span>
+                              )}
+                              <span className="ml-auto text-[10px] text-dusty-lavender shrink-0">{dateStr}</span>
+                            </div>
+                            <h3 className={`font-display font-semibold leading-snug line-clamp-2 ${
+                              item.isEmergency ? "text-[#b8322c] text-lg" : "text-pine-teal text-base"
+                            }`}>
+                              {item.title}
+                            </h3>
                           </div>
-                          <span className="text-[10px] text-dusty-lavender shrink-0">{dateStr}</span>
+                        </div>
+
+                        {/* Patient */}
+                        {item.patientDetails?.name && (
+                          <div className="mt-3 rounded-2xl border-l-[3px] border-[#d6453f] bg-[#d6453f]/[0.06] px-3.5 py-2.5">
+                            <p className="text-[9px] font-black uppercase tracking-widest text-[#c0392b] mb-0.5">Patient</p>
+                            <p className="text-xs font-bold text-pine-teal">
+                              {item.patientDetails.name}{item.patientDetails.age ? `, ${item.patientDetails.age} yrs` : ""}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Meta chips */}
+                        {(item.quantity || item.addressText || item.location?.addressText) && (
+                          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                            {item.quantity && (
+                              <span className="rounded-lg border border-pine-teal/12 bg-surface-2 px-2.5 py-1 text-[10px] font-bold text-pine-teal">
+                                {item.quantity}
+                              </span>
+                            )}
+                            {(item.addressText || item.location?.addressText) && (
+                              <span className="flex items-center gap-1 rounded-lg border border-pine-teal/12 bg-surface-2 px-2.5 py-1 text-[10px] font-bold text-pine-teal/80 max-w-[65%]">
+                                <FaMapMarkerAlt className="text-[9px] text-dark-raspberry shrink-0" />
+                                <span className="truncate">{item.addressText || item.location?.addressText}</span>
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Urgency line (emergencies) */}
+                        {item.isEmergency && item.status !== "fulfilled" && (
+                          <p className="mt-3 flex items-center gap-1.5 text-[11px] font-bold text-[#c0392b]">
+                            <FaExclamationTriangle className="text-[10px] shrink-0" />
+                            {item.requestedBy?.length
+                              ? `${item.requestedBy.length} responding — more help needed`
+                              : "No one has responded yet — act now"}
+                          </p>
+                        )}
+
+                        {/* Donor row */}
+                        <div className="mt-4 flex items-center gap-2">
+                          <img
+                            src={item.donorId?.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.donorId?.name || "S")}&background=3b6b54&color=fff&bold=true&size=64`}
+                            alt="" referrerPolicy="no-referrer"
+                            className="h-7 w-7 shrink-0 rounded-lg object-cover border border-pine-teal/10" />
+                          <span className="text-[11px] font-semibold text-pine-teal/70 truncate min-w-0">{item.donorId?.name || "Anonymous"}</span>
+                          {item.donorId?.points >= 50 && <FaMedal className="text-[9px] text-yellow-500 shrink-0" />}
                           {isMine && (
-                            <button onClick={() => handleDelete(item._id)} className="ml-1 text-dusty-lavender active:text-blazing-flame p-1">
+                            <button onClick={() => handleDelete(item._id)} className="ml-auto text-dusty-lavender active:text-[#d6453f] p-1">
                               <FaTrash className="text-xs" />
                             </button>
                           )}
                         </div>
 
-                        {/* Title */}
-                        <h3 className="text-sm font-bold text-pine-teal leading-snug line-clamp-2 mb-2.5">
-                          {item.title}
-                        </h3>
-
-                        {/* Patient */}
-                        {item.patientDetails?.name && (
-                          <div className="mb-2.5 rounded-xl border-l-2 border-blazing-flame bg-blazing-flame/5 px-3 py-2">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-blazing-flame mb-0.5">Patient</p>
-                            <p className="text-xs font-bold text-pine-teal">
-                              {item.patientDetails.name}
-                              {item.patientDetails.age ? `, ${item.patientDetails.age}yrs` : ""}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Tags */}
-                        <div className="flex flex-wrap gap-1.5 mb-3">
-                          {item.quantity && (
-                            <span className="rounded-lg border border-pine-teal/12 bg-surface-2 px-2 py-1 text-[10px] font-bold text-pine-teal">
-                              {item.quantity}
-                            </span>
-                          )}
-                          {item.severityLevel && item.severityLevel !== "Unverified" && (
-                            <span className={`rounded-lg border px-2 py-1 text-[10px] font-black ${
-                              item.severityLevel === "Code Red"
-                                ? "border-blazing-flame/25 bg-blazing-flame/10 text-blazing-flame"
-                                : "border-yellow-500/25 bg-yellow-500/10 text-yellow-600"
-                            }`}>
-                              {item.severityLevel}
-                            </span>
-                          )}
-                          {item.criticalDeadline && (
-                            <span className="flex items-center gap-1 rounded-lg border border-dusty-lavender/20 bg-surface-2 px-2 py-1 text-[10px] font-bold text-dusty-lavender">
-                              <FaClock className="text-[8px]" />
-                              {new Date(item.criticalDeadline) > new Date()
-                                ? `${Math.round((new Date(item.criticalDeadline) - Date.now()) / 3600000)}h left`
-                                : "Expired"}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Location */}
-                        {(item.addressText || item.location?.addressText) && (
-                          <div className="flex items-center gap-1.5 mb-3">
-                            <FaMapMarkerAlt className="text-[10px] shrink-0 text-dark-raspberry" />
-                            <p className="text-xs text-dusty-lavender truncate">
-                              {item.addressText || item.location?.addressText}
-                            </p>
-                          </div>
-                        )}
-
                         {/* CTAs */}
-                        <div className="flex gap-2">
+                        <div className="mt-3 flex gap-2">
                           {item.status === "fulfilled" ? (
-                            <div className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-pine-teal/8 py-2.5 text-[11px] font-black uppercase tracking-widest text-pine-teal border border-pine-teal/15">
+                            <div className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-pine-teal/8 py-3 text-[11px] font-black uppercase tracking-widest text-pine-teal border border-pine-teal/15">
                               <FaCheckCircle className="text-xs" /> Fulfilled
                             </div>
                           ) : isMine && localRole === "donor" ? (
                             <motion.button whileTap={{ scale: 0.95 }}
                               onClick={() => setRequestsModal({ isOpen: true, donation: item })}
                               disabled={!item.requestedBy?.length}
-                              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-pine-teal py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-sm disabled:opacity-40">
+                              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-pine-teal py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-teal disabled:opacity-40">
                               <FaUsers className="text-xs" />
                               {item.requestedBy?.length
                                 ? `${item.requestedBy.length} Request${item.requestedBy.length > 1 ? "s" : ""}`
-                                : "No Requests"}
+                                : "No Requests Yet"}
                             </motion.button>
                           ) : isApproved ? (
                             <motion.button whileTap={{ scale: 0.95 }}
                               onClick={() => navigate(`/chat/${item._id}`)}
-                              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-dark-raspberry py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-sm">
-                              <FaCommentDots className="text-xs" /> Chat Now
+                              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-dark-raspberry py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-berry">
+                              <FaCommentDots className="text-xs" /> Chat now
                             </motion.button>
                           ) : alreadyReq ? (
-                            <div className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-pine-teal/15 py-2.5 text-[11px] font-black uppercase tracking-widest text-pine-teal">
+                            <div className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-pine-teal/15 bg-pine-teal/5 py-3 text-[11px] font-black uppercase tracking-widest text-pine-teal">
                               <FaCheck className="text-xs" /> Requested
                             </div>
+                          ) : item.isEmergency ? (
+                            <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleRequest(item._id)}
+                              className="urgent-pulse flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#d6453f] py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-[0_8px_22px_rgba(214,69,63,0.32)]">
+                              <FaHeartbeat className="text-xs animate-pulse" /> Respond now <FaArrowRight className="text-[10px]" />
+                            </motion.button>
                           ) : (
                             <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleRequest(item._id)}
-                              className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-sm ${
-                                item.isEmergency
-                                  ? "bg-blazing-flame shadow-blazing-flame/25"
-                                  : isDonor ? "bg-pine-teal shadow-pine-teal/20" : "bg-dark-raspberry shadow-dark-raspberry/20"
+                              className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-3 text-[11px] font-black uppercase tracking-widest text-white ${
+                                isDonor ? "bg-pine-teal shadow-teal" : "bg-dark-raspberry shadow-berry"
                               }`}>
                               <FaHandsHelping className="text-xs" />
-                              {item.isEmergency ? "Respond" : isDonor ? "I Can Help" : "Request"}
+                              {isDonor ? "I can help" : "Request"}
                             </motion.button>
                           )}
 
                           <motion.button whileTap={{ scale: 0.85 }} onClick={() => handleShare(item)}
-                            className="h-10 w-10 shrink-0 flex items-center justify-center rounded-xl border border-pine-teal/10 bg-surface-2 text-dusty-lavender">
+                            className="h-11 w-11 shrink-0 flex items-center justify-center rounded-xl border border-pine-teal/10 bg-surface-2 text-dusty-lavender hover:text-pine-teal transition-colors">
                             <FaShareAlt className="text-xs" />
                           </motion.button>
                         </div>
@@ -691,7 +714,7 @@ const Dashboard = () => {
                 <div className="w-full flex items-center justify-between px-5">
                   <div>
                     <h2 className="text-lg font-black text-white flex items-center gap-2">
-                      <FaHeartbeat className="text-blazing-flame animate-pulse" /> SOS Blood Alert
+                      <FaHeartbeat className="text-[#ff6b5e] animate-pulse" /> SOS Blood Alert
                     </h2>
                     <p className="text-[10px] text-white/40 mt-0.5">Broadcast to nearby donors instantly</p>
                   </div>
@@ -702,7 +725,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-48 w-48 rounded-full bg-blazing-flame/15 blur-3xl" />
+              <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-48 w-48 rounded-full bg-[#d6453f]/20 blur-3xl" />
 
               <form onSubmit={handleSOSSubmit} className="relative px-5 pt-4 pb-10 space-y-3.5">
                 <motion.button type="button" whileTap={{ scale: 0.94 }} onClick={startVoiceRecognition}
@@ -800,7 +823,7 @@ const Dashboard = () => {
                 </div>
 
                 <motion.button type="submit" whileTap={{ scale: 0.97 }} disabled={isSubmitting}
-                  className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-blazing-flame py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-blazing-flame/30 disabled:opacity-60">
+                  className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-[#d6453f] py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-[#d6453f]/35 disabled:opacity-60">
                   {isSubmitting ? <FaSpinner className="animate-spin" /> : <><FaHeartbeat className="animate-pulse" /> Broadcast SOS</>}
                 </motion.button>
               </form>
