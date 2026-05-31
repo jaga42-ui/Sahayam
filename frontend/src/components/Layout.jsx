@@ -104,24 +104,24 @@ const Layout = ({ children }) => {
           className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-bold transition-colors relative overflow-hidden ${
             isActive
               ? isRadar
-                ? "bg-blazing-flame/20 text-blazing-flame"
-                : "bg-white/12 text-white"
+                ? "bg-blazing-flame/15 text-blazing-flame"
+                : "text-pine-teal"
               : isRadar
-                ? "text-blazing-flame/60 hover:bg-white/6 hover:text-blazing-flame"
-                : "text-white/50 hover:bg-white/6 hover:text-white/90"
+                ? "text-blazing-flame/70 hover:bg-surface-2 hover:text-blazing-flame"
+                : "text-pine-teal/55 hover:bg-surface-2 hover:text-pine-teal"
           }`}
         >
           {isActive && !isRadar && (
             <motion.div
               layoutId="sidebarActive"
-              className="absolute inset-0 rounded-2xl bg-white/10 border border-white/15"
+              className="absolute inset-0 rounded-2xl bg-pine-teal/10 border border-pine-teal/15"
               transition={springTransition}
             />
           )}
           <div className="relative shrink-0">
             <Icon className={`text-base ${
-              isActive ? (isRadar ? "text-blazing-flame" : "text-white") :
-              isRadar ? "text-blazing-flame/50 animate-pulse" : "text-white/40"
+              isActive ? (isRadar ? "text-blazing-flame" : "text-pine-teal") :
+              isRadar ? "text-blazing-flame/50 animate-pulse" : "text-pine-teal/40"
             }`} />
             {item.name === "Inbox" && hasUnread && !isActive && (
               <span className="absolute -top-1 -right-1 flex h-2 w-2">
@@ -132,7 +132,7 @@ const Layout = ({ children }) => {
           </div>
           <span className="relative">{item.name}</span>
           {isActive && !isRadar && (
-            <motion.div layoutId="sidebarDot" className="ml-auto w-1.5 h-1.5 rounded-full bg-white/60" transition={springTransition} />
+            <motion.div layoutId="sidebarDot" className="ml-auto w-1.5 h-1.5 rounded-full bg-pine-teal/50" transition={springTransition} />
           )}
         </motion.div>
       </Link>
@@ -182,7 +182,7 @@ const Layout = ({ children }) => {
       {/* ══════════════════════════════════
           DESKTOP SIDEBAR (dark aurora)
       ══════════════════════════════════ */}
-      <aside className="hidden md:flex flex-col w-60 sidebar-aurora shrink-0 z-40 shadow-2xl">
+      <aside className="hidden md:flex flex-col w-60 bg-surface border-r border-border shrink-0 z-40 shadow-[0_0_40px_rgba(59,107,84,0.06)]">
         <div className="relative z-10 flex flex-col h-full px-4 py-6">
 
           {/* Logo */}
@@ -190,10 +190,10 @@ const Layout = ({ children }) => {
             <motion.img
               whileHover={{ scale: 1.08, rotate: -3 }}
               src={logo} alt="Sahayam"
-              className="h-9 w-auto drop-shadow-[0_0_12px_rgba(138,111,176,0.45)]"
+              className="h-9 w-auto"
             />
-            <span className="font-display text-2xl font-semibold italic tracking-tightest text-white">
-              Saha<span className="text-blazing-flame">yam</span>
+            <span className="font-display text-2xl font-semibold italic tracking-tightest text-pine-teal">
+              Saha<span className="text-dark-raspberry">yam</span>
             </span>
           </Link>
 
@@ -202,18 +202,18 @@ const Layout = ({ children }) => {
             <motion.button
               whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }}
               onClick={() => navigate("/profile")}
-              className="mb-5 w-full flex items-center gap-3 p-3 rounded-2xl border border-white/8 bg-white/6 hover:bg-white/10 transition-all text-left"
+              className="mb-5 w-full flex items-center gap-3 p-3 rounded-2xl border border-border bg-surface-2 hover:bg-pearl-beige transition-all text-left"
             >
               {user.profilePic ? (
                 <img src={user.profilePic} alt="Profile" referrerPolicy="no-referrer"
-                  className="w-9 h-9 rounded-xl object-cover border border-white/15 shrink-0" />
+                  className="w-9 h-9 rounded-xl object-cover border border-border shrink-0" />
               ) : (
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white font-black text-sm uppercase shrink-0 ${accentBg}`}>
                   {user.name?.charAt(0)}
                 </div>
               )}
               <div className="min-w-0">
-                <p className="text-sm font-bold text-white truncate leading-tight">{user.name}</p>
+                <p className="text-sm font-bold text-pine-teal truncate leading-tight">{user.name}</p>
                 <p className={`text-[10px] font-black uppercase tracking-widest mt-0.5 ${accentText}`}>
                   {user.activeRole} mode
                 </p>
@@ -222,7 +222,7 @@ const Layout = ({ children }) => {
                 <motion.button
                   whileTap={{ scale: 0.85 }}
                   onClick={(e) => { e.stopPropagation(); switchRole(); }}
-                  className="ml-auto shrink-0 h-7 w-7 flex items-center justify-center rounded-lg bg-white/8 hover:bg-white/16 text-white/50 hover:text-white transition-all"
+                  className="ml-auto shrink-0 h-7 w-7 flex items-center justify-center rounded-lg bg-pearl-beige hover:bg-surface-2 text-pine-teal/50 hover:text-pine-teal transition-all"
                 >
                   <FaExchangeAlt className="text-[10px]" />
                 </motion.button>
@@ -232,13 +232,13 @@ const Layout = ({ children }) => {
 
           {/* Admin link */}
           {user?.isAdmin && (
-            <div className="mb-4 pb-4 border-b border-white/8">
+            <div className="mb-4 pb-4 border-b border-border">
               <Link to="/admin">
                 <motion.div whileHover={{ x: 3 }} whileTap={{ scale: 0.96 }}
                   className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-bold transition-all ${
                     location.pathname === "/admin"
-                      ? "bg-dark-raspberry/30 text-dark-raspberry border border-dark-raspberry/30"
-                      : "text-white/50 hover:bg-white/6 hover:text-white/90"
+                      ? "bg-dark-raspberry/12 text-dark-raspberry border border-dark-raspberry/25"
+                      : "text-pine-teal/55 hover:bg-surface-2 hover:text-pine-teal"
                   }`}>
                   <FaShieldAlt /> Admin Console
                 </motion.div>
@@ -251,19 +251,19 @@ const Layout = ({ children }) => {
             {NAV_ITEMS.map((item) => <SideNavLink key={item.name} item={item} />)}
           </nav>
 
-          {/* Dark dot grid overlay */}
-          <div className="pointer-events-none absolute inset-0 dark-dot-grid opacity-30 rounded-none" />
+          {/* Subtle dot grid overlay */}
+          <div className="pointer-events-none absolute inset-0 landing-dot-grid opacity-40 rounded-none" />
 
           {/* Bottom actions */}
-          <div className="relative z-10 mt-4 pt-4 border-t border-white/8 space-y-0.5">
+          <div className="relative z-10 mt-4 pt-4 border-t border-border space-y-0.5">
             <motion.button whileHover={{ x: 3 }} whileTap={{ scale: 0.96 }}
               onClick={() => setIsFeedback(true)}
-              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-bold text-white/40 hover:bg-white/6 hover:text-white/80 transition-all">
+              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-bold text-pine-teal/45 hover:bg-surface-2 hover:text-pine-teal transition-all">
               <FaCommentAlt className="text-base" /> Feedback
             </motion.button>
             <motion.button whileHover={{ x: 3 }} whileTap={{ scale: 0.96 }}
               onClick={() => { logout(); navigate("/"); }}
-              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-bold text-white/40 hover:bg-blazing-flame/12 hover:text-blazing-flame transition-all">
+              className="w-full flex items-center gap-3 px-3.5 py-3 rounded-2xl text-sm font-bold text-pine-teal/45 hover:bg-blazing-flame/10 hover:text-blazing-flame transition-all">
               <FaSignOutAlt className="text-base" /> Log Out
             </motion.button>
           </div>

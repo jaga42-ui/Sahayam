@@ -2,14 +2,14 @@ import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import AuthContext from "../context/AuthContext";
-import { FaSpinner, FaGoogle, FaArrowRight, FaHeartbeat } from "react-icons/fa";
+import { FaSpinner, FaGoogle, FaArrowRight, FaHeart } from "react-icons/fa";
 import toast from "react-hot-toast";
 import api from "../utils/api";
 import logo from "../assets/logo.png";
 import PolicyModal from "../components/PolicyModal";
 
 const inputBase =
-  "w-full rounded-xl border bg-white/8 px-4 py-3.5 text-sm font-medium text-white placeholder-white/30 outline-none transition-all";
+  "w-full rounded-xl border border-border bg-pearl-beige/60 px-4 py-3.5 text-sm font-medium text-pine-teal placeholder-pine-teal/35 outline-none transition-all focus:border-pine-teal focus:ring-2 focus:ring-pine-teal/10 focus:bg-surface";
 
 const Login = () => {
   const [email,    setEmail]    = useState("");
@@ -43,7 +43,7 @@ const Login = () => {
       ux_mode: "popup",
       callback: async (response) => {
         if (!response.code) return;
-        const id = toast.loading("Verifying with Google…");
+        const id = toast.loading("Signing you in with Google…");
         try {
           const { data } = await api.post("/auth/google", { code: response.code });
           login(data);
@@ -58,18 +58,17 @@ const Login = () => {
   };
 
   return (
-    <main className="min-h-screen aurora-bg flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden selection:bg-white/20 selection:text-white">
-
-      {/* Ambient blobs */}
+    <main className="min-h-screen bg-pearl-beige flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden">
+      {/* Soft ambient wash */}
+      <div className="landing-dot-grid absolute inset-0 opacity-50" />
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-32 -left-24 h-80 w-80 rounded-full bg-pine-teal/12 blur-[100px] float-slow" />
-        <div className="absolute top-1/2 -right-24 h-72 w-72 rounded-full bg-blazing-flame/10 blur-[100px] float-delay" />
-        <div className="absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-dark-raspberry/15 blur-[80px] float-gentle" />
-        <div className="dark-dot-grid absolute inset-0 opacity-25" />
+        <div className="absolute -top-32 -left-24 h-80 w-80 rounded-full bg-pine-teal/10 blur-[110px] float-slow" />
+        <div className="absolute top-1/2 -right-24 h-72 w-72 rounded-full bg-blazing-flame/10 blur-[110px] float-delay" />
+        <div className="absolute -bottom-24 left-1/3 h-64 w-64 rounded-full bg-dark-raspberry/8 blur-[90px] float-gentle" />
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 32, scale: 0.97 }}
+        initial={{ opacity: 0, y: 28, scale: 0.98 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="relative z-10 w-full max-w-md"
@@ -77,46 +76,42 @@ const Login = () => {
         {/* Logo */}
         <div className="flex items-center justify-center gap-2.5 mb-6">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <motion.img
-              whileHover={{ scale: 1.1, rotate: -5 }}
-              src={logo} alt="Sahayam"
-              className="h-9 w-auto drop-shadow-[0_0_14px_rgba(138,111,176,0.45)]"
-            />
-            <span className="font-display text-2xl font-semibold italic tracking-tightest text-white">
-              Saha<span className="text-blazing-flame">yam</span>
+            <motion.img whileHover={{ scale: 1.1, rotate: -5 }} src={logo} alt="Sahayam" className="h-9 w-auto" />
+            <span className="font-display text-2xl font-semibold italic tracking-tightest text-pine-teal">
+              Saha<span className="text-dark-raspberry">yam</span>
             </span>
           </Link>
         </div>
 
         {/* Card */}
-        <div className="glass-dark rounded-3xl p-6 border border-white/10">
+        <div className="rounded-3xl p-6 sm:p-7 border border-border bg-surface shadow-teal">
           <div className="mb-6">
-            <div className="inline-flex items-center gap-2 rounded-full border border-pine-teal/25 bg-pine-teal/10 px-3.5 py-1.5 mb-3">
+            <div className="inline-flex items-center gap-2 rounded-full border border-pine-teal/20 bg-pine-teal/8 px-3.5 py-1.5 mb-3">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute h-full w-full rounded-full bg-pine-teal opacity-75" />
+                <span className="animate-ping absolute h-full w-full rounded-full bg-pine-teal opacity-60" />
                 <span className="relative h-2 w-2 rounded-full bg-pine-teal" />
               </span>
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/70">Network Active</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-pine-teal/70">A community that shows up</span>
             </div>
-            <h2 className="text-xl font-black text-white tracking-tight">Welcome back</h2>
-            <p className="text-[11px] font-medium text-white/40 mt-0.5">Sign in to your community</p>
+            <h2 className="font-display text-2xl font-semibold text-pine-teal tracking-tight">Welcome back</h2>
+            <p className="text-[12px] font-medium text-pine-teal/50 mt-0.5">Sign in to keep helping.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Email *</label>
+              <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-dusty-lavender">Email</label>
               <input
                 type="email" value={email}
                 onChange={(e) => setEmail(e.target.value)} required
                 placeholder="you@example.com"
-                className={`${inputBase} border border-pine-teal/50 focus:border-pine-teal focus:ring-2 focus:ring-pine-teal/10`}
+                className={inputBase}
               />
             </div>
 
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Password *</label>
-                <Link to="/forgot-password" className="text-[11px] font-bold text-white/50 hover:text-white transition-colors">
+                <label className="text-[10px] font-bold uppercase tracking-widest text-dusty-lavender">Password</label>
+                <Link to="/forgot-password" className="text-[11px] font-semibold text-pine-teal/55 hover:text-pine-teal transition-colors">
                   Forgot?
                 </Link>
               </div>
@@ -124,7 +119,7 @@ const Login = () => {
                 type="password" value={password}
                 onChange={(e) => setPassword(e.target.value)} required
                 placeholder="••••••••"
-                className={`${inputBase} border border-pine-teal/50 focus:border-pine-teal focus:ring-2 focus:ring-pine-teal/10`}
+                className={inputBase}
               />
             </div>
 
@@ -132,41 +127,41 @@ const Login = () => {
               whileTap={{ scale: 0.97 }}
               type="submit"
               disabled={loading || !email || !password}
-              className="ripple-btn w-full mt-2 flex items-center justify-center gap-2.5 rounded-2xl py-4 text-[11px] font-black uppercase tracking-widest text-white shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-pine-teal to-[#1a3630]"
+              className="ripple-btn w-full mt-2 flex items-center justify-center gap-2.5 rounded-2xl py-4 text-sm font-bold text-white shadow-teal transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-pine-teal hover:-translate-y-0.5"
             >
               {loading
                 ? <FaSpinner className="animate-spin text-lg" />
-                : <><FaHeartbeat /> Sign In <FaArrowRight className="text-xs" /></>
+                : <><FaHeart className="text-blazing-flame" /> Sign in <FaArrowRight className="text-xs" /></>
               }
             </motion.button>
           </form>
 
           <div className="my-5 flex items-center gap-3">
-            <div className="flex-1 h-px bg-white/10" />
-            <span className="text-[10px] font-bold uppercase tracking-widest text-white/30">or</span>
-            <div className="flex-1 h-px bg-white/10" />
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-dusty-lavender">or</span>
+            <div className="flex-1 h-px bg-border" />
           </div>
 
           <motion.button
             whileTap={{ scale: 0.97 }}
             onClick={handleGoogle} type="button"
-            className="w-full flex items-center justify-center gap-2.5 rounded-2xl border border-white/10 bg-white/6 py-3.5 text-sm font-bold text-white/70 hover:bg-white/10 hover:text-white transition-all"
+            className="w-full flex items-center justify-center gap-2.5 rounded-2xl border border-border bg-pearl-beige/50 py-3.5 text-sm font-semibold text-pine-teal/80 hover:bg-surface-2 hover:text-pine-teal transition-all"
           >
-            <FaGoogle className="text-blazing-flame text-base" /> Continue with Google
+            <FaGoogle className="text-dark-raspberry text-base" /> Continue with Google
           </motion.button>
 
-          <p className="mt-5 text-center text-[11px] font-medium text-white/35">
+          <p className="mt-5 text-center text-[12px] font-medium text-pine-teal/45">
             New to Sahayam?{" "}
-            <Link to="/register" className="text-white/70 font-bold hover:text-white transition-colors">
+            <Link to="/register" className="text-pine-teal font-bold hover:underline underline-offset-2 transition-colors">
               Create an account
             </Link>
           </p>
         </div>
 
-        <p className="mt-4 text-center text-[11px] font-medium text-white/25">
+        <p className="mt-4 text-center text-[11px] font-medium text-pine-teal/35">
           By signing in you agree to our{" "}
-          <button onClick={() => setPolicy(true)} className="underline hover:text-white/50 transition-colors text-white/35">
-            Terms & Privacy
+          <button onClick={() => setPolicy(true)} className="underline underline-offset-2 hover:text-pine-teal transition-colors">
+            Terms &amp; Privacy
           </button>
         </p>
       </motion.div>
