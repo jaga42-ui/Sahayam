@@ -66,6 +66,7 @@ const registerUser = asyncHandler(async (req, res) => {
     isVerified: activeRole === "ngo" ? false : true,
     profilePic: "",
     addressText: "",
+    referralCode,
     location: { type: "Point", coordinates: [0, 0] },
     isEmailVerified: false,
     emailVerificationToken: Math.floor(100000 + Math.random() * 900000).toString(), // 6-digit OTP
@@ -191,8 +192,10 @@ const googleLogin = asyncHandler(async (req, res) => {
 
     if (!user) {
       const securePass = `Sahayam_${Math.random().toString(36).slice(-8)}!`;
+      const baseName = name || "New Hero";
+      const referralCode = baseName.substring(0, 3).toUpperCase() + Math.floor(1000 + Math.random() * 9000);
       user = await User.create({
-        name: name || "New Hero",
+        name: baseName,
         email,
         password: securePass,
         profilePic: picture || "",
@@ -200,6 +203,7 @@ const googleLogin = asyncHandler(async (req, res) => {
         phone: "Not Provided",
         activeRole: "donor",
         points: 10,
+        referralCode,
         location: { type: "Point", coordinates: [0, 0] },
       });
     } else {
@@ -220,6 +224,7 @@ const googleLogin = asyncHandler(async (req, res) => {
       bloodGroup: user.bloodGroup,
       addressText: user.addressText,
       points: user.points,
+      referralCode: user.referralCode,
       token: generateToken(user._id),
     });
   } catch (error) {
