@@ -74,6 +74,9 @@
 }
 
 /* ── Base ── */
+html {
+  scroll-behavior: smooth;
+}
 html, body {
   margin: 0; padding: 0;
   background-color: var(--color-pearl-beige);
@@ -85,6 +88,9 @@ html, body {
   text-rendering: optimizeLegibility;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Momentum scrolling on iOS for in-app scroll regions */
+.no-scrollbar, main, body { -webkit-overflow-scrolling: touch; }
 
 /* Elegant display helper */
 .font-display { font-family: var(--font-display); }

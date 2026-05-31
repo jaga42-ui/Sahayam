@@ -79,20 +79,22 @@ const Landing = () => {
 
       {/* ── NAV ── */}
       <header className="fixed top-0 left-0 right-0 z-50 glass border-b border-border">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
-          <Link to="/" className="flex items-center gap-2.5 group">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 sm:px-5 py-3 sm:py-3.5 gap-2">
+          <Link to="/" className="flex items-center gap-2 group min-w-0">
             <motion.img whileHover={{ scale: 1.08, rotate: -4 }} transition={sp}
-              src={logo} alt="Sahayam" className="h-8 w-auto" />
-            <Wordmark className="text-xl text-pine-teal" />
+              src={logo} alt="Sahayam" className="h-7 sm:h-8 w-auto shrink-0" />
+            <Wordmark className="text-lg sm:text-xl text-pine-teal" />
           </Link>
 
-          <nav className="flex items-center gap-2">
-            <Link to="/login" className="px-4 py-2.5 rounded-xl text-sm font-semibold text-pine-teal/60 hover:text-pine-teal hover:bg-surface transition-all">
+          <nav className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <Link to="/login" className="px-3 sm:px-4 py-2.5 rounded-xl text-sm font-semibold text-pine-teal/60 hover:text-pine-teal hover:bg-surface transition-all whitespace-nowrap">
               Sign in
             </Link>
             <motion.div whileTap={{ scale: 0.96 }}>
-              <Link to={registerLink} className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold bg-pine-teal text-white shadow-teal hover:-translate-y-0.5 transition-all">
-                Get started <FaArrowRight className="text-xs" />
+              <Link to={registerLink} className="flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-xl text-sm font-bold bg-pine-teal text-white shadow-teal hover:-translate-y-0.5 transition-all whitespace-nowrap">
+                <span className="sm:hidden">Join</span>
+                <span className="hidden sm:inline">Get started</span>
+                <FaArrowRight className="text-xs" />
               </Link>
             </motion.div>
           </nav>
