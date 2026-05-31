@@ -56,7 +56,7 @@ const EmergencyMatchModal = ({ sosData, onClose }) => {
         dragConstraints={{ top: 0, bottom: 0 }}
         dragElastic={{ top: 0, bottom: 0.5 }} // Resists pulling up, allows pulling down
         onDragEnd={handleDragEnd}
-        className="relative w-full max-w-md bg-white border-t sm:border border-blazing-flame/30 rounded-t-[2.5rem] sm:rounded-[2.5rem] p-6 sm:p-8 shadow-[0_20px_50px_rgba(255,74,28,0.15)] overflow-hidden cursor-grab active:cursor-grabbing touch-none"
+        className="relative w-full max-w-md bg-white border-t sm:border border-blazing-flame/30 rounded-t-[2.5rem] sm:rounded-[2.5rem] p-6 sm:p-8 shadow-[0_20px_50px_rgba(138,111,176,0.15)] overflow-hidden cursor-grab active:cursor-grabbing touch-none"
       >
         {/* 👉 NATIVE UPGRADE: Distinct Pull Tab Indicator */}
         <div className="w-12 h-1.5 bg-dusty-lavender/30 rounded-full mx-auto mb-5 sm:hidden" />
@@ -88,7 +88,7 @@ const EmergencyMatchModal = ({ sosData, onClose }) => {
           <div className="space-y-3 sm:space-y-4">
             <a
               href={`tel:${sosData.donorId.phone}`}
-              className="w-full py-4 sm:py-5 bg-blazing-flame hover:bg-[#e03a12] active:bg-[#c43212] text-white rounded-2xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all shadow-[0_10px_25px_rgba(255,74,28,0.3)] active:scale-95 flex items-center justify-center gap-3"
+              className="w-full py-4 sm:py-5 bg-blazing-flame hover:bg-[#6e4fa0] active:bg-[#5e4585] text-white rounded-2xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all shadow-[0_10px_25px_rgba(138,111,176,0.3)] active:scale-95 flex items-center justify-center gap-3"
             >
               <FaPhoneAlt className="text-lg" /> Call{" "}
               {sosData.donorId.name.split(" ")[0]} Now

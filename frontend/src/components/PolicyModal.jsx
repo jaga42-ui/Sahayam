@@ -64,7 +64,7 @@ const PolicyModal = ({ isOpen, onClose, onAccept }) => {
 
           <button
             onClick={onAccept ? onAccept : onClose}
-            className="w-full py-4 bg-pine-teal hover:bg-[#1a3630] text-white rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs transition-colors shadow-[0_10px_25px_rgba(41,82,74,0.3)] active:scale-95"
+            className="w-full py-4 bg-pine-teal hover:bg-[#1a3630] text-white rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs transition-colors shadow-[0_10px_25px_rgba(59,107,84,0.3)] active:scale-95"
           >
             I Accept & Agree
           </button>

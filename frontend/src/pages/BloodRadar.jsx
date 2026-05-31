@@ -24,7 +24,7 @@ const mySonarIcon = L.divIcon({
   className: "custom-sonar-icon",
   html: `<div class="relative flex items-center justify-center w-16 h-16">
            <div class="absolute inset-0 bg-pine-teal rounded-full animate-[ping_3s_cubic-bezier(0,0,0.2,1)_infinite] opacity-50"></div>
-           <div class="absolute w-5 h-5 bg-pine-teal rounded-full border-2 border-white shadow-[0_0_20px_#29524a]"></div>
+           <div class="absolute w-5 h-5 bg-pine-teal rounded-full border-2 border-white shadow-[0_0_20px_#3b6b54]"></div>
          </div>`,
   iconSize: [64, 64],
   iconAnchor: [32, 32],
@@ -62,7 +62,7 @@ const BloodRadar = () => {
   const [emotionalMessage, setEmotionalMessage] = useState("");
   const [isBlasting, setIsBlasting] = useState(false);
   const [activeSOS, setActiveSOS] = useState(null);
-  const [myAddressText, setMyAddressText] = useState("Acquiring Target...");
+  const [myAddressText, setMyAddressText] = useState("Locating…");
   const [showTriageModal, setShowTriageModal] = useState(false); // 👉 AI Triage State
 
   const handleTriageData = (data) => {
@@ -72,9 +72,9 @@ const BloodRadar = () => {
   };
 
   useEffect(() => {
-    if (!navigator.geolocation) return toast.error("GPS not supported.");
+    if (!navigator.geolocation) return toast.error("Your device doesn't support location.");
     setLoading(true);
-    const toastId = toast.loading("Establishing satellite uplink...");
+    const toastId = toast.loading("Finding your location…");
 
     navigator.geolocation.getCurrentPosition(
       async (position) => {
@@ -95,7 +95,7 @@ const BloodRadar = () => {
           }
         } catch (e) { console.error("Location update failed"); }
       },
-      () => { toast.dismiss(toastId); setLoading(false); toast.error("GPS signal lost."); },
+      () => { toast.dismiss(toastId); setLoading(false); toast.error("We couldn't get your location."); },
       { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
     );
   }, [user]);
@@ -114,7 +114,7 @@ const BloodRadar = () => {
   }, [myLocation, radius, bloodGroup]);
 
   const handleEmergencyBlast = async () => {
-    if (!emotionalMessage.trim()) return toast.error("Transmission cannot be empty.");
+    if (!emotionalMessage.trim()) return toast.error("Please write a short message first.");
     setIsBlasting(true);
     try {
       const selectedBloodGroup = user.bloodGroup || "Blood";
@@ -129,7 +129,7 @@ const BloodRadar = () => {
       formData.append("addressText", `Radar Ping: ${myAddressText}`); formData.append("lat", myLocation.lat); formData.append("lng", myLocation.lng);
       await api.post("/donations", formData);
 
-      toast.success(`SOS broadcasted to ${data.recipients} active nodes! 🚀`);
+      toast.success(`Your request reached ${data.recipients} nearby helpers.`);
       setShowBlastModal(false); setEmotionalMessage("");
     } catch (error) { toast.error("Failed to send SOS."); } finally { setIsBlasting(false); }
   };
@@ -137,9 +137,9 @@ const BloodRadar = () => {
   const handleIAmComing = async () => {
     try {
       const { data } = await api.patch(`/donations/${blastId}/sos-accept`);
-      toast.success("Emergency locked! Establish contact immediately.");
+      toast.success("You're on the way — please reach out now.");
       setActiveSOS(data); navigate("/radar", { replace: true });
-    } catch (error) { toast.error("Emergency already handled or error occurred."); }
+    } catch (error) { toast.error("This request was already handled."); }
   };
 
   if (!user) return null;
@@ -156,7 +156,7 @@ const BloodRadar = () => {
           className="absolute top-4 left-4 right-4 z-[400] flex flex-wrap items-center justify-between gap-3 pointer-events-none"
         >
           <div className="glass-dark border border-white/12 px-5 py-3.5 rounded-2xl flex items-center gap-4 shadow-[0_20px_40px_rgba(8,20,16,0.4)] pointer-events-auto">
-            <div className={`w-3 h-3 rounded-full ${loading ? "bg-blazing-flame animate-pulse" : "bg-pine-teal animate-pulse shadow-[0_0_12px_rgba(41,82,74,1)]"}`} />
+            <div className={`w-3 h-3 rounded-full ${loading ? "bg-blazing-flame animate-pulse" : "bg-pine-teal animate-pulse shadow-[0_0_12px_rgba(59,107,84,1)]"}`} />
             <div>
               <p className="text-white text-xs font-black uppercase tracking-widest leading-none">{donors.length} Members Nearby</p>
               <p className="text-white/50 text-[9px] font-bold uppercase tracking-widest mt-1 flex items-center gap-1"><FaMapMarkerAlt /> {myAddressText}</p>
@@ -178,15 +178,15 @@ const BloodRadar = () => {
 
         <AnimatePresence>
           {blastId && (
-            <motion.div initial={{ y: -100, x: "-50%", opacity: 0 }} animate={{ y: 90, x: "-50%", opacity: 1 }} exit={{ y: -100, x: "-50%", opacity: 0 }} className="absolute top-0 left-1/2 z-[401] bg-white/95 backdrop-blur-xl border border-blazing-flame/50 p-5 rounded-3xl shadow-[0_20px_50px_rgba(255,74,28,0.2)] flex flex-col sm:flex-row items-center gap-5 w-[90%] max-w-xl pointer-events-auto">
+            <motion.div initial={{ y: -100, x: "-50%", opacity: 0 }} animate={{ y: 90, x: "-50%", opacity: 1 }} exit={{ y: -100, x: "-50%", opacity: 0 }} className="absolute top-0 left-1/2 z-[401] bg-white/95 backdrop-blur-xl border border-blazing-flame/50 p-5 rounded-3xl shadow-[0_20px_50px_rgba(138,111,176,0.2)] flex flex-col sm:flex-row items-center gap-5 w-[90%] max-w-xl pointer-events-auto">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-dark-raspberry/10 text-dark-raspberry border border-dark-raspberry/30 rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-[0_0_15px_rgba(159,17,100,0.2)]"><FaExclamationTriangle className="animate-pulse" /></div>
+                <div className="w-12 h-12 bg-dark-raspberry/10 text-dark-raspberry border border-dark-raspberry/30 rounded-2xl flex items-center justify-center text-2xl shrink-0 shadow-[0_0_15px_rgba(110,79,160,0.2)]"><FaExclamationTriangle className="animate-pulse" /></div>
                 <div className="flex-1 text-left">
                   <h3 className="text-pine-teal font-black tracking-tighter leading-tight text-base uppercase">Support Request Received</h3>
                   <p className="text-dusty-lavender text-[10px] uppercase tracking-[0.2em] font-bold mt-1">A neighbor needs help</p>
                 </div>
               </div>
-              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleIAmComing} className="w-full sm:w-auto bg-dark-raspberry hover:bg-[#850e53] text-white px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-[0_10px_20px_rgba(159,17,100,0.4)] shrink-0 flex items-center justify-center gap-2"><FaRunning className="text-sm" /> Offer Support</motion.button>
+              <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={handleIAmComing} className="w-full sm:w-auto bg-dark-raspberry hover:bg-[#5e4585] text-white px-6 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-[0_10px_20px_rgba(110,79,160,0.4)] shrink-0 flex items-center justify-center gap-2"><FaRunning className="text-sm" /> Offer Support</motion.button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -199,11 +199,11 @@ const BloodRadar = () => {
             </div>
           ) : (
             // 👉 THE MASTERPIECE: Light Mode Tactical Map
-            <MapContainer center={[myLocation.lat, myLocation.lng]} zoom={13} zoomControl={false} style={{ height: "100%", width: "100%", background: "#e8dab2" }}>
+            <MapContainer center={[myLocation.lat, myLocation.lng]} zoom={13} zoomControl={false} style={{ height: "100%", width: "100%", background: "#f4efe5" }}>
               <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" attribution='&copy; <a href="https://carto.com/">CARTO</a>' />
               <RecenterAutomatically lat={myLocation.lat} lng={myLocation.lng} />
               
-              <Circle center={[myLocation.lat, myLocation.lng]} radius={radius} pathOptions={{ color: "#29524a", fillColor: "#29524a", fillOpacity: 0.08, weight: 1, dashArray: "5, 10" }} />
+              <Circle center={[myLocation.lat, myLocation.lng]} radius={radius} pathOptions={{ color: "#3b6b54", fillColor: "#3b6b54", fillOpacity: 0.08, weight: 1, dashArray: "5, 10" }} />
               
               <Marker position={[myLocation.lat, myLocation.lng]} icon={mySonarIcon} />
 
@@ -242,9 +242,9 @@ const BloodRadar = () => {
             {/* Pulsing rings */}
             <span className="absolute inset-0 rounded-2xl bg-dark-raspberry animate-ping opacity-30" />
             <span className="absolute -inset-2 rounded-3xl bg-dark-raspberry/20 animate-ping opacity-20" style={{ animationDelay: "0.4s", animationDuration: "1.8s" }} />
-            <div className="relative glass-dark border border-dark-raspberry/60 px-8 py-4 md:px-10 md:py-5 rounded-2xl flex items-center gap-3 shadow-[0_15px_40px_rgba(160,17,106,0.45)] transition-all overflow-hidden">
+            <div className="relative glass-dark border border-dark-raspberry/60 px-8 py-4 md:px-10 md:py-5 rounded-2xl flex items-center gap-3 shadow-[0_15px_40px_rgba(110,79,160,0.45)] transition-all overflow-hidden">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-dark-raspberry/15 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
-              <FaBullhorn className="text-xl text-dark-raspberry drop-shadow-[0_0_8px_rgba(160,17,106,0.9)]" />
+              <FaBullhorn className="text-xl text-dark-raspberry drop-shadow-[0_0_8px_rgba(110,79,160,0.9)]" />
               <span className="text-[11px] font-black uppercase tracking-[0.2em] text-white">Ask for Help</span>
             </div>
           </motion.button>
@@ -254,12 +254,12 @@ const BloodRadar = () => {
           {showBlastModal && (
             <div className="fixed inset-0 z-[5000] flex items-end sm:items-center justify-center p-0 sm:p-4">
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-pine-teal/40 backdrop-blur-sm" onClick={() => setShowBlastModal(false)} />
-              <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="relative w-full max-w-lg bg-white/95 backdrop-blur-2xl border-t sm:border border-white/60 rounded-t-[2.5rem] sm:rounded-[2.5rem] p-6 sm:p-8 shadow-[0_20px_60px_rgba(41,82,74,0.15)] text-pine-teal">
+              <motion.div initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", damping: 25, stiffness: 200 }} className="relative w-full max-w-lg bg-white/95 backdrop-blur-2xl border-t sm:border border-white/60 rounded-t-[2.5rem] sm:rounded-[2.5rem] p-6 sm:p-8 shadow-[0_20px_60px_rgba(59,107,84,0.15)] text-pine-teal">
                 <div className="w-12 h-1.5 bg-dusty-lavender/20 rounded-full mx-auto mb-6 sm:hidden" />
                 <button type="button" onClick={() => setShowBlastModal(false)} className="hidden sm:block absolute top-6 right-6 text-dusty-lavender hover:text-pine-teal bg-dusty-lavender/10 p-2 rounded-full transition-colors"><FaTimes className="text-sm" /></button>
 
                 <div className="flex justify-between items-center mb-1">
-                  <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-dark-raspberry drop-shadow-[0_0_15px_rgba(159,17,100,0.2)]">Request Support</h2>
+                  <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-dark-raspberry drop-shadow-[0_0_15px_rgba(110,79,160,0.2)]">Request Support</h2>
                   <button onClick={() => setShowTriageModal(true)} className="flex items-center gap-2 bg-dark-raspberry/10 text-dark-raspberry hover:bg-dark-raspberry hover:text-white transition-colors px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest">
                     <FaRobot /> AI Auto-Fill
                   </button>
@@ -270,7 +270,7 @@ const BloodRadar = () => {
 
                 <div className="flex gap-3 sm:gap-4 pb-4 sm:pb-0">
                   <button onClick={() => setShowBlastModal(false)} className="flex-1 py-4 bg-transparent border border-dusty-lavender/30 hover:bg-dusty-lavender/10 rounded-2xl text-pine-teal font-black uppercase tracking-widest text-[10px] transition-colors">Cancel</button>
-                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleEmergencyBlast} disabled={isBlasting} className="flex-[2] bg-dark-raspberry hover:bg-[#850e53] text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-[11px] flex items-center justify-center gap-2 shadow-[0_10px_20px_rgba(159,17,100,0.3)] disabled:opacity-50">
+                  <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} onClick={handleEmergencyBlast} disabled={isBlasting} className="flex-[2] bg-dark-raspberry hover:bg-[#5e4585] text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] sm:text-[11px] flex items-center justify-center gap-2 shadow-[0_10px_20px_rgba(110,79,160,0.3)] disabled:opacity-50">
                     {isBlasting ? <FaSpinner className="animate-spin text-lg" /> : "Request Help"}
                   </motion.button>
                 </div>

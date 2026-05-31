@@ -77,7 +77,7 @@ const FeedbackModal = ({ isOpen, onClose }) => {
 
               <button 
                 type="submit" disabled={isSubmitting} 
-                className="w-full py-4 bg-pine-teal hover:bg-[#1a3630] text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-[0_10px_25px_rgba(41,82,74,0.3)] transition-all active:scale-95 disabled:opacity-50 flex justify-center items-center gap-2"
+                className="w-full py-4 bg-pine-teal hover:bg-[#1a3630] text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-[0_10px_25px_rgba(59,107,84,0.3)] transition-all active:scale-95 disabled:opacity-50 flex justify-center items-center gap-2"
               >
                 {isSubmitting ? "Transmitting..." : <><FaPaperPlane /> Send to Developers</>}
               </button>

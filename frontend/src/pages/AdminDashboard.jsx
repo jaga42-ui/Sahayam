@@ -63,8 +63,8 @@ const Admin = () => {
       toast.error("Unauthorized Area", {
         style: {
           background: "#ffffff",
-          color: "#ff4a1c",
-          border: "1px solid #ff4a1c",
+          color: "#6e4fa0",
+          border: "1px solid #6e4fa0",
         },
       });
       navigate("/dashboard");
@@ -195,7 +195,7 @@ const Admin = () => {
 
   if (!user || !user.isAdmin) return null;
 
-  const COLORS = ["#29524a", "#9f1164", "#ff4a1c"];
+  const COLORS = ["#3b6b54", "#8a6fb0", "#6e4fa0"];
   const pieData = stats
     ? [
         { name: "Donations", value: stats.totalDonations },
@@ -233,7 +233,7 @@ const Admin = () => {
               transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
               className="mb-3"
             >
-              <FaShieldAlt className="text-4xl text-dark-raspberry drop-shadow-[0_0_20px_rgba(160,17,106,0.8)]" />
+              <FaShieldAlt className="text-4xl text-dark-raspberry drop-shadow-[0_0_20px_rgba(110,79,160,0.8)]" />
             </motion.div>
             <h1 className="text-3xl font-black text-white tracking-tight uppercase">
               Sahayam <span className="gradient-text-aurora">Admin</span>
@@ -314,7 +314,7 @@ const Admin = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
                   <div className="lg:col-span-2 space-y-6">
-                    <div className="bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] p-6 shadow-[0_10px_30px_rgba(41,82,74,0.08)] h-[350px] flex flex-col">
+                    <div className="bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] p-6 shadow-[0_10px_30px_rgba(59,107,84,0.08)] h-[350px] flex flex-col">
                       <h3 className="text-sm font-black uppercase tracking-widest text-pine-teal mb-6 drop-shadow-sm">
                         30-Day Community Growth
                       </h3>
@@ -340,45 +340,45 @@ const Admin = () => {
                                 >
                                   <stop
                                     offset="5%"
-                                    stopColor="#29524a"
+                                    stopColor="#3b6b54"
                                     stopOpacity={0.4}
                                   />
                                   <stop
                                     offset="95%"
-                                    stopColor="#29524a"
+                                    stopColor="#3b6b54"
                                     stopOpacity={0}
                                   />
                                 </linearGradient>
                               </defs>
                               <XAxis
                                 dataKey="date"
-                                stroke="#846b8a"
-                                tick={{ fontSize: 10, fill: "#846b8a" }}
+                                stroke="#9a8db5"
+                                tick={{ fontSize: 10, fill: "#9a8db5" }}
                                 tickLine={false}
                                 axisLine={false}
                               />
                               <YAxis
-                                stroke="#846b8a"
-                                tick={{ fontSize: 10, fill: "#846b8a" }}
+                                stroke="#9a8db5"
+                                tick={{ fontSize: 10, fill: "#9a8db5" }}
                                 tickLine={false}
                                 axisLine={false}
                               />
                               <Tooltip
                                 contentStyle={{
                                   backgroundColor: "#ffffff",
-                                  border: "1px solid #846b8a",
+                                  border: "1px solid #9a8db5",
                                   borderRadius: "12px",
-                                  color: "#29524a",
+                                  color: "#3b6b54",
                                 }}
                                 itemStyle={{
-                                  color: "#29524a",
+                                  color: "#3b6b54",
                                   fontWeight: "bold",
                                 }}
                               />
                               <Area
                                 type="monotone"
                                 dataKey="Users"
-                                stroke="#29524a"
+                                stroke="#3b6b54"
                                 strokeWidth={3}
                                 fillOpacity={1}
                                 fill="url(#colorUsers)"
@@ -395,7 +395,7 @@ const Admin = () => {
                   </div>
 
                   <div className="space-y-6">
-                    <div className="bg-white/70 backdrop-blur-lg border border-dark-raspberry/30 rounded-[2rem] p-6 shadow-[0_10px_40px_rgba(159,17,100,0.1)] relative overflow-hidden">
+                    <div className="bg-white/70 backdrop-blur-lg border border-dark-raspberry/30 rounded-[2rem] p-6 shadow-[0_10px_40px_rgba(110,79,160,0.1)] relative overflow-hidden">
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pine-teal to-dark-raspberry" />
                       <h2 className="text-sm font-black uppercase tracking-widest text-dark-raspberry mb-6 flex items-center gap-2">
                         <FaBullhorn /> Global Broadcast
@@ -419,7 +419,7 @@ const Admin = () => {
                         />
                         <button
                           disabled={isBroadcasting}
-                          className="w-full py-3 bg-dark-raspberry hover:bg-[#850e53] text-white font-black uppercase tracking-widest text-[10px] rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50"
+                          className="w-full py-3 bg-dark-raspberry hover:bg-[#5e4585] text-white font-black uppercase tracking-widest text-[10px] rounded-xl shadow-lg transition-all active:scale-95 disabled:opacity-50"
                         >
                           {isBroadcasting
                             ? "Broadcasting..."
@@ -428,7 +428,7 @@ const Admin = () => {
                       </form>
                     </div>
 
-                    <div className="bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] p-6 shadow-[0_10px_30px_rgba(41,82,74,0.08)] h-[250px] flex flex-col">
+                    <div className="bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] p-6 shadow-[0_10px_30px_rgba(59,107,84,0.08)] h-[250px] flex flex-col">
                       <h3 className="text-[10px] font-black uppercase tracking-widest text-pine-teal mb-2 drop-shadow-sm text-center">
                         Activity Distribution
                       </h3>
@@ -455,9 +455,9 @@ const Admin = () => {
                             <Tooltip
                               contentStyle={{
                                 backgroundColor: "#ffffff",
-                                border: "1px solid #846b8a",
+                                border: "1px solid #9a8db5",
                                 borderRadius: "8px",
-                                color: "#29524a",
+                                color: "#3b6b54",
                               }}
                               itemStyle={{ fontWeight: "bold" }}
                             />
@@ -468,7 +468,7 @@ const Admin = () => {
                               wrapperStyle={{
                                 fontSize: "10px",
                                 fontWeight: "bold",
-                                color: "#846b8a",
+                                color: "#9a8db5",
                               }}
                             />
                           </PieChart>
@@ -482,7 +482,7 @@ const Admin = () => {
 
             {/* MODERATION QUEUE TAB */}
             {activeTab === "moderation" && (
-              <div className="bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] p-6 md:p-8 shadow-[0_20px_40px_rgba(41,82,74,0.08)] min-h-[60vh]">
+              <div className="bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] p-6 md:p-8 shadow-[0_20px_40px_rgba(59,107,84,0.08)] min-h-[60vh]">
                 <div className="flex items-center justify-between mb-8 border-b border-dusty-lavender/30 pb-4">
                   <h2 className="text-sm font-black uppercase tracking-widest text-blazing-flame flex items-center gap-2">
                     <FaFlag /> Community Reports
@@ -539,7 +539,7 @@ const Admin = () => {
                               onClick={() =>
                                 handleReportAction(post._id, "delete")
                               }
-                              className="flex-1 md:flex-none px-6 py-3 bg-blazing-flame hover:bg-[#e03a12] text-white font-bold text-[10px] uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-md"
+                              className="flex-1 md:flex-none px-6 py-3 bg-blazing-flame hover:bg-[#6e4fa0] text-white font-bold text-[10px] uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-2 shadow-md"
                             >
                               <FaTrash /> Purge
                             </button>
@@ -554,7 +554,7 @@ const Admin = () => {
 
             {/* 👉 NEW FEEDBACK TAB */}
             {activeTab === "feedback" && (
-              <div className="bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] p-6 md:p-8 shadow-[0_20px_40px_rgba(41,82,74,0.08)] min-h-[60vh]">
+              <div className="bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] p-6 md:p-8 shadow-[0_20px_40px_rgba(59,107,84,0.08)] min-h-[60vh]">
                 <div className="flex items-center justify-between mb-8 border-b border-dusty-lavender/30 pb-4">
                   <h2 className="text-sm font-black uppercase tracking-widest text-pine-teal flex items-center gap-2">
                     <FaCommentAlt /> User Feedback
@@ -623,7 +623,7 @@ const Admin = () => {
 
             {/* 👉 NEW HEATMAP TAB */}
             {activeTab === "heatmap" && heatmapData && (
-              <div className="bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] p-6 md:p-8 shadow-[0_20px_40px_rgba(41,82,74,0.08)] min-h-[70vh] flex flex-col">
+              <div className="bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] p-6 md:p-8 shadow-[0_20px_40px_rgba(59,107,84,0.08)] min-h-[70vh] flex flex-col">
                 <div className="flex items-center justify-between mb-6 border-b border-dusty-lavender/30 pb-4">
                   <h2 className="text-sm font-black uppercase tracking-widest text-pine-teal flex items-center gap-2">
                     <FaMapMarkerAlt /> Global Activity Grid
@@ -642,7 +642,7 @@ const Admin = () => {
                   <MapContainer 
                     center={[20.5937, 78.9629]} 
                     zoom={5} 
-                    style={{ height: "100%", width: "100%", background: "#e8dab2" }}
+                    style={{ height: "100%", width: "100%", background: "#f4efe5" }}
                   >
                     <TileLayer 
                       url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" 
@@ -655,8 +655,8 @@ const Admin = () => {
                           key={donor._id}
                           center={[donor.location.coordinates[1], donor.location.coordinates[0]]}
                           radius={5}
-                          fillColor="#29524a"
-                          color="#29524a"
+                          fillColor="#3b6b54"
+                          color="#3b6b54"
                           weight={1}
                           opacity={0.8}
                           fillOpacity={0.6}
@@ -670,8 +670,8 @@ const Admin = () => {
                           key={em._id}
                           center={[em.location.coordinates[1], em.location.coordinates[0]]}
                           radius={12}
-                          fillColor="#ff4a1c"
-                          color="#ff4a1c"
+                          fillColor="#6e4fa0"
+                          color="#6e4fa0"
                           weight={2}
                           opacity={1}
                           fillOpacity={0.8}
@@ -687,7 +687,7 @@ const Admin = () => {
             {/* USERS TAB */}
             {activeTab === "users" && (
               <>
-                <div className="hidden md:block bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] overflow-hidden shadow-[0_20px_40px_rgba(41,82,74,0.08)]">
+                <div className="hidden md:block bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] overflow-hidden shadow-[0_20px_40px_rgba(59,107,84,0.08)]">
                   <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead className="bg-white/50 text-dusty-lavender text-[10px] uppercase tracking-widest border-b border-dusty-lavender/30">
                       <tr>
@@ -845,7 +845,7 @@ const Admin = () => {
             {/* LISTINGS TAB */}
             {activeTab === "listings" && (
               <>
-                <div className="hidden md:block bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] overflow-hidden shadow-[0_20px_40px_rgba(41,82,74,0.08)]">
+                <div className="hidden md:block bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] overflow-hidden shadow-[0_20px_40px_rgba(59,107,84,0.08)]">
                   <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead className="bg-white/50 text-dusty-lavender text-[10px] uppercase tracking-widest border-b border-dusty-lavender/30">
                       <tr>
@@ -965,7 +965,7 @@ const Admin = () => {
                   </div>
                 ) : (
                   <>
-                    <div className="hidden md:block bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] overflow-hidden shadow-[0_20px_40px_rgba(41,82,74,0.08)]">
+                    <div className="hidden md:block bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] overflow-hidden shadow-[0_20px_40px_rgba(59,107,84,0.08)]">
                       <table className="w-full text-left text-sm whitespace-nowrap">
                         <thead className="bg-white/50 text-dusty-lavender text-[10px] uppercase tracking-widest border-b border-dusty-lavender/30">
                           <tr>

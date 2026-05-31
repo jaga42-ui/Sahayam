@@ -156,7 +156,7 @@ const Leaderboard = () => {
                         variants={rowVariants}
                         className={`flex items-center gap-3 rounded-2xl border p-4 transition-all ${
                           isMe
-                            ? "border-dark-raspberry/35 bg-dark-raspberry/8 shadow-[0_0_20px_rgba(160,17,106,0.15)]"
+                            ? "border-dark-raspberry/35 bg-dark-raspberry/8 shadow-[0_0_20px_rgba(110,79,160,0.15)]"
                             : "border-pine-teal/8 bg-surface shadow-sm"
                         }`}
                       >

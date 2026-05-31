@@ -150,7 +150,7 @@ const Layout = ({ children }) => {
             className="fixed top-0 left-0 w-full bg-blazing-flame z-[9999] px-4 py-2.5 flex items-center justify-center gap-3"
           >
             <FaWifi className="text-white animate-pulse" />
-            <p className="text-white font-black text-xs uppercase tracking-widest">Signal Lost — waiting for network…</p>
+            <p className="text-white font-semibold text-xs tracking-wide">You're offline — we'll reconnect you automatically</p>
           </motion.div>
         )}
       </AnimatePresence>
@@ -161,8 +161,8 @@ const Layout = ({ children }) => {
       <div className="md:hidden bg-surface/90 backdrop-blur-xl border-b border-pine-teal/10 px-4 py-3 flex justify-between items-center z-50 shrink-0 shadow-sm">
         <Link to="/dashboard" className="flex items-center gap-2">
           <img src={logo} alt="Sahayam" className="h-8 w-auto" />
-          <span className="text-xl font-black italic tracking-tighter text-pine-teal">
-            SAHA<span className={accentText}>YAM.</span>
+          <span className="font-display text-xl font-semibold italic tracking-tightest text-pine-teal">
+            Saha<span className={accentText}>yam</span>
           </span>
         </Link>
         <div className="flex items-center gap-2">
@@ -190,10 +190,10 @@ const Layout = ({ children }) => {
             <motion.img
               whileHover={{ scale: 1.08, rotate: -3 }}
               src={logo} alt="Sahayam"
-              className="h-9 w-auto drop-shadow-[0_0_12px_rgba(255,74,28,0.5)]"
+              className="h-9 w-auto drop-shadow-[0_0_12px_rgba(138,111,176,0.45)]"
             />
-            <span className="text-2xl font-black italic tracking-tighter text-white">
-              SAHA<span className="text-blazing-flame drop-shadow-[0_0_8px_rgba(255,74,28,0.7)]">YAM.</span>
+            <span className="font-display text-2xl font-semibold italic tracking-tightest text-white">
+              Saha<span className="text-blazing-flame">yam</span>
             </span>
           </Link>
 
@@ -293,7 +293,7 @@ const Layout = ({ children }) => {
       ══════════════════════════════════ */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
         {/* Frosted glass bar */}
-        <div className="bg-surface/94 backdrop-blur-2xl border-t border-pine-teal/8 shadow-[0_-12px_40px_rgba(29,74,66,0.10)]">
+        <div className="bg-surface/94 backdrop-blur-2xl border-t border-pine-teal/8 shadow-[0_-12px_40px_rgba(59,107,84,0.10)]">
           <nav className="flex justify-around items-center h-16 px-1 relative">
             {NAV_ITEMS.filter((i) => !i.hideOnMobileBottom).map((item) => {
               const isActive = location.pathname === item.path;

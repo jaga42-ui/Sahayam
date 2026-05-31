@@ -12,9 +12,9 @@ import logo from "../assets/logo.png";
 import PolicyModal from "../components/PolicyModal";
 
 const ROLES = [
-  { id: "donor",    label: "Donor",       desc: "Give blood, food, or supplies",    color: "blazing-flame",  gradient: "from-[#ff4a1c] to-[#ff8c1a]" },
-  { id: "receiver", label: "Receiver",    desc: "Request help from your community", color: "dark-raspberry", gradient: "from-[#a0116a] to-[#e040a0]" },
-  { id: "ngo",      label: "Institution", desc: "Coordinate large-scale aid",       color: "pine-teal",      gradient: "from-[#1d4a42] to-[#2a7a6a]" },
+  { id: "donor",    label: "Donor",       desc: "Give blood, food, or supplies",    color: "blazing-flame",  gradient: "from-[#8a6fb0] to-[#6e4fa0]" },
+  { id: "receiver", label: "Receiver",    desc: "Request help from your community", color: "dark-raspberry", gradient: "from-[#6e4fa0] to-[#5e4585]" },
+  { id: "ngo",      label: "Institution", desc: "Coordinate large-scale aid",       color: "pine-teal",      gradient: "from-[#3b6b54] to-[#2d5343]" },
 ];
 
 const springIn = { type: "spring", stiffness: 300, damping: 26 };
@@ -63,9 +63,9 @@ const Register = () => {
                                 "border-pine-teal/50      focus:border-pine-teal      focus:ring-pine-teal/10";
 
   const accentGlow =
-    activeRole === "donor"    ? "shadow-[0_0_28px_rgba(255,74,28,0.35)]" :
-    activeRole === "receiver" ? "shadow-[0_0_28px_rgba(160,17,106,0.35)]" :
-                                "shadow-[0_0_28px_rgba(29,74,66,0.45)]";
+    activeRole === "donor"    ? "shadow-[0_0_28px_rgba(138,111,176,0.35)]" :
+    activeRole === "receiver" ? "shadow-[0_0_28px_rgba(110,79,160,0.35)]" :
+                                "shadow-[0_0_28px_rgba(59,107,84,0.45)]";
 
   return (
     <main className="min-h-screen aurora-bg flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden selection:bg-white/20 selection:text-white">
@@ -91,10 +91,10 @@ const Register = () => {
             <motion.img
               whileHover={{ scale: 1.1, rotate: -5 }}
               src={logo} alt="Sahayam"
-              className="h-9 w-auto drop-shadow-[0_0_14px_rgba(255,74,28,0.55)]"
+              className="h-9 w-auto drop-shadow-[0_0_14px_rgba(138,111,176,0.45)]"
             />
-            <span className="text-2xl font-black italic tracking-tighter text-white">
-              SAHA<span className="text-blazing-flame drop-shadow-[0_0_10px_rgba(255,74,28,0.8)]">YAM.</span>
+            <span className="font-display text-2xl font-semibold italic tracking-tightest text-white">
+              Saha<span className="text-blazing-flame">yam</span>
             </span>
           </Link>
         </div>

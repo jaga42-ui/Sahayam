@@ -25,7 +25,7 @@ const DonationCard = ({ d, onClaim, currentUser }) => {
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -5 }}
       transition={{ duration: 0.3 }}
-      className={`bg-white/70 backdrop-blur-lg border border-white rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_rgba(41,82,74,0.08)] transition-all group flex flex-col`}
+      className={`bg-white/70 backdrop-blur-lg border border-white rounded-3xl md:rounded-[2.5rem] overflow-hidden shadow-[0_20px_40px_rgba(59,107,84,0.08)] transition-all group flex flex-col`}
     >
       <div className={`h-40 md:h-48 relative overflow-hidden bg-white border-b ${config.border} shrink-0`}>
         {d.photo || d.image ? (
@@ -71,7 +71,7 @@ const DonationCard = ({ d, onClaim, currentUser }) => {
           {isClaimable ? (
             <button 
               onClick={() => onClaim(d._id)}
-              className="w-full bg-pine-teal hover:bg-[#1a3630] text-white font-black uppercase tracking-widest text-[10px] md:text-xs py-3.5 md:py-4 rounded-xl md:rounded-2xl transition-all shadow-[0_10px_25px_rgba(41,82,74,0.3)] active:scale-95"
+              className="w-full bg-pine-teal hover:bg-[#1a3630] text-white font-black uppercase tracking-widest text-[10px] md:text-xs py-3.5 md:py-4 rounded-xl md:rounded-2xl transition-all shadow-[0_10px_25px_rgba(59,107,84,0.3)] active:scale-95"
             >
               Claim Directive
             </button>

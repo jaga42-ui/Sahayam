@@ -137,7 +137,7 @@ const ChatDrawer = ({ isOpen, onClose, currentUser, chatPartner, donationId }) =
                     const isMe = msg.sender === currentUser._id || msg.sender?._id === currentUser._id;
                     return (
                       <motion.div key={msg._id || idx} initial={{ opacity: 0, y: 10, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} className={`flex w-full ${isMe ? "justify-end" : "justify-start"}`}>
-                        <div className={`relative max-w-[85%] px-4 py-3 shadow-sm flex flex-col transition-opacity duration-300 ${isMe ? "bg-gradient-to-br from-dark-raspberry to-[#850e53] text-white rounded-[1.5rem] rounded-tr-md" : "bg-white border border-dusty-lavender/20 text-pine-teal rounded-[1.5rem] rounded-tl-md"} ${msg.isSending ? "opacity-60" : "opacity-100"}`}>
+                        <div className={`relative max-w-[85%] px-4 py-3 shadow-sm flex flex-col transition-opacity duration-300 ${isMe ? "bg-gradient-to-br from-dark-raspberry to-[#5e4585] text-white rounded-[1.5rem] rounded-tr-md" : "bg-white border border-dusty-lavender/20 text-pine-teal rounded-[1.5rem] rounded-tl-md"} ${msg.isSending ? "opacity-60" : "opacity-100"}`}>
                           <span className="text-[14px] leading-relaxed break-words font-medium pr-2">{msg.content}</span>
                           <div className={`flex justify-end items-center gap-1.5 mt-1.5 ${isMe ? "opacity-90" : "opacity-50"}`}>
                             <span className="text-[9px] font-bold tracking-wider">
@@ -157,7 +157,7 @@ const ChatDrawer = ({ isOpen, onClose, currentUser, chatPartner, donationId }) =
             <div className="bg-white/80 backdrop-blur-md px-3 py-3 md:p-4 z-20 border-t border-white shrink-0 pb-6 md:pb-4">
               <form onSubmit={handleSend} className="max-w-3xl mx-auto flex items-end gap-2 bg-white border border-dusty-lavender/30 rounded-3xl p-1.5 shadow-sm transition-all focus-within:border-pine-teal focus-within:ring-1 focus-within:ring-pine-teal/30">
                 <textarea value={newMessage} onChange={(e) => setNewMessage(e.target.value)} placeholder="Type a message..." rows={1} className="flex-1 bg-transparent py-3.5 px-4 text-pine-teal text-[14px] outline-none placeholder-dusty-lavender resize-none max-h-32 overflow-y-auto" onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(e); } }} />
-                <button type="submit" disabled={!newMessage.trim()} className="w-10 h-10 rounded-full flex shrink-0 items-center justify-center text-white transition-all shadow-md self-end mb-1 mr-1 bg-blazing-flame hover:bg-[#e03a12] disabled:opacity-30 disabled:scale-100 active:scale-95">
+                <button type="submit" disabled={!newMessage.trim()} className="w-10 h-10 rounded-full flex shrink-0 items-center justify-center text-white transition-all shadow-md self-end mb-1 mr-1 bg-blazing-flame hover:bg-[#6e4fa0] disabled:opacity-30 disabled:scale-100 active:scale-95">
                   <FaPaperPlane className="text-[12px] -ml-1 mt-0.5" />
                 </button>
               </form>

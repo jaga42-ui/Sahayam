@@ -80,10 +80,10 @@ const Login = () => {
             <motion.img
               whileHover={{ scale: 1.1, rotate: -5 }}
               src={logo} alt="Sahayam"
-              className="h-9 w-auto drop-shadow-[0_0_14px_rgba(255,74,28,0.55)]"
+              className="h-9 w-auto drop-shadow-[0_0_14px_rgba(138,111,176,0.45)]"
             />
-            <span className="text-2xl font-black italic tracking-tighter text-white">
-              SAHA<span className="text-blazing-flame drop-shadow-[0_0_10px_rgba(255,74,28,0.8)]">YAM.</span>
+            <span className="font-display text-2xl font-semibold italic tracking-tightest text-white">
+              Saha<span className="text-blazing-flame">yam</span>
             </span>
           </Link>
         </div>

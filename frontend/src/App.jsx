@@ -7,6 +7,7 @@ import { HelmetProvider } from "react-helmet-async";
 
 import Loader from "./components/Loader";
 import ErrorBoundary from "./components/ErrorBoundary";
+import RouteTransition from "./components/RouteTransition";
 
 // LAZY LOADED PAGES
 const CreateDonation = lazy(() => import("./pages/CreateDonation"));
@@ -39,35 +40,36 @@ function App() {
             toastOptions={{
               duration: 4000,
               style: {
-                background: 'rgba(255, 255, 255, 0.92)',
+                background: 'rgba(252, 250, 245, 0.94)',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
-                color: '#1d4a42',
-                border: '1px solid rgba(29, 74, 66, 0.12)',
+                color: '#3b6b54',
+                border: '1px solid rgba(59, 107, 84, 0.12)',
                 borderRadius: '14px',
                 padding: '12px 20px',
-                boxShadow: '0 8px 32px rgba(29, 74, 66, 0.10), 0 2px 8px rgba(0,0,0,0.05)',
+                boxShadow: '0 10px 30px rgba(59, 107, 84, 0.10), 0 2px 8px rgba(0,0,0,0.04)',
                 fontSize: '13px',
                 fontWeight: '600',
-                fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+                fontFamily: "'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif",
                 maxWidth: '420px',
               },
               success: {
-                iconTheme: { primary: '#1d4a42', secondary: '#ffffff' },
-                style: { borderLeft: '3px solid #1d4a42' },
+                iconTheme: { primary: '#3b6b54', secondary: '#ffffff' },
+                style: { borderLeft: '3px solid #3b6b54' },
               },
               error: {
-                iconTheme: { primary: '#ff4a1c', secondary: '#ffffff' },
-                style: { borderLeft: '3px solid #ff4a1c', color: '#c0381a' },
+                iconTheme: { primary: '#6e4fa0', secondary: '#ffffff' },
+                style: { borderLeft: '3px solid #6e4fa0', color: '#5e4585' },
               },
               loading: {
-                iconTheme: { primary: '#7a6882', secondary: '#ffffff' },
+                iconTheme: { primary: '#9a8db5', secondary: '#ffffff' },
               },
             }}
           />
 
+          <RouteTransition />
           <ErrorBoundary>
-            <Suspense fallback={<Loader fullScreen={true} text="Connecting to Sahayam..." />}>
+            <Suspense fallback={<Loader fullScreen={true} text="Getting things ready" />}>
               <Routes>
                 {/* Public & Auth Routes */}
                 <Route path="/" element={<Landing />} />

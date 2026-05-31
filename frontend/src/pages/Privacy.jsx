@@ -5,13 +5,13 @@ const Privacy = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#e8dab2] font-sans selection:bg-[#9f1164] selection:text-white pb-10">
+    <div className="min-h-screen bg-[#f4efe5] font-sans selection:bg-[#6e4fa0] selection:text-white pb-10">
       <main className="max-w-4xl mx-auto px-4 py-8 md:py-12 pb-32 font-sans">
         <button onClick={() => navigate(-1)} className="mb-6 text-dusty-lavender hover:text-pine-teal bg-white p-3 rounded-full border border-dusty-lavender/30 shadow-sm flex items-center justify-center w-max active:scale-90 transition-all">
           <FaArrowLeft className="text-sm" />
         </button>
 
-        <div className="bg-white/80 backdrop-blur-md border border-white rounded-[2.5rem] p-6 md:p-10 shadow-[0_20px_40px_rgba(41,82,74,0.05)]">
+        <div className="bg-white/80 backdrop-blur-md border border-white rounded-[2.5rem] p-6 md:p-10 shadow-[0_20px_40px_rgba(59,107,84,0.05)]">
           <div className="flex items-center gap-4 mb-8 border-b border-dusty-lavender/20 pb-6">
             <div className="w-12 h-12 bg-pine-teal/10 text-pine-teal rounded-2xl flex items-center justify-center text-2xl">
               <FaLock />

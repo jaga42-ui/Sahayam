@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
       setUnreadCount((prev) => prev + 1);
       window.dispatchEvent(new Event("new_unread_message"));
       toast("💬 Secure Transmission Received!", {
-        style: { background: "#ffffff", color: "#29524a", border: "1px solid #846b8a" },
+        style: { background: "#ffffff", color: "#3b6b54", border: "1px solid #9a8db5" },
       });
     });
 
@@ -54,11 +54,11 @@ export const AuthProvider = ({ children }) => {
 
         if (!data.isAdmin) {
           toast.error("SECURITY ALERT: Your Admin privileges have been revoked.", {
-            style: { background: "#ffffff", color: "#ff4a1c", border: "1px solid #ff4a1c" },
+            style: { background: "#ffffff", color: "#8a6fb0", border: "1px solid #8a6fb0" },
           });
         } else {
           toast.success("You have been promoted to System Admin!", {
-            style: { background: "#ffffff", color: "#29524a", border: "1px solid #846b8a" },
+            style: { background: "#ffffff", color: "#3b6b54", border: "1px solid #9a8db5" },
           });
         }
       }
@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }) => {
 
   const enableNotifications = async () => {
     const toastId = toast.loading("Requesting secure channel...", {
-      style: { background: "#ffffff", color: "#29524a" },
+      style: { background: "#ffffff", color: "#3b6b54" },
     });
 
     try {
