@@ -12,8 +12,8 @@ export default defineConfig({
         name: 'Sahayam - Lifesaver Network',
         short_name: 'Sahayam',
         description: 'Hyper-local community emergency and donation network.',
-        theme_color: '#e8dab2', // Pearl Beige background
-        background_color: '#e8dab2',
+        theme_color: '#f4efe5', // Warm linen — matches the new palette
+        background_color: '#f4efe5',
         display: 'standalone', // This hides the browser URL bar!
         icons: [
           {
