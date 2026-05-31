@@ -50,15 +50,15 @@ const Chat = () => {
   const roleTheme = {
     primaryGradient: isDonor
       ? "from-pine-teal to-[#1a3630]"
-      : "from-dark-raspberry to-[#850e53]",
+      : "from-dark-raspberry to-[#5e4585]",
     buttonBg: isDonor
       ? "bg-pine-teal hover:bg-[#1a3630]"
-      : "bg-dark-raspberry hover:bg-[#850e53]",
+      : "bg-dark-raspberry hover:bg-[#5e4585]",
     text: isDonor ? "text-pine-teal" : "text-dark-raspberry",
     border: isDonor ? "border-pine-teal/30" : "border-dark-raspberry/30",
     shadow: isDonor
-      ? "shadow-[0_10px_25px_rgba(41,82,74,0.3)]"
-      : "shadow-[0_10px_25px_rgba(159,17,100,0.3)]",
+      ? "shadow-[0_10px_25px_rgba(59,107,84,0.3)]"
+      : "shadow-[0_10px_25px_rgba(110,79,160,0.3)]",
     avatarBg: isDonor
       ? "bg-pine-teal/10 text-pine-teal"
       : "bg-dark-raspberry/10 text-dark-raspberry",
@@ -142,8 +142,8 @@ const Chat = () => {
           icon: "✅",
           style: {
             background: "#ffffff",
-            color: "#29524a",
-            border: "1px solid #29524a",
+            color: "#3b6b54",
+            border: "1px solid #3b6b54",
             fontWeight: "bold",
             textTransform: "uppercase",
             letterSpacing: "0.1em",
@@ -295,7 +295,7 @@ const Chat = () => {
           <div className="flex gap-2">
             <button
               onClick={() => setShowETA(!showETA)}
-              className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${showETA ? "bg-pine-teal text-white border-pine-teal shadow-[0_0_15px_rgba(41,82,74,0.6)]" : "bg-white/8 text-white/70 border-white/15 hover:bg-pine-teal hover:text-white hover:border-pine-teal"}`}
+              className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${showETA ? "bg-pine-teal text-white border-pine-teal shadow-[0_0_15px_rgba(59,107,84,0.6)]" : "bg-white/8 text-white/70 border-white/15 hover:bg-pine-teal hover:text-white hover:border-pine-teal"}`}
             >
               <FaMapMarkerAlt /> {showETA ? "Tracking" : "ETA"}
             </button>
@@ -321,7 +321,7 @@ const Chat = () => {
               </div>
               <div className="p-4 flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-pine-teal/10 border border-pine-teal/50 flex items-center justify-center text-pine-teal shadow-[0_0_15px_rgba(41,82,74,0.3)]">
+                  <div className="w-10 h-10 rounded-full bg-pine-teal/10 border border-pine-teal/50 flex items-center justify-center text-pine-teal shadow-[0_0_15px_rgba(59,107,84,0.3)]">
                     <FaMapMarkerAlt className="animate-bounce" />
                   </div>
                   <div>
@@ -451,7 +451,7 @@ const Chat = () => {
               exit={{ opacity: 0, y: 20 }}
               className="absolute bottom-[90px] left-2 right-2 md:left-4 md:right-auto z-50 shadow-2xl flex justify-center md:block"
             >
-              <div className="w-full md:w-[320px] rounded-3xl overflow-hidden border border-dusty-lavender/30 bg-surface shadow-[0_10px_40px_rgba(41,82,74,0.15)]">
+              <div className="w-full md:w-[320px] rounded-3xl overflow-hidden border border-dusty-lavender/30 bg-surface shadow-[0_10px_40px_rgba(59,107,84,0.15)]">
                 <EmojiPicker
                   onEmojiClick={onEmojiClick}
                   theme="light"
@@ -489,7 +489,7 @@ const Chat = () => {
           )}
         </AnimatePresence>
 
-        <div className="bg-surface/80 backdrop-blur-md px-3 py-3 md:p-4 z-20 border-t border-surface shrink-0 pb-6 md:pb-4 shadow-[0_-10px_20px_rgba(41,82,74,0.03)]">
+        <div className="bg-surface/80 backdrop-blur-md px-3 py-3 md:p-4 z-20 border-t border-surface shrink-0 pb-6 md:pb-4 shadow-[0_-10px_20px_rgba(59,107,84,0.03)]">
           <form
             onSubmit={handleSendMessage}
             className="max-w-3xl mx-auto flex items-end gap-2 bg-surface border border-dusty-lavender/30 rounded-3xl p-1.5 shadow-sm transition-all focus-within:border-pine-teal focus-within:ring-1 focus-within:ring-pine-teal/30"
@@ -518,7 +518,7 @@ const Chat = () => {
             <button
               type="submit"
               disabled={!newMessage.trim()}
-              className={`w-11 h-11 rounded-full flex shrink-0 items-center justify-center text-white transition-all shadow-md self-end mb-1 mr-1 ${editingMessage ? "bg-pine-teal shadow-[0_10px_25px_rgba(41,82,74,0.3)] hover:bg-[#1a3630]" : `${roleTheme.buttonBg} ${roleTheme.shadow}`} disabled:opacity-30 disabled:scale-100 active:scale-95`}
+              className={`w-11 h-11 rounded-full flex shrink-0 items-center justify-center text-white transition-all shadow-md self-end mb-1 mr-1 ${editingMessage ? "bg-pine-teal shadow-[0_10px_25px_rgba(59,107,84,0.3)] hover:bg-[#1a3630]" : `${roleTheme.buttonBg} ${roleTheme.shadow}`} disabled:opacity-30 disabled:scale-100 active:scale-95`}
             >
               {editingMessage ? (
                 <FaCheckDouble className="text-[14px]" />
@@ -577,7 +577,7 @@ const Chat = () => {
                           initial={{ y: 0 }}
                           animate={{ y: 224 }}
                           transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                          className="absolute top-0 left-0 w-full h-1.5 bg-pine-teal shadow-[0_0_25px_rgba(41,82,74,1)] z-10" 
+                          className="absolute top-0 left-0 w-full h-1.5 bg-pine-teal shadow-[0_0_25px_rgba(59,107,84,1)] z-10" 
                         />
                       )}
                     </>
@@ -593,11 +593,11 @@ const Chat = () => {
                         setShowQRModal(false);
                         toast.success("Handshake Verified! Transfer Complete.", { 
                           icon: "🤝",
-                          style: { background: "#ffffff", color: "#29524a", border: "1px solid #29524a", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.1em" }
+                          style: { background: "#ffffff", color: "#3b6b54", border: "1px solid #3b6b54", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.1em" }
                         });
                       }, 2500);
                     }}
-                    className={`mt-6 w-full rounded-2xl py-4 text-xs font-black uppercase tracking-widest text-white shadow-[0_10px_25px_rgba(41,82,74,0.3)] transition-all ${qrScanning ? 'bg-[#1a3630]' : 'bg-pine-teal hover:scale-[1.02] hover:bg-[#1a3630] active:scale-95'}`}
+                    className={`mt-6 w-full rounded-2xl py-4 text-xs font-black uppercase tracking-widest text-white shadow-[0_10px_25px_rgba(59,107,84,0.3)] transition-all ${qrScanning ? 'bg-[#1a3630]' : 'bg-pine-teal hover:scale-[1.02] hover:bg-[#1a3630] active:scale-95'}`}
                     disabled={qrScanning}
                   >
                     {qrScanning ? "Verifying Keys..." : "Simulate Scan"}

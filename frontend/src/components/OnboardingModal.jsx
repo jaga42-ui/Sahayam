@@ -83,7 +83,7 @@ const OnboardingModal = () => {
 
           <button
             onClick={handleClose}
-            className="w-full py-4 bg-blazing-flame hover:bg-[#e03a12] text-white rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs transition-colors shadow-[0_10px_25px_rgba(255,74,28,0.3)] active:scale-95"
+            className="w-full py-4 bg-blazing-flame hover:bg-[#6e4fa0] text-white rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs transition-colors shadow-[0_10px_25px_rgba(138,111,176,0.3)] active:scale-95"
           >
             I'm Ready to Save Lives
           </button>

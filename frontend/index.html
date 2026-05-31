@@ -7,22 +7,51 @@
     <link rel="apple-touch-icon" href="/pwa-192x192.png" />
     <link rel="manifest" href="/manifest.json" />
 
-    <meta name="theme-color" content="#fdfbf7" />
+    <meta name="theme-color" content="#f4efe5" />
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <meta
       name="description"
-      content="Sahayam - Hyper-local community emergency and donation network."
+      content="Sahayam — a calm, community-first network for asking for help and showing up for each other."
     />
     <meta property="og:image" content="/logo.png" />
 
     <title>Sahayam</title>
-    
+
+    <!-- Preconnect for faster font + brand load -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Instant, elegant startup splash shown before React hydrates -->
+    <style>
+      #app-splash {
+        position: fixed; inset: 0; z-index: 99999;
+        display: flex; align-items: center; justify-content: center; flex-direction: column;
+        background: #f4efe5; gap: 26px;
+        transition: opacity .5s ease;
+        font-family: Georgia, 'Times New Roman', serif;
+      }
+      #app-splash.hide { opacity: 0; pointer-events: none; }
+      #app-splash img { width: 64px; height: 64px; filter: drop-shadow(0 6px 18px rgba(110,79,160,.22)); animation: splashBreathe 2.6s ease-in-out infinite; }
+      #app-splash .w { font-weight: 600; font-style: italic; font-size: 26px; letter-spacing: -.02em; color: #3b6b54; }
+      #app-splash .w b { color: #6e4fa0; font-weight: 600; }
+      #app-splash .bar { width: 120px; height: 3px; border-radius: 99px; background: linear-gradient(90deg, transparent, #8a6fb0, transparent); background-size: 200% 100%; animation: splashBar 1.4s linear infinite; }
+      @keyframes splashBreathe { 0%,100% { transform: scale(1); opacity: .85; } 50% { transform: scale(1.05); opacity: 1; } }
+      @keyframes splashBar { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+    </style>
   </head>
   <body>
     <div id="root"></div>
+
+    <div id="app-splash">
+      <img src="/logo.png" alt="Sahayam" />
+      <div class="w">Saha<b>yam</b></div>
+      <div class="bar"></div>
+    </div>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

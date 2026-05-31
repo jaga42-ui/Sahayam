@@ -20,13 +20,13 @@ const ResetPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword)
-      return toast.error("Security mismatch: Passwords do not align.");
+      return toast.error("Those passwords don't match.");
     if (password.length < 6)
       return toast.error("Password must be at least 6 characters.");
     setLoading(true);
     try {
       await api.post(`/auth/resetpassword/${id}/${token}`, { password });
-      toast.success("Override successful. New credentials locked in.");
+      toast.success("Your password has been updated.");
       navigate("/login");
     } catch (error) {
       toast.error(error.response?.data?.message || "Invalid or expired recovery link.");
@@ -55,10 +55,10 @@ const ResetPassword = () => {
             <motion.img
               whileHover={{ scale: 1.1, rotate: -5 }}
               src={logo} alt="Sahayam"
-              className="h-9 w-auto drop-shadow-[0_0_14px_rgba(255,74,28,0.55)]"
+              className="h-9 w-auto drop-shadow-[0_0_14px_rgba(138,111,176,0.45)]"
             />
-            <span className="text-2xl font-black italic tracking-tighter text-white">
-              SAHA<span className="text-blazing-flame drop-shadow-[0_0_10px_rgba(255,74,28,0.8)]">YAM.</span>
+            <span className="font-display text-2xl font-semibold italic tracking-tightest text-white">
+              Saha<span className="text-blazing-flame">yam</span>
             </span>
           </Link>
         </div>
@@ -71,15 +71,15 @@ const ResetPassword = () => {
               transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
               className="w-14 h-14 rounded-2xl bg-pine-teal/20 border border-pine-teal/40 flex items-center justify-center mb-3"
             >
-              <FaShieldAlt className="text-pine-teal text-xl drop-shadow-[0_0_8px_rgba(41,82,74,0.8)]" />
+              <FaShieldAlt className="text-pine-teal text-xl drop-shadow-[0_0_8px_rgba(59,107,84,0.8)]" />
             </motion.div>
-            <h2 className="text-xl font-black text-white tracking-tight">New Credentials</h2>
-            <p className="text-[11px] font-medium text-white/40 mt-0.5">Establish a new encryption key.</p>
+            <h2 className="font-display text-2xl font-semibold text-white tracking-tight">Set a new password</h2>
+            <p className="text-[11px] font-medium text-white/40 mt-0.5">Choose something secure you'll remember.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <div>
-              <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">New Passcode *</label>
+              <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">New password *</label>
               <input
                 type="password" value={password}
                 onChange={(e) => setPassword(e.target.value)} required
@@ -89,7 +89,7 @@ const ResetPassword = () => {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Verify Passcode *</label>
+              <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Confirm password *</label>
               <input
                 type="password" value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)} required
@@ -106,13 +106,13 @@ const ResetPassword = () => {
             >
               {loading
                 ? <FaSpinner className="animate-spin text-lg" />
-                : <>Confirm Override <FaArrowRight className="text-xs" /></>
+                : <>Update password <FaArrowRight className="text-xs" /></>
               }
             </motion.button>
 
             <p className="text-center pt-2">
               <Link to="/login" className="text-[11px] font-bold text-white/35 hover:text-white/60 uppercase tracking-widest transition-colors">
-                Abort & Return to Login
+                Back to sign in
               </Link>
             </p>
           </form>

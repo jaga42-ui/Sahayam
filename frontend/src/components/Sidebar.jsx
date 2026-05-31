@@ -18,7 +18,7 @@ const Sidebar = () => {
   const handleLogout = () => {
     logout();
     toast.success('Successfully logged out.', {
-      style: { background: '#ffffff', color: '#29524a', border: '1px solid #846b8a' }
+      style: { background: '#ffffff', color: '#3b6b54', border: '1px solid #9a8db5' }
     });
     navigate('/');
   };
@@ -44,7 +44,7 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="h-screen w-72 bg-surface/70 backdrop-blur-xl border-r border-surface text-pine-teal flex flex-col fixed left-0 top-0 z-50 overflow-hidden font-sans shadow-[0_20px_40px_rgba(41,82,74,0.08)]">
+    <div className="h-screen w-72 bg-surface/70 backdrop-blur-xl border-r border-surface text-pine-teal flex flex-col fixed left-0 top-0 z-50 overflow-hidden font-sans shadow-[0_20px_40px_rgba(59,107,84,0.08)]">
       
       {/* SIDEBAR HEADER */}
       <div className="p-8 pb-6">

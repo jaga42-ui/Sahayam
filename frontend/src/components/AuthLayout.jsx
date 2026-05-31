@@ -22,7 +22,7 @@ const AuthLayout = ({ children, title, subtitle, icon: Icon = FaShieldAlt }) => 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md bg-white/70 backdrop-blur-lg border border-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_20px_40px_rgba(41,82,74,0.08)] relative z-10 my-8"
+        className="w-full max-w-md bg-white/70 backdrop-blur-lg border border-white p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] shadow-[0_20px_40px_rgba(59,107,84,0.08)] relative z-10 my-8"
       >
         <div className="text-center mb-6 sm:mb-8">
           <div className="w-14 h-14 sm:w-16 sm:h-16 bg-white border border-dusty-lavender/30 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl text-blazing-flame mx-auto mb-4 sm:mb-6 shadow-sm">

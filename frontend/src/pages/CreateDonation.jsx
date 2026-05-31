@@ -38,14 +38,14 @@ const CreateDonation = () => {
 
   const isRequest = formData.listingType === "request";
   const themeAccent = isRequest ? "text-dark-raspberry" : "text-blazing-flame";
-  const themeBg = isRequest ? "bg-dark-raspberry hover:bg-[#850e53]" : "bg-blazing-flame hover:bg-[#e03a12]";
+  const themeBg = isRequest ? "bg-dark-raspberry hover:bg-[#5e4585]" : "bg-blazing-flame hover:bg-[#6e4fa0]";
   const themeFocusBorder = isRequest ? "focus:border-dark-raspberry" : "focus:border-blazing-flame";
 
   // 👉 MAPBOX REVERSE GEOCODING (GPS)
   const handleGetLocation = async () => {
     if (!navigator.geolocation) return toast.error("Geolocation is not supported.");
     setIsFetchingLocation(true);
-    const toastId = toast.loading("Locking onto GPS via Mapbox...", { style: { background: "#ffffff", color: "#29524a", fontWeight: "bold" } });
+    const toastId = toast.loading("Locking onto GPS via Mapbox...", { style: { background: "#ffffff", color: "#3b6b54", fontWeight: "bold" } });
     
     navigator.geolocation.getCurrentPosition(
       async (position) => {

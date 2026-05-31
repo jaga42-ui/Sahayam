@@ -48,10 +48,10 @@ const ForgotPassword = () => {
             <motion.img
               whileHover={{ scale: 1.1, rotate: -5 }}
               src={logo} alt="Sahayam"
-              className="h-9 w-auto drop-shadow-[0_0_14px_rgba(255,74,28,0.55)]"
+              className="h-9 w-auto drop-shadow-[0_0_14px_rgba(138,111,176,0.45)]"
             />
-            <span className="text-2xl font-black italic tracking-tighter text-white">
-              SAHA<span className="text-blazing-flame drop-shadow-[0_0_10px_rgba(255,74,28,0.8)]">YAM.</span>
+            <span className="font-display text-2xl font-semibold italic tracking-tightest text-white">
+              Saha<span className="text-blazing-flame">yam</span>
             </span>
           </Link>
         </div>
@@ -64,7 +64,7 @@ const ForgotPassword = () => {
               transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
               className="w-14 h-14 rounded-2xl bg-dark-raspberry/20 border border-dark-raspberry/40 flex items-center justify-center mb-3"
             >
-              <FaLock className="text-dark-raspberry text-xl drop-shadow-[0_0_8px_rgba(160,17,106,0.8)]" />
+              <FaLock className="text-dark-raspberry text-xl drop-shadow-[0_0_8px_rgba(110,79,160,0.8)]" />
             </motion.div>
             <h2 className="text-xl font-black text-white tracking-tight text-center">System Override</h2>
             <p className="text-[11px] font-medium text-white/40 mt-0.5 text-center">
@@ -78,7 +78,7 @@ const ForgotPassword = () => {
               className="flex flex-col items-center gap-4 py-4"
             >
               <div className="w-16 h-16 rounded-2xl bg-pine-teal/20 border border-pine-teal/40 flex items-center justify-center">
-                <FaEnvelope className="text-pine-teal text-2xl drop-shadow-[0_0_8px_rgba(41,82,74,0.8)]" />
+                <FaEnvelope className="text-pine-teal text-2xl drop-shadow-[0_0_8px_rgba(59,107,84,0.8)]" />
               </div>
               <p className="text-white/60 text-sm text-center font-medium leading-relaxed">
                 We've sent a recovery link to <span className="text-white font-bold">{email}</span>. Follow it to reset your password.
@@ -105,7 +105,7 @@ const ForgotPassword = () => {
                 whileTap={{ scale: 0.97 }}
                 type="submit"
                 disabled={loading || !email}
-                className="ripple-btn w-full mt-2 flex items-center justify-center gap-2.5 rounded-2xl py-4 text-[11px] font-black uppercase tracking-widest text-white shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-dark-raspberry to-[#850e53]"
+                className="ripple-btn w-full mt-2 flex items-center justify-center gap-2.5 rounded-2xl py-4 text-[11px] font-black uppercase tracking-widest text-white shadow-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-dark-raspberry to-[#5e4585]"
               >
                 {loading
                   ? <FaSpinner className="animate-spin text-lg" />

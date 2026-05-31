@@ -5,9 +5,9 @@ const CallToAction = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full max-w-4xl mx-auto my-8 relative rounded-[2rem] overflow-hidden shadow-[0_20px_40px_rgba(255,74,28,0.15)] font-sans">
+    <div className="w-full max-w-4xl mx-auto my-8 relative rounded-[2rem] overflow-hidden shadow-[0_20px_40px_rgba(138,111,176,0.15)] font-sans">
       {/* Background Gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blazing-flame to-[#850e53] z-0" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blazing-flame to-[#5e4585] z-0" />
       
       {/* Abstract Shapes */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4 z-0" />

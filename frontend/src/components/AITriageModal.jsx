@@ -49,7 +49,7 @@ const AITriageModal = ({ isOpen, onClose, onTriageComplete }) => {
             placeholder="e.g. My dad was just in a massive car accident near Apollo Hospital, we desperately need O- blood right now!"
             className="w-full h-32 sm:h-40 bg-pearl-beige/30 border border-dusty-lavender/30 rounded-2xl p-4 text-pine-teal mb-6 resize-none outline-none focus:border-blazing-flame focus:bg-white transition-all shadow-inner text-sm"
           />
-          <button onClick={handleTriage} disabled={loading} className="w-full py-4 bg-gradient-to-r from-blazing-flame to-[#e03a12] text-white font-black uppercase tracking-widest text-[10px] sm:text-xs rounded-xl flex justify-center items-center gap-2 shadow-[0_10px_25px_rgba(255,74,28,0.3)] transition-all active:scale-95 disabled:opacity-50">
+          <button onClick={handleTriage} disabled={loading} className="w-full py-4 bg-gradient-to-r from-blazing-flame to-[#6e4fa0] text-white font-black uppercase tracking-widest text-[10px] sm:text-xs rounded-xl flex justify-center items-center gap-2 shadow-[0_10px_25px_rgba(138,111,176,0.3)] transition-all active:scale-95 disabled:opacity-50">
             {loading ? <FaSpinner className="animate-spin text-lg" /> : <><FaMagic className="text-sm" /> Process Request</>}
           </button>
         </motion.div>

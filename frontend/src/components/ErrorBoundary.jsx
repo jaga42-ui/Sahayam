@@ -24,7 +24,7 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-pearl-beige flex flex-col items-center justify-center p-4 text-pine-teal font-sans selection:bg-dark-raspberry selection:text-white">
-          <div className="bg-white/70 backdrop-blur-lg border border-white p-8 md:p-10 rounded-[2.5rem] max-w-md w-full text-center shadow-[0_20px_40px_rgba(41,82,74,0.08)] relative overflow-hidden">
+          <div className="bg-white/70 backdrop-blur-lg border border-white p-8 md:p-10 rounded-[2.5rem] max-w-md w-full text-center shadow-[0_20px_40px_rgba(59,107,84,0.08)] relative overflow-hidden">
             
             {/* Background Glow */}
             <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] bg-blazing-flame/10 blur-[80px] rounded-full pointer-events-none"></div>
@@ -44,7 +44,7 @@ class ErrorBoundary extends React.Component {
               <div className="flex flex-col gap-3">
                 <button
                   onClick={this.resetSystem}
-                  className="w-full bg-pine-teal hover:bg-[#1a3630] text-white font-black uppercase tracking-widest text-xs py-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-[0_10px_25px_rgba(41,82,74,0.3)] active:scale-95"
+                  className="w-full bg-pine-teal hover:bg-[#1a3630] text-white font-black uppercase tracking-widest text-xs py-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-[0_10px_25px_rgba(59,107,84,0.3)] active:scale-95"
                 >
                   <FaRedo className="text-lg" /> Reboot System
                 </button>
