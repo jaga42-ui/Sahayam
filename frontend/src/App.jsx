@@ -8,6 +8,7 @@ import { HelmetProvider } from "react-helmet-async";
 import Loader from "./components/Loader";
 import ErrorBoundary from "./components/ErrorBoundary";
 import RouteTransition from "./components/RouteTransition";
+import InstallPrompt from "./components/InstallPrompt";
 
 // LAZY LOADED PAGES
 const CreateDonation = lazy(() => import("./pages/CreateDonation"));
@@ -68,6 +69,7 @@ function App() {
           />
 
           <RouteTransition />
+          <InstallPrompt />
           <ErrorBoundary>
             <Suspense fallback={<Loader fullScreen={true} text="Getting things ready" />}>
               <Routes>
