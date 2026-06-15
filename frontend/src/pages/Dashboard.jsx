@@ -9,9 +9,7 @@ import {
   FaCommentDots,
   FaSpinner,
   FaTimes,
-  FaExclamationTriangle,
   FaTrash,
-  FaBoxOpen,
   FaLocationArrow,
   FaCheckCircle,
   FaCheck,
@@ -40,16 +38,16 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
   : "https://hopelink-api.onrender.com";
 
 const FILTER_OPTIONS = [
-  { label: "All", icon: FaBoxOpen },
-  { label: "Blood", icon: FaHeartbeat },
+  { label: "All" },
+  { label: "Urgent" },
 ];
 
 const CATEGORY_META = {
-  blood:   { label: "Blood",   icon: FaHeartbeat,   color: "text-blazing-flame",  bg: "bg-blazing-flame",  soft: "bg-blazing-flame/12 text-blazing-flame border-blazing-flame/25" },
-  food:    { label: "Food",    icon: FaUtensils,    color: "text-pine-teal",      bg: "bg-pine-teal",      soft: "bg-pine-teal/12 text-pine-teal border-pine-teal/25" },
-  clothes: { label: "Clothes", icon: FaTshirt,      color: "text-dark-raspberry", bg: "bg-dark-raspberry", soft: "bg-dark-raspberry/12 text-dark-raspberry border-dark-raspberry/25" },
-  book:    { label: "Book",    icon: FaBook,        color: "text-dusty-lavender", bg: "bg-dusty-lavender", soft: "bg-dusty-lavender/12 text-dusty-lavender border-dusty-lavender/25" },
-  general: { label: "General", icon: FaHandsHelping, color: "text-pine-teal",    bg: "bg-pine-teal/80",   soft: "bg-pine-teal/8 text-pine-teal border-pine-teal/20" },
+  blood:   { label: "Blood",   icon: FaHeartbeat,   soft: "bg-dark-raspberry/8 text-dark-raspberry border-dark-raspberry/20" },
+  food:    { label: "Food",    icon: FaUtensils,    soft: "bg-pine-teal/8 text-pine-teal border-pine-teal/20" },
+  clothes: { label: "Clothes", icon: FaTshirt,      soft: "bg-dark-raspberry/8 text-dark-raspberry border-dark-raspberry/20" },
+  book:    { label: "Book",    icon: FaBook,        soft: "bg-dusty-lavender/10 text-dusty-lavender border-dusty-lavender/25" },
+  general: { label: "General", icon: FaHandsHelping, soft: "bg-pine-teal/8 text-pine-teal border-pine-teal/20" },
 };
 
 const getCategoryMeta = (c) => CATEGORY_META[c?.toLowerCase()] || CATEGORY_META.general;
@@ -63,7 +61,7 @@ const optimizeImageUrl = (url) => {
 
 const getGreeting = () => {
   const h = new Date().getHours();
-  if (h < 5)  return "Late night watch";
+  if (h < 5)  return "Late night";
   if (h < 12) return "Good morning";
   if (h < 17) return "Good afternoon";
   if (h < 21) return "Good evening";
@@ -71,27 +69,23 @@ const getGreeting = () => {
 };
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 16 },
-  show:   (i) => ({ opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 28, delay: Math.min(i * 0.04, 0.2) } }),
-  exit:   { opacity: 0, y: -8, transition: { duration: 0.15 } },
+  hidden: { opacity: 0, y: 12 },
+  show:   (i) => ({ opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1], delay: Math.min(i * 0.035, 0.18) } }),
+  exit:   { opacity: 0, y: -6, transition: { duration: 0.15 } },
 };
 
 const SkeletonCard = () => (
-  <div className="relative overflow-hidden rounded-2xl border border-pine-teal/8 bg-surface">
+  <div className="relative overflow-hidden rounded-2xl border border-pine-teal/8 bg-surface p-4">
     <div className="absolute inset-0 -translate-x-full animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-white/40 to-transparent z-10" />
-    <div className="h-36 w-full bg-pearl-beige/60" />
-    <div className="p-4 space-y-2.5">
-      <div className="flex items-center gap-2">
-        <div className="h-8 w-8 rounded-xl bg-pearl-beige/70" />
-        <div className="flex-1 space-y-1.5">
-          <div className="h-2.5 w-1/2 rounded-full bg-pearl-beige/70" />
-          <div className="h-2 w-1/3 rounded-full bg-pearl-beige/50" />
-        </div>
+    <div className="flex items-start gap-3">
+      <div className="h-14 w-14 shrink-0 rounded-2xl bg-pearl-beige/70" />
+      <div className="flex-1 space-y-2 pt-1">
+        <div className="h-2.5 w-1/3 rounded-full bg-pearl-beige/60" />
+        <div className="h-3.5 w-4/5 rounded-full bg-pearl-beige/70" />
+        <div className="h-2.5 w-2/3 rounded-full bg-pearl-beige/50" />
       </div>
-      <div className="h-3.5 w-4/5 rounded-full bg-pearl-beige/70" />
-      <div className="h-3 w-full rounded-full bg-pearl-beige/50" />
-      <div className="h-10 w-full rounded-xl bg-pearl-beige/60 mt-1" />
     </div>
+    <div className="h-10 w-full rounded-xl bg-pearl-beige/50 mt-4" />
   </div>
 );
 
@@ -170,16 +164,12 @@ const Dashboard = () => {
   useEffect(() => () => { if (typingTimeout) clearTimeout(typingTimeout); }, [typingTimeout]);
 
   const processedFeed = useMemo(
-    () => feed.filter((i) => filterCategory === "All" || i.category?.toLowerCase() === filterCategory.toLowerCase()),
+    () => (filterCategory === "Urgent" ? feed.filter((i) => i.isEmergency) : feed),
     [feed, filterCategory],
   );
 
-  const stats = useMemo(() => [
-    { label: "Live",       value: processedFeed.length,                                      icon: FaBoxOpen,     color: "text-pine-teal",      bg: "bg-pine-teal/10" },
-    { label: "SOS",        value: feed.filter((i) => i.isEmergency).length,                   icon: FaHeartbeat,   color: "text-[#c0392b]",      bg: "bg-[#d6453f]/12" },
-    { label: "Responders", value: feed.reduce((t, i) => t + (i.requestedBy?.length || 0), 0), icon: FaUsers,       color: "text-dark-raspberry", bg: "bg-dark-raspberry/10" },
-    { label: "Done",       value: feed.filter((i) => i.status === "fulfilled").length,         icon: FaCheckCircle, color: "text-dusty-lavender", bg: "bg-dusty-lavender/10" },
-  ], [feed, processedFeed.length]);
+  const activeCount = useMemo(() => feed.filter((i) => i.status !== "fulfilled").length, [feed]);
+  const urgentCount = useMemo(() => feed.filter((i) => i.isEmergency && i.status !== "fulfilled").length, [feed]);
 
   const loadMore = async () => {
     if (!hasMore || loadingMore) return;
@@ -335,6 +325,7 @@ const Dashboard = () => {
   if (!user) return null;
 
   const sosField = "w-full rounded-xl border border-white/10 bg-white/6 px-4 py-3.5 text-sm font-medium text-white placeholder-white/30 outline-none focus:border-blazing-flame/60 transition-all";
+  const iconBtn = "h-9 w-9 flex items-center justify-center rounded-full text-dusty-lavender hover:text-pine-teal hover:bg-pine-teal/5 transition-colors";
 
   return (
     <Layout>
@@ -346,345 +337,292 @@ const Dashboard = () => {
             {responders.map((r, i) => (
               <motion.div key={`${r.blastId}-${i}`}
                 initial={{ y: -16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0, y: -16 }}
-                className="pointer-events-auto flex items-center gap-2.5 rounded-full border border-blazing-flame/25 bg-surface/96 px-4 py-2.5 shadow-xl backdrop-blur-xl">
-                <FaRunning className="text-xs text-blazing-flame shrink-0" />
-                <span className="text-xs font-bold text-pine-teal">{r.donorName} is on their way</span>
+                className="pointer-events-auto flex items-center gap-2.5 rounded-full border border-dark-raspberry/20 bg-surface/96 px-4 py-2.5 shadow-lg backdrop-blur-xl">
+                <FaRunning className="text-xs text-dark-raspberry shrink-0" />
+                <span className="text-xs font-semibold text-pine-teal">{r.donorName} is on their way</span>
               </motion.div>
             ))}
           </AnimatePresence>
         </div>
 
-        {/* ── HEADER ── */}
-        <header className="px-4 pt-6 pb-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-[0.22em] text-dusty-lavender">
-                {getGreeting()}
-              </p>
-              <h1 className="text-[28px] font-black tracking-tight text-pine-teal leading-tight mt-0.5 truncate">
-                {user?.name?.split(" ")[0]}
-              </h1>
-              <div className={`mt-2 inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-black uppercase tracking-widest ${
-                isDonor
-                  ? "border-blazing-flame/30 bg-blazing-flame/10 text-blazing-flame"
-                  : "border-dark-raspberry/30 bg-dark-raspberry/10 text-dark-raspberry"
-              }`}>
-                <span className={`h-1.5 w-1.5 rounded-full animate-pulse ${isDonor ? "bg-blazing-flame" : "bg-dark-raspberry"}`} />
-                {isDonor ? "Donor" : "Receiver"}
+        <div className="mx-auto w-full max-w-2xl">
+
+          {/* ── HEADER ── */}
+          <header className="px-5 pt-8 pb-5">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-pine-teal/45">{getGreeting()},</p>
+                <h1 className="font-display text-[2rem] font-semibold tracking-tight text-pine-teal leading-tight truncate">
+                  {user?.name?.split(" ")[0]}
+                </h1>
+              </div>
+              <div className="flex items-center gap-0.5 shrink-0 -mr-1.5">
+                <button onClick={enableNotifications} className={iconBtn} aria-label="Notifications">
+                  <FaBell className="text-sm" />
+                </button>
+                <button onClick={toggleDarkMode} className={iconBtn} aria-label="Toggle theme">
+                  {isDarkMode ? <FaSun className="text-sm text-amber-500" /> : <FaMoon className="text-sm" />}
+                </button>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0 mt-1">
-              <motion.button whileTap={{ scale: 0.85 }} onClick={enableNotifications}
-                className="h-10 w-10 flex items-center justify-center rounded-2xl border border-pine-teal/12 bg-surface shadow-sm">
-                <FaBell className="text-sm text-dusty-lavender" />
+            <p className="mt-1 text-[15px] text-pine-teal/55">
+              {activeCount === 0
+                ? "No active requests nearby right now."
+                : <>
+                    <span className="font-semibold text-pine-teal">{activeCount}</span> active request{activeCount !== 1 ? "s" : ""} nearby
+                    {urgentCount > 0 && <> · <span className="font-semibold text-[#c0392b]">{urgentCount} urgent</span></>}
+                  </>}
+            </p>
+
+            <div className="mt-5 flex gap-2.5">
+              <motion.button whileTap={{ scale: 0.98 }} onClick={() => setShowSOS(true)}
+                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-dark-raspberry py-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#5e4585]">
+                <FaPlus className="text-xs" /> Raise an SOS
               </motion.button>
-              <motion.button whileTap={{ scale: 0.85 }} onClick={toggleDarkMode}
-                className="h-10 w-10 flex items-center justify-center rounded-2xl border border-pine-teal/12 bg-surface shadow-sm">
-                {isDarkMode ? <FaSun className="text-sm text-yellow-500" /> : <FaMoon className="text-sm text-dusty-lavender" />}
-              </motion.button>
-              <motion.button whileTap={{ scale: 0.88 }} onClick={() => setShowSOS(true)}
-                className="urgent-pulse flex items-center gap-1.5 rounded-2xl bg-[#d6453f] px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-lg shadow-[#d6453f]/35">
-                <FaHeartbeat className="animate-pulse text-xs" /> SOS
+              <motion.button whileTap={{ scale: 0.97 }}
+                onClick={() => {
+                  const link = encodeURIComponent(`${window.location.origin}/?ref=${user?.referralCode}`);
+                  window.open(`https://wa.me/?text=I%20just%20joined%20Sahayam.%20Come%20join%20me%3A%20${link}`, "_blank");
+                }}
+                className="flex items-center justify-center gap-2 rounded-xl border border-pine-teal/15 bg-surface px-4 py-3.5 text-sm font-medium text-pine-teal/70 transition-colors hover:text-pine-teal">
+                <FaShareAlt className="text-xs" /> Invite
               </motion.button>
             </div>
-          </div>
-        </header>
+          </header>
 
-        {/* ── STAT CHIPS ── */}
-        <div className="px-4 mb-4">
-          <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-0.5">
-            {stats.map((s) => {
-              const Icon = s.icon;
-              return (
-                <div key={s.label} className="shrink-0 flex items-center gap-2.5 rounded-2xl border border-pine-teal/8 bg-surface px-3.5 py-3 shadow-sm">
-                  <div className={`h-8 w-8 flex items-center justify-center rounded-xl ${s.bg}`}>
-                    <Icon className={`text-sm ${s.color}`} />
-                  </div>
-                  <div>
-                    <p className={`text-lg font-black leading-none ${s.color}`}>{s.value}</p>
-                    <p className="text-[10px] font-bold text-dusty-lavender mt-0.5">{s.label}</p>
-                  </div>
+          {/* ── FILTER + COUNT ── */}
+          <div className="sticky top-0 z-30 bg-pearl-beige/90 backdrop-blur-xl border-b border-pine-teal/8 px-5 py-3 flex items-center justify-between">
+            <div className="inline-flex rounded-lg border border-pine-teal/10 bg-surface p-0.5">
+              {FILTER_OPTIONS.map(({ label }) => {
+                const active = filterCategory === label;
+                return (
+                  <button key={label} onClick={() => setFilter(label)}
+                    className={`relative rounded-md px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
+                      active ? "text-white" : "text-pine-teal/50 hover:text-pine-teal"
+                    }`}>
+                    {active && (
+                      <motion.span layoutId="feedFilter"
+                        className="absolute inset-0 rounded-md bg-pine-teal"
+                        transition={{ type: "spring", stiffness: 400, damping: 32 }} />
+                    )}
+                    <span className="relative z-10">{label}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <span className="text-xs font-medium text-pine-teal/40">
+              {processedFeed.length} shown
+            </span>
+          </div>
+
+          {/* ── FEED ── */}
+          <div className="px-5 pt-4 pb-32 space-y-3">
+            {loading ? (
+              [...Array(3)].map((_, n) => <SkeletonCard key={n} />)
+            ) : processedFeed.length === 0 ? (
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+                className="flex flex-col items-center justify-center py-24 text-center">
+                <div className="mb-4 h-14 w-14 flex items-center justify-center rounded-2xl border border-pine-teal/12 bg-surface">
+                  <FaHeartbeat className="text-xl text-dark-raspberry/70" />
                 </div>
-              );
-            })}
-          </div>
-        </div>
+                <h3 className="font-display text-lg font-semibold text-pine-teal">All quiet nearby</h3>
+                <p className="mt-1.5 max-w-xs text-sm text-pine-teal/45 leading-relaxed">
+                  When someone nearby needs blood, it appears here. You can raise an SOS anytime.
+                </p>
+                <button onClick={() => setShowSOS(true)}
+                  className="mt-6 flex items-center gap-2 rounded-xl bg-dark-raspberry px-5 py-2.5 text-sm font-semibold text-white shadow-sm">
+                  <FaPlus className="text-xs" /> Raise an SOS
+                </button>
+              </motion.div>
+            ) : (
+              <>
+                <AnimatePresence mode="popLayout">
+                  {processedFeed.map((item, idx) => {
+                    const donorId    = item.donorId?._id || item.donorId;
+                    const receiverId = item.receiverId?._id || item.receiverId;
+                    const isMine     = donorId === user._id;
+                    const alreadyReq = item.requestedBy?.some((r) => (r._id || r) === user._id);
+                    const isApproved = item.status === "pending" && receiverId === user._id;
+                    const meta       = getCategoryMeta(item.category);
+                    const CategoryIcon = meta.icon;
+                    const isBlood    = item.category?.toLowerCase() === "blood";
+                    const place      = item.addressText || item.location?.addressText;
+                    const dateStr    = item.createdAt
+                      ? new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                      : "Recently";
+                    const hoursLeft  = item.criticalDeadline
+                      ? Math.round((new Date(item.criticalDeadline) - Date.now()) / 3600000)
+                      : null;
 
-        {/* ── QUICK ACTIONS ── */}
-        <div className="px-4 mb-5 flex gap-2">
-          <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowSOS(true)}
-            className="flex-1 flex items-center justify-center gap-2 rounded-2xl py-3.5 text-[11px] font-black uppercase tracking-widest text-white shadow-md bg-dark-raspberry shadow-dark-raspberry/20">
-            <FaPlus className="text-[10px]" />
-            Raise Blood SOS
-          </motion.button>
-          <motion.button whileTap={{ scale: 0.97 }}
-            onClick={() => {
-              const link = encodeURIComponent(`${window.location.origin}/?ref=${user?.referralCode}`);
-              window.open(`https://wa.me/?text=I%20just%20joined%20Sahayam.%20Come%20join%20me%3A%20${link}`, "_blank");
-            }}
-            className="flex items-center justify-center gap-2 rounded-2xl border border-pine-teal/12 bg-surface px-5 py-3.5 text-[11px] font-bold text-pine-teal shadow-sm">
-            <FaShareAlt className="text-xs" /> Invite
-          </motion.button>
-        </div>
+                    return (
+                      <motion.article key={item._id} layout custom={idx}
+                        variants={cardVariants} initial="hidden" animate="show" exit="exit"
+                        className={`group relative overflow-hidden rounded-2xl bg-surface transition-shadow ${
+                          item.isEmergency
+                            ? "border border-[#d6453f]/25 shadow-[0_1px_0_0_rgba(214,69,63,0.08)]"
+                            : "border border-pine-teal/10 hover:border-pine-teal/20"
+                        }`}>
 
-        {/* ── FILTER PILLS ── */}
-        <div className="sticky top-0 z-30 bg-pearl-beige/92 backdrop-blur-xl border-b border-pine-teal/8 px-4 py-3">
-          <div className="flex gap-2 overflow-x-auto no-scrollbar">
-            {FILTER_OPTIONS.map(({ label, icon: Icon }) => {
-              const active = filterCategory === label;
-              return (
-                <motion.button key={label} whileTap={{ scale: 0.92 }} onClick={() => setFilter(label)}
-                  className={`flex shrink-0 items-center gap-1.5 rounded-xl px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider transition-all ${
-                    active
-                      ? "bg-pine-teal text-white shadow-md shadow-pine-teal/20"
-                      : "border border-pine-teal/10 bg-surface text-dusty-lavender"
-                  }`}>
-                  <Icon className={`text-[10px] ${active ? "text-white" : ""}`} />
-                  {label}
-                </motion.button>
-              );
-            })}
-          </div>
-        </div>
+                        {/* thin urgency accent */}
+                        {item.isEmergency && <div className="h-0.5 w-full bg-[#d6453f]" />}
 
-        {/* ── FEED ── */}
-        <div className="px-4 pt-4 pb-32 space-y-4">
-          {loading ? (
-            [...Array(3)].map((_, n) => <SkeletonCard key={n} />)
-          ) : processedFeed.length === 0 ? (
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="mb-4 h-16 w-16 flex items-center justify-center rounded-3xl bg-pine-teal/8 border border-pine-teal/12">
-                <FaBoxOpen className="text-2xl text-pine-teal" />
-              </div>
-              <h3 className="text-lg font-black text-pine-teal">No active requests nearby</h3>
-              <p className="mt-2 max-w-xs text-sm text-pine-teal/50 leading-relaxed">
-                When someone nearby needs blood, it shows up here. You can raise an SOS anytime.
-              </p>
-              <button onClick={() => setShowSOS(true)}
-                className="mt-6 flex items-center gap-2 rounded-xl bg-dark-raspberry px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg">
-                <FaPlus /> Raise Blood SOS
-              </button>
-            </motion.div>
-          ) : (
-            <>
-              <AnimatePresence mode="popLayout">
-                {processedFeed.map((item, idx) => {
-                  const donorId    = item.donorId?._id || item.donorId;
-                  const receiverId = item.receiverId?._id || item.receiverId;
-                  const isMine     = donorId === user._id;
-                  const alreadyReq = item.requestedBy?.some((r) => (r._id || r) === user._id);
-                  const isApproved = item.status === "pending" && receiverId === user._id;
-                  const meta       = getCategoryMeta(item.category);
-                  const CategoryIcon = meta.icon;
-                  const dateStr    = item.createdAt
-                    ? new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
-                    : "Recently";
+                        {item.image && (
+                          <div className="relative h-40 w-full overflow-hidden border-b border-pine-teal/8">
+                            <img src={optimizeImageUrl(item.image)} alt={item.title}
+                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+                          </div>
+                        )}
 
-                  return (
-                    <motion.article key={item._id} layout custom={idx}
-                      variants={cardVariants} initial="hidden" animate="show" exit="exit"
-                      className={`group relative overflow-hidden rounded-3xl bg-surface ${
-                        item.isEmergency
-                          ? "border border-[#d6453f]/40 shadow-[0_16px_44px_rgba(214,69,63,0.16)]"
-                          : "border border-pine-teal/10 shadow-[0_8px_28px_rgba(59,107,84,0.06)] hover:shadow-[0_16px_38px_rgba(59,107,84,0.10)] transition-shadow"
-                      }`}>
-
-                      {/* ── Emergency ribbon ── */}
-                      {item.isEmergency && (
-                        <div className="urgent-ribbon flex items-center justify-between gap-2 px-4 py-2.5">
-                          <span className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.18em] text-white">
-                            <span className="relative flex h-2.5 w-2.5">
-                              <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-70 animate-ping" />
-                              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
-                            </span>
-                            Live emergency
-                          </span>
-                          <span className="flex items-center gap-2 text-[10px] font-bold text-white/95">
-                            {item.severityLevel && item.severityLevel !== "Unverified" && (
-                              <span className="rounded-full bg-white/20 px-2 py-0.5">{item.severityLevel}</span>
-                            )}
-                            {item.criticalDeadline && (
-                              <span className="flex items-center gap-1">
-                                <FaClock className="text-[9px]" />
-                                {new Date(item.criticalDeadline) > new Date()
-                                  ? `${Math.round((new Date(item.criticalDeadline) - Date.now()) / 3600000)}h left`
-                                  : "Overdue"}
-                              </span>
-                            )}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* ── Image (only when present) ── */}
-                      {item.image && (
-                        <div className="relative h-44 w-full overflow-hidden">
-                          <img src={optimizeImageUrl(item.image)} alt={item.title}
-                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
-                          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/25 to-transparent" />
-                          {item.verifiedByInstitution && (
-                            <span className="absolute top-3 right-3 flex items-center gap-1 rounded-lg bg-[#2b7fff]/90 backdrop-blur px-2 py-1 text-[9px] font-black uppercase tracking-widest text-white">
-                              <FaShieldAlt className="text-[8px]" /> Verified
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {/* ── Body ── */}
-                      <div className="p-4 sm:p-5">
-                        {/* Hero row: medallion + title */}
-                        <div className="flex items-start gap-3.5">
-                          {!item.image && (
-                            item.category?.toLowerCase() === "blood" ? (
-                              <div className={`relative shrink-0 h-16 w-16 rounded-2xl flex flex-col items-center justify-center text-white ${
-                                item.isEmergency
-                                  ? "bg-gradient-to-br from-[#d6453f] to-[#a82820] urgent-pulse"
-                                  : "bg-gradient-to-br from-dark-raspberry to-[#56327e]"
+                        <div className="p-4">
+                          <div className="flex items-start gap-3.5">
+                            {/* blood-group chip / category icon */}
+                            {isBlood ? (
+                              <div className={`shrink-0 h-14 w-14 rounded-2xl border flex flex-col items-center justify-center ${
+                                item.isEmergency ? "border-[#d6453f]/30 bg-[#d6453f]/[0.06] text-[#c0392b]" : "border-dark-raspberry/25 bg-dark-raspberry/[0.05] text-dark-raspberry"
                               }`}>
-                                <FaHeartbeat className="text-sm" />
-                                <span className="text-lg font-black leading-none mt-0.5">{item.bloodGroup || "—"}</span>
+                                <span className="text-base font-bold leading-none">{item.bloodGroup || "—"}</span>
+                                <span className="text-[8px] font-semibold uppercase tracking-[0.15em] mt-1 opacity-60">blood</span>
                               </div>
                             ) : (
-                              <div className={`shrink-0 h-16 w-16 rounded-2xl flex items-center justify-center border ${meta.soft}`}>
-                                <CategoryIcon className="text-2xl" />
+                              <div className={`shrink-0 h-14 w-14 rounded-2xl border flex items-center justify-center ${meta.soft}`}>
+                                <CategoryIcon className="text-xl" />
                               </div>
-                            )
-                          )}
+                            )}
 
-                          <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 mb-1.5">
-                              <span className={`rounded-full border px-2.5 py-0.5 text-[9px] font-black uppercase tracking-widest ${
-                                item.isEmergency ? "border-[#d6453f]/30 bg-[#d6453f]/10 text-[#c0392b]" : meta.soft
-                              }`}>
-                                {meta.label}
-                              </span>
-                              {item.verifiedByInstitution && !item.image && (
-                                <span className="flex items-center gap-1 rounded-full bg-[#2b7fff]/10 border border-[#2b7fff]/25 px-2 py-0.5 text-[9px] font-black uppercase tracking-widest text-[#2b7fff]">
-                                  <FaShieldAlt className="text-[8px]" /> Verified
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2">
+                                {item.isEmergency ? (
+                                  <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#c0392b]">
+                                    <span className="relative flex h-1.5 w-1.5">
+                                      <span className="absolute inline-flex h-full w-full rounded-full bg-[#d6453f] opacity-60 animate-ping" />
+                                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#d6453f]" />
+                                    </span>
+                                    Urgent
+                                  </span>
+                                ) : (
+                                  <span className="text-[11px] font-semibold text-pine-teal/50">{meta.label}</span>
+                                )}
+                                {item.verifiedByInstitution && (
+                                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#2b7fff]">
+                                    <FaShieldAlt className="text-[9px]" /> Verified
+                                  </span>
+                                )}
+                                <span className="ml-auto text-[11px] text-pine-teal/35 shrink-0">{dateStr}</span>
+                              </div>
+
+                              <h3 className={`mt-1 font-display font-semibold leading-snug line-clamp-2 ${
+                                item.isEmergency ? "text-[#b8322c]" : "text-pine-teal"
+                              } text-[15px]`}>
+                                {item.title}
+                              </h3>
+
+                              {place && (
+                                <p className="mt-1 flex items-center gap-1.5 text-[13px] text-pine-teal/55 min-w-0">
+                                  <FaMapMarkerAlt className="text-[10px] text-dark-raspberry/70 shrink-0" />
+                                  <span className="truncate">{place}</span>
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* detail line: patient / units / deadline */}
+                          {(item.patientDetails?.name || item.quantity || hoursLeft !== null) && (
+                            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-pine-teal/60">
+                              {item.patientDetails?.name && (
+                                <span><span className="text-pine-teal/40">Patient</span> {item.patientDetails.name}{item.patientDetails.age ? `, ${item.patientDetails.age}` : ""}</span>
+                              )}
+                              {item.quantity && (
+                                <span><span className="text-pine-teal/40">Needs</span> {item.quantity}</span>
+                              )}
+                              {hoursLeft !== null && (
+                                <span className={`inline-flex items-center gap-1 ${hoursLeft <= 0 ? "text-[#c0392b]" : ""}`}>
+                                  <FaClock className="text-[10px]" />
+                                  {hoursLeft > 0 ? `${hoursLeft}h left` : "Overdue"}
                                 </span>
                               )}
-                              <span className="ml-auto text-[10px] text-dusty-lavender shrink-0">{dateStr}</span>
                             </div>
-                            <h3 className={`font-display font-semibold leading-snug line-clamp-2 ${
-                              item.isEmergency ? "text-[#b8322c] text-lg" : "text-pine-teal text-base"
-                            }`}>
-                              {item.title}
-                            </h3>
-                          </div>
-                        </div>
-
-                        {/* Patient */}
-                        {item.patientDetails?.name && (
-                          <div className="mt-3 rounded-2xl border-l-[3px] border-[#d6453f] bg-[#d6453f]/[0.06] px-3.5 py-2.5">
-                            <p className="text-[9px] font-black uppercase tracking-widest text-[#c0392b] mb-0.5">Patient</p>
-                            <p className="text-xs font-bold text-pine-teal">
-                              {item.patientDetails.name}{item.patientDetails.age ? `, ${item.patientDetails.age} yrs` : ""}
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Meta chips */}
-                        {(item.quantity || item.addressText || item.location?.addressText) && (
-                          <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                            {item.quantity && (
-                              <span className="rounded-lg border border-pine-teal/12 bg-surface-2 px-2.5 py-1 text-[10px] font-bold text-pine-teal">
-                                {item.quantity}
-                              </span>
-                            )}
-                            {(item.addressText || item.location?.addressText) && (
-                              <span className="flex items-center gap-1 rounded-lg border border-pine-teal/12 bg-surface-2 px-2.5 py-1 text-[10px] font-bold text-pine-teal/80 max-w-[65%]">
-                                <FaMapMarkerAlt className="text-[9px] text-dark-raspberry shrink-0" />
-                                <span className="truncate">{item.addressText || item.location?.addressText}</span>
-                              </span>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Urgency line (emergencies) */}
-                        {item.isEmergency && item.status !== "fulfilled" && (
-                          <p className="mt-3 flex items-center gap-1.5 text-[11px] font-bold text-[#c0392b]">
-                            <FaExclamationTriangle className="text-[10px] shrink-0" />
-                            {item.requestedBy?.length
-                              ? `${item.requestedBy.length} responding — more help needed`
-                              : "No one has responded yet — act now"}
-                          </p>
-                        )}
-
-                        {/* Donor row */}
-                        <div className="mt-4 flex items-center gap-2">
-                          <img
-                            src={item.donorId?.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.donorId?.name || "S")}&background=3b6b54&color=fff&bold=true&size=64`}
-                            alt="" referrerPolicy="no-referrer"
-                            className="h-7 w-7 shrink-0 rounded-lg object-cover border border-pine-teal/10" />
-                          <span className="text-[11px] font-semibold text-pine-teal/70 truncate min-w-0">{item.donorId?.name || "Anonymous"}</span>
-                          {isMine && (
-                            <button onClick={() => handleDelete(item._id)} className="ml-auto text-dusty-lavender active:text-[#d6453f] p-1">
-                              <FaTrash className="text-xs" />
-                            </button>
                           )}
-                        </div>
 
-                        {/* CTAs */}
-                        <div className="mt-3 flex gap-2">
-                          {item.status === "fulfilled" ? (
-                            <div className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-pine-teal/8 py-3 text-[11px] font-black uppercase tracking-widest text-pine-teal border border-pine-teal/15">
-                              <FaCheckCircle className="text-xs" /> Fulfilled
-                            </div>
-                          ) : isMine && localRole === "donor" ? (
-                            <motion.button whileTap={{ scale: 0.95 }}
-                              onClick={() => setRequestsModal({ isOpen: true, donation: item })}
-                              disabled={!item.requestedBy?.length}
-                              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-pine-teal py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-teal disabled:opacity-40">
-                              <FaUsers className="text-xs" />
+                          {/* responders */}
+                          {item.isEmergency && item.status !== "fulfilled" && (
+                            <p className="mt-2.5 text-[12px] text-pine-teal/50">
                               {item.requestedBy?.length
-                                ? `${item.requestedBy.length} Request${item.requestedBy.length > 1 ? "s" : ""}`
-                                : "No Requests Yet"}
-                            </motion.button>
-                          ) : isApproved ? (
-                            <motion.button whileTap={{ scale: 0.95 }}
-                              onClick={() => navigate(`/chat/${item._id}`)}
-                              className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-dark-raspberry py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-berry">
-                              <FaCommentDots className="text-xs" /> Chat now
-                            </motion.button>
-                          ) : alreadyReq ? (
-                            <div className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-pine-teal/15 bg-pine-teal/5 py-3 text-[11px] font-black uppercase tracking-widest text-pine-teal">
-                              <FaCheck className="text-xs" /> Requested
-                            </div>
-                          ) : item.isEmergency ? (
-                            <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleRequest(item._id)}
-                              className="urgent-pulse flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#d6453f] py-3 text-[11px] font-black uppercase tracking-widest text-white shadow-[0_8px_22px_rgba(214,69,63,0.32)]">
-                              <FaHeartbeat className="text-xs animate-pulse" /> Respond now <FaArrowRight className="text-[10px]" />
-                            </motion.button>
-                          ) : (
-                            <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleRequest(item._id)}
-                              className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-3 text-[11px] font-black uppercase tracking-widest text-white ${
-                                isDonor ? "bg-pine-teal shadow-teal" : "bg-dark-raspberry shadow-berry"
-                              }`}>
-                              <FaHandsHelping className="text-xs" />
-                              {isDonor ? "I can help" : "Request"}
-                            </motion.button>
+                                ? <><span className="font-semibold text-pine-teal">{item.requestedBy.length}</span> {item.requestedBy.length > 1 ? "donors" : "donor"} responding</>
+                                : "No one has responded yet"}
+                            </p>
                           )}
 
-                          <motion.button whileTap={{ scale: 0.85 }} onClick={() => handleShare(item)}
-                            className="h-11 w-11 shrink-0 flex items-center justify-center rounded-xl border border-pine-teal/10 bg-surface-2 text-dusty-lavender hover:text-pine-teal transition-colors">
-                            <FaShareAlt className="text-xs" />
-                          </motion.button>
-                        </div>
-                      </div>
-                    </motion.article>
-                  );
-                })}
-              </AnimatePresence>
+                          {/* footer: poster + actions */}
+                          <div className="mt-4 flex items-center gap-2.5">
+                            <img
+                              src={item.donorId?.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.donorId?.name || "S")}&background=3b6b54&color=fff&bold=true&size=64`}
+                              alt="" referrerPolicy="no-referrer"
+                              className="h-6 w-6 shrink-0 rounded-full object-cover" />
+                            <span className="text-[12px] font-medium text-pine-teal/55 truncate min-w-0">{item.donorId?.name || "Anonymous"}</span>
 
-              {hasMore && (
-                <motion.button whileTap={{ scale: 0.97 }} onClick={loadMore} disabled={loadingMore}
-                  className="w-full flex items-center justify-center gap-2.5 rounded-2xl border border-pine-teal/12 bg-surface py-4 text-sm font-bold text-pine-teal shadow-sm disabled:opacity-60">
-                  {loadingMore ? <FaSpinner className="animate-spin" /> : <>Load More <FaArrowRight className="text-xs" /></>}
-                </motion.button>
-              )}
-            </>
-          )}
+                            <div className="ml-auto flex items-center gap-2 shrink-0">
+                              {item.status === "fulfilled" ? (
+                                <span className="inline-flex items-center gap-1.5 rounded-lg bg-pine-teal/6 px-3 py-2 text-[12px] font-semibold text-pine-teal border border-pine-teal/12">
+                                  <FaCheckCircle className="text-xs" /> Fulfilled
+                                </span>
+                              ) : isMine && localRole === "donor" ? (
+                                <motion.button whileTap={{ scale: 0.96 }}
+                                  onClick={() => setRequestsModal({ isOpen: true, donation: item })}
+                                  disabled={!item.requestedBy?.length}
+                                  className="inline-flex items-center gap-1.5 rounded-lg bg-pine-teal px-3.5 py-2 text-[12px] font-semibold text-white disabled:opacity-40">
+                                  <FaUsers className="text-[11px]" />
+                                  {item.requestedBy?.length ? `${item.requestedBy.length} request${item.requestedBy.length > 1 ? "s" : ""}` : "No requests"}
+                                </motion.button>
+                              ) : isApproved ? (
+                                <motion.button whileTap={{ scale: 0.96 }} onClick={() => navigate(`/chat/${item._id}`)}
+                                  className="inline-flex items-center gap-1.5 rounded-lg bg-dark-raspberry px-3.5 py-2 text-[12px] font-semibold text-white">
+                                  <FaCommentDots className="text-[11px]" /> Chat
+                                </motion.button>
+                              ) : alreadyReq ? (
+                                <span className="inline-flex items-center gap-1.5 rounded-lg border border-pine-teal/15 bg-pine-teal/5 px-3.5 py-2 text-[12px] font-semibold text-pine-teal">
+                                  <FaCheck className="text-[11px]" /> Requested
+                                </span>
+                              ) : item.isEmergency ? (
+                                <motion.button whileTap={{ scale: 0.96 }} onClick={() => handleRequest(item._id)}
+                                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#d6453f] px-3.5 py-2 text-[12px] font-semibold text-white">
+                                  <FaHeartbeat className="text-[11px]" /> Respond
+                                </motion.button>
+                              ) : (
+                                <motion.button whileTap={{ scale: 0.96 }} onClick={() => handleRequest(item._id)}
+                                  className="inline-flex items-center gap-1.5 rounded-lg bg-dark-raspberry px-3.5 py-2 text-[12px] font-semibold text-white">
+                                  <FaHandsHelping className="text-[11px]" /> {isDonor ? "I can help" : "Request"}
+                                </motion.button>
+                              )}
+
+                              <button onClick={() => handleShare(item)}
+                                className="h-9 w-9 flex items-center justify-center rounded-lg border border-pine-teal/10 text-dusty-lavender hover:text-pine-teal transition-colors" aria-label="Share">
+                                <FaShareAlt className="text-[11px]" />
+                              </button>
+
+                              {isMine && (
+                                <button onClick={() => handleDelete(item._id)}
+                                  className="h-9 w-9 flex items-center justify-center rounded-lg border border-pine-teal/10 text-dusty-lavender hover:text-[#d6453f] transition-colors" aria-label="Delete">
+                                  <FaTrash className="text-[11px]" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </motion.article>
+                    );
+                  })}
+                </AnimatePresence>
+
+                {hasMore && (
+                  <motion.button whileTap={{ scale: 0.98 }} onClick={loadMore} disabled={loadingMore}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl border border-pine-teal/12 bg-surface py-3.5 text-sm font-medium text-pine-teal/70 hover:text-pine-teal transition-colors disabled:opacity-60">
+                    {loadingMore ? <FaSpinner className="animate-spin" /> : <>Load more <FaArrowRight className="text-xs" /></>}
+                  </motion.button>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
 
@@ -699,16 +637,16 @@ const Dashboard = () => {
             <motion.div
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 32, stiffness: 300 }}
-              className="relative z-10 bg-[#100d0d] rounded-t-[28px] max-h-[92vh] overflow-y-auto no-scrollbar shadow-2xl">
+              className="relative z-10 mx-auto w-full max-w-2xl bg-[#100d0d] rounded-t-[28px] max-h-[92vh] overflow-y-auto no-scrollbar shadow-2xl">
 
               <div className="sticky top-0 z-20 bg-[#100d0d] flex flex-col items-center pt-3 pb-3 border-b border-white/8">
                 <div className="h-1 w-10 rounded-full bg-white/20 mb-3" />
                 <div className="w-full flex items-center justify-between px-5">
                   <div>
-                    <h2 className="text-lg font-black text-white flex items-center gap-2">
+                    <h2 className="text-lg font-semibold text-white flex items-center gap-2">
                       <FaHeartbeat className="text-[#ff6b5e] animate-pulse" /> SOS Blood Alert
                     </h2>
-                    <p className="text-[10px] text-white/40 mt-0.5">Broadcast to nearby donors instantly</p>
+                    <p className="text-[11px] text-white/40 mt-0.5">Broadcast to nearby donors instantly</p>
                   </div>
                   <button onClick={() => setShowSOS(false)}
                     className="h-9 w-9 flex items-center justify-center rounded-full border border-white/10 bg-white/6 text-white/60">
@@ -720,8 +658,8 @@ const Dashboard = () => {
               <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-48 w-48 rounded-full bg-[#d6453f]/20 blur-3xl" />
 
               <form onSubmit={handleSOSSubmit} className="relative px-5 pt-4 pb-10 space-y-3.5">
-                <motion.button type="button" whileTap={{ scale: 0.94 }} onClick={startVoiceRecognition}
-                  className={`w-full flex items-center justify-center gap-2.5 rounded-2xl py-3.5 text-sm font-black uppercase tracking-widest transition-all ${
+                <motion.button type="button" whileTap={{ scale: 0.97 }} onClick={startVoiceRecognition}
+                  className={`w-full flex items-center justify-center gap-2.5 rounded-2xl py-3.5 text-sm font-semibold transition-all ${
                     isListening
                       ? "bg-blazing-flame/20 border border-blazing-flame text-blazing-flame"
                       : "border border-white/12 bg-white/6 text-white/70"
@@ -732,13 +670,13 @@ const Dashboard = () => {
 
                 <div className="flex items-center gap-3">
                   <div className="flex-1 h-px bg-white/8" />
-                  <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">or type</span>
+                  <span className="text-[11px] font-medium text-white/30">or type</span>
                   <div className="flex-1 h-px bg-white/8" />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Blood Group *</label>
+                    <label className="mb-1.5 block text-[11px] font-medium text-white/45">Blood group *</label>
                     <select value={sosData.bloodGroup}
                       onChange={(e) => setSosData((p) => ({ ...p, bloodGroup: e.target.value }))}
                       required className={sosField + " appearance-none"}>
@@ -747,7 +685,7 @@ const Dashboard = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Units *</label>
+                    <label className="mb-1.5 block text-[11px] font-medium text-white/45">Units *</label>
                     <input type="number" min="1" max="20" value={sosData.quantity}
                       onChange={(e) => setSosData((p) => ({ ...p, quantity: e.target.value }))}
                       placeholder="e.g. 2" required className={sosField} />
@@ -755,7 +693,7 @@ const Dashboard = () => {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Hospital *</label>
+                  <label className="mb-1.5 block text-[11px] font-medium text-white/45">Hospital *</label>
                   <input type="text" value={sosData.hospital}
                     onChange={(e) => setSosData((p) => ({ ...p, hospital: e.target.value }))}
                     placeholder="Hospital name" required className={sosField} />
@@ -763,13 +701,13 @@ const Dashboard = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Patient Name</label>
+                    <label className="mb-1.5 block text-[11px] font-medium text-white/45">Patient name</label>
                     <input type="text" value={sosData.patientName}
                       onChange={(e) => setSosData((p) => ({ ...p, patientName: e.target.value }))}
                       placeholder="Name" className={sosField} />
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Age</label>
+                    <label className="mb-1.5 block text-[11px] font-medium text-white/45">Age</label>
                     <input type="number" value={sosData.patientAge}
                       onChange={(e) => setSosData((p) => ({ ...p, patientAge: e.target.value }))}
                       placeholder="Age" className={sosField} />
@@ -777,19 +715,19 @@ const Dashboard = () => {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Room No.</label>
+                  <label className="mb-1.5 block text-[11px] font-medium text-white/45">Room no.</label>
                   <input type="text" value={sosData.roomNumber}
                     onChange={(e) => setSosData((p) => ({ ...p, roomNumber: e.target.value }))}
                     placeholder="Ward / Room" className={sosField} />
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Location *</label>
+                  <label className="mb-1.5 block text-[11px] font-medium text-white/45">Location *</label>
                   <div className="flex gap-2">
                     <input type="text" value={sosData.addressText}
                       onChange={(e) => setSosData((p) => ({ ...p, addressText: e.target.value }))}
                       placeholder="City or area" required className={sosField} />
-                    <motion.button type="button" whileTap={{ scale: 0.88 }} onClick={handleGetLocation} disabled={isFetchingLoc}
+                    <motion.button type="button" whileTap={{ scale: 0.9 }} onClick={handleGetLocation} disabled={isFetchingLoc}
                       className="shrink-0 h-[52px] w-[52px] flex items-center justify-center rounded-xl border border-white/10 bg-white/6 text-white/60 disabled:opacity-50">
                       {isFetchingLoc ? <FaSpinner className="animate-spin text-sm" /> : <FaLocationArrow className="text-sm" />}
                     </motion.button>
@@ -808,14 +746,14 @@ const Dashboard = () => {
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Description *</label>
+                  <label className="mb-1.5 block text-[11px] font-medium text-white/45">Description *</label>
                   <textarea rows={3} value={sosData.description}
                     onChange={(e) => setSosData((p) => ({ ...p, description: e.target.value }))}
                     placeholder="Describe the emergency…" required className={sosField + " resize-none"} />
                 </div>
 
-                <motion.button type="submit" whileTap={{ scale: 0.97 }} disabled={isSubmitting}
-                  className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-[#d6453f] py-4 text-sm font-black uppercase tracking-widest text-white shadow-xl shadow-[#d6453f]/35 disabled:opacity-60">
+                <motion.button type="submit" whileTap={{ scale: 0.98 }} disabled={isSubmitting}
+                  className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-[#d6453f] py-4 text-sm font-semibold text-white shadow-lg shadow-[#d6453f]/30 disabled:opacity-60">
                   {isSubmitting ? <FaSpinner className="animate-spin" /> : <><FaHeartbeat className="animate-pulse" /> Broadcast SOS</>}
                 </motion.button>
               </form>
@@ -835,14 +773,14 @@ const Dashboard = () => {
             <motion.div
               initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 32, stiffness: 300 }}
-              className="relative z-10 bg-surface rounded-t-[28px] max-h-[70vh] overflow-hidden shadow-2xl">
+              className="relative z-10 mx-auto w-full max-w-2xl bg-surface rounded-t-[28px] max-h-[70vh] overflow-hidden shadow-2xl">
 
               <div className="flex flex-col items-center pt-3 border-b border-pine-teal/8">
                 <div className="h-1 w-10 rounded-full bg-pine-teal/20 mb-3" />
                 <div className="w-full flex items-center justify-between px-5 pb-4">
                   <div>
-                    <h3 className="text-base font-black text-pine-teal">Requests</h3>
-                    <p className="text-[11px] text-dusty-lavender mt-0.5 line-clamp-1">{requestsModal.donation.title}</p>
+                    <h3 className="text-base font-semibold text-pine-teal">Requests</h3>
+                    <p className="text-[12px] text-pine-teal/50 mt-0.5 line-clamp-1">{requestsModal.donation.title}</p>
                   </div>
                   <button onClick={() => setRequestsModal({ isOpen: false, donation: null })}
                     className="h-8 w-8 flex items-center justify-center rounded-full border border-pine-teal/12 bg-surface-2 text-dusty-lavender">
@@ -855,15 +793,15 @@ const Dashboard = () => {
                 {requestsModal.donation.requestedBy.map((req) => (
                   <div key={req._id} className="flex items-center justify-between rounded-2xl border border-pine-teal/10 bg-surface-2 p-3.5">
                     <div className="flex items-center gap-2.5">
-                      <div className="h-9 w-9 shrink-0 rounded-xl bg-pine-teal/10 border border-pine-teal/15 flex items-center justify-center text-sm font-black text-pine-teal uppercase">
+                      <div className="h-9 w-9 shrink-0 rounded-full bg-pine-teal/10 border border-pine-teal/15 flex items-center justify-center text-sm font-bold text-pine-teal uppercase">
                         {req.name?.charAt(0)}
                       </div>
-                      <span className="text-sm font-bold text-pine-teal truncate max-w-[140px]">{req.name}</span>
+                      <span className="text-sm font-semibold text-pine-teal truncate max-w-[140px]">{req.name}</span>
                     </div>
-                    <motion.button whileTap={{ scale: 0.94 }}
+                    <motion.button whileTap={{ scale: 0.96 }}
                       onClick={() => handleApprove(requestsModal.donation._id, req._id)}
                       disabled={approvingId === req._id}
-                      className="flex items-center gap-1.5 rounded-xl bg-pine-teal px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-sm disabled:opacity-50">
+                      className="flex items-center gap-1.5 rounded-lg bg-pine-teal px-4 py-2.5 text-[12px] font-semibold text-white disabled:opacity-50">
                       {approvingId === req._id
                         ? <FaSpinner className="animate-spin text-xs" />
                         : <><FaCheck className="text-[10px]" /> Approve</>}
