@@ -11,6 +11,12 @@ import logo from "../assets/logo.png";
 
 const sp = { type: "spring", stiffness: 280, damping: 22 };
 
+const Wordmark = ({ className = "" }) => (
+  <span className={`font-display font-semibold italic tracking-tightest ${className}`}>
+    Saha<span className="text-dark-raspberry">yam</span>
+  </span>
+);
+
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 28 },
   whileInView: { opacity: 1, y: 0 },
@@ -22,35 +28,35 @@ const FEATURES = [
   {
     icon: FaTint, accent: "text-dark-raspberry", soft: "bg-dark-raspberry/10",
     title: "Find blood, fast",
-    desc: "Send one alert and nearby matching donors hear you within seconds.",
+    desc: "Raise one SOS and the nearest matching donors are alerted within seconds — faster than any WhatsApp forward.",
   },
   {
-    icon: FaMapMarkerAlt, accent: "text-pine-teal", soft: "bg-pine-teal/10",
-    title: "Help that's nearby",
-    desc: "A gentle live map of people offering and asking for help around you.",
+    icon: FaShieldAlt, accent: "text-pine-teal", soft: "bg-pine-teal/10",
+    title: "Only the right donors",
+    desc: "We ping donors whose blood group is compatible and who are actually eligible to donate right now.",
   },
   {
     icon: FaComments, accent: "text-blazing-flame", soft: "bg-blazing-flame/10",
     title: "Talk in private",
-    desc: "A calm, secure chat. Your details stay yours until you choose to share.",
+    desc: "A calm, secure chat to coordinate the hospital and timing. Your number stays yours until you share it.",
   },
   {
-    icon: FaHeart, accent: "text-dark-raspberry", soft: "bg-dark-raspberry/10",
-    title: "Kindness, counted",
-    desc: "Every act of help is remembered, celebrated, and gently rewarded.",
+    icon: FaMapMarkerAlt, accent: "text-dark-raspberry", soft: "bg-dark-raspberry/10",
+    title: "It widens automatically",
+    desc: "If no one responds nearby, the search expands to a wider radius and alerts more donors — on its own.",
   },
 ];
 
 const STEPS = [
-  { n: "01", title: "Ask or offer", desc: "Tell us what you need, or what you can give. We find your spot on the map." },
-  { n: "02", title: "Get matched", desc: "The closest, kindest neighbours are notified right away." },
-  { n: "03", title: "Meet & help", desc: "Coordinate safely, confirm, and complete the moment of help." },
+  { n: "01", title: "Raise an SOS", desc: "Tell us the blood group and hospital. We pin your location on the map." },
+  { n: "02", title: "Donors are alerted", desc: "Compatible, eligible donors close to you get notified instantly." },
+  { n: "03", title: "Coordinate & donate", desc: "Chat privately, meet at the hospital, and help someone in time." },
 ];
 
 const TRUST = [
-  { icon: FaShieldAlt, title: "Safe by design", desc: "Members are verified, and partner organisations are reviewed by hand." },
-  { icon: FaBell, title: "You'll know in time", desc: "Quiet, timely alerts reach you the moment something matches you." },
-  { icon: FaUsers, title: "For the community", desc: "No ads. No selling your data. Built for people, by people." },
+  { icon: FaShieldAlt, title: "Verified donors", desc: "Members are verified, and donor eligibility is checked before anyone is alerted." },
+  { icon: FaBell, title: "You'll know in time", desc: "Quiet, timely alerts reach you the moment a nearby request matches you." },
+  { icon: FaUsers, title: "Private by default", desc: "No ads. No selling your data. Your phone number is never exposed in a public forward." },
 ];
 
 const Landing = () => {
@@ -64,17 +70,11 @@ const Landing = () => {
     if (user?.token) navigate("/dashboard", { replace: true });
   }, [user, navigate]);
 
-  const Wordmark = ({ className = "" }) => (
-    <span className={`font-display font-semibold italic tracking-tightest ${className}`}>
-      Saha<span className="text-dark-raspberry">yam</span>
-    </span>
-  );
-
   return (
     <div className="min-h-screen bg-pearl-beige text-pine-teal font-sans overflow-x-hidden">
       <Helmet>
-        <title>Sahayam — help, closer than you think</title>
-        <meta name="description" content="A calm, community-first network for asking for help and showing up for each other." />
+        <title>Sahayam — find a blood donor, closer than you think</title>
+        <meta name="description" content="A real-time network that connects blood emergencies with verified, compatible donors nearby. Raise an SOS and reach the right donors in seconds." />
       </Helmet>
 
       {/* ── NAV ── */}
@@ -136,19 +136,19 @@ const Landing = () => {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pine-teal opacity-60" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-pine-teal" />
             </span>
-            <span className="text-[11px] font-semibold tracking-wide text-pine-teal/70">A community that shows up</span>
+            <span className="text-[11px] font-semibold tracking-wide text-pine-teal/70">Blood, when minutes matter</span>
           </motion.div>
 
           <motion.h1 variants={{ hidden: { opacity: 0, y: 24, filter: "blur(8px)" }, show: { opacity: 1, y: 0, filter: "blur(0px)", transition: sp } }}
             className="font-display text-[clamp(2.6rem,8vw,5rem)] font-semibold leading-[1.05] tracking-tightest text-pine-teal">
-            Help, closer<br />
-            than <span className="italic gradient-text">you think.</span>
+            A blood donor,<br />
+            closer than <span className="italic gradient-text">you think.</span>
           </motion.h1>
 
           <motion.p variants={{ hidden: { opacity: 0, y: 18 }, show: { opacity: 1, y: 0 } }}
             className="mx-auto mt-7 max-w-lg text-lg font-medium text-pine-teal/55 leading-relaxed">
-            Sahayam quietly connects neighbours who need help with the people nearby
-            ready to give it. Simple, safe, and always free.
+            When a family needs blood, every minute counts. Sahayam alerts verified,
+            compatible donors nearby in seconds — so help arrives in time.
           </motion.p>
 
           <motion.div variants={{ hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0 } }}
@@ -169,7 +169,7 @@ const Landing = () => {
 
           <motion.div variants={{ hidden: { opacity: 0 }, show: { opacity: 1 } }}
             className="mt-9 flex flex-wrap items-center justify-center gap-2.5">
-            {["Verified members", "Real-time alerts", "Free forever", "NGO friendly"].map((tag) => (
+            {["Verified donors", "Real-time SOS", "Private by default", "Free forever"].map((tag) => (
               <span key={tag} className="px-3.5 py-1.5 rounded-full border border-border bg-surface/70 text-[11px] font-semibold text-pine-teal/55">
                 {tag}
               </span>
@@ -238,16 +238,16 @@ const Landing = () => {
             <div className="dark-dot-grid absolute inset-0 opacity-20" />
             <div className="relative z-10">
               <h2 className="font-display text-3xl md:text-5xl font-semibold tracking-tightest text-white leading-tight">
-                Someone nearby may need<br className="hidden md:block" /> you today.
+                Someone nearby needs<br className="hidden md:block" /> blood today.
               </h2>
               <p className="mx-auto mt-5 mb-8 max-w-xl text-base font-medium leading-relaxed text-white/70">
-                Join Sahayam and be the help that arrives in time. It takes a minute, and it's free.
+                Register as a donor in a minute. When a matching request comes up near you, we'll let you know — and you could save a life.
               </p>
               <motion.div whileTap={{ scale: 0.96 }}>
                 <Link to={registerLink}
                   className="ripple-btn inline-flex items-center gap-2.5 rounded-2xl bg-white px-8 py-4 text-sm font-bold text-pine-teal shadow-xl hover:-translate-y-1 transition-all duration-300">
                   <FaHeart className="text-dark-raspberry" />
-                  Become a helper
+                  Become a donor
                   <FaArrowRight />
                 </Link>
               </motion.div>

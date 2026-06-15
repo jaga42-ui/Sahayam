@@ -11,14 +11,11 @@ const {
   getMyHistory, 
   deleteDonation, 
   markFulfilled, 
-  requestItem,     
-  approveRequest,  
-  getLeaderboard,
-  getCityLeaderboard,
+  requestItem,
+  approveRequest,
   acceptSOS,
   reportDonation, // 👉 NEW: Imported the Report handler
-  triageSOS,
-  generateHeroStory
+  triageSOS
 } = require('../controllers/donationController');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -43,12 +40,7 @@ router.patch('/:id/sos-accept', protect, acceptSOS);
 // 👉 NEW: The Report & Auto-Moderation Route
 router.put('/:id/report', protect, reportDonation);
 
-// Leaderboards
-router.get('/leaderboard', protect, getLeaderboard);
-router.get('/city-leaderboard', protect, getCityLeaderboard);
-
-// 👉 NEW: AI Triage Assistant
+// 👉 AI Triage Assistant (parses an emergency message into a structured SOS)
 router.post('/triage', protect, triageSOS);
-router.get('/hero-story', protect, generateHeroStory);
 
 module.exports = router;

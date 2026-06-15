@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 import {
   FaHome, FaUser, FaSignOutAlt, FaExchangeAlt, FaShieldAlt,
-  FaTrophy, FaBoxOpen, FaEnvelope, FaMapMarkerAlt,
+  FaEnvelope, FaMapMarkerAlt,
   FaWifi, FaExclamationTriangle, FaTimes, FaCommentAlt,
 } from "react-icons/fa";
 import logo from "../assets/logo.png";
@@ -16,8 +16,6 @@ import OnboardingModal from "./OnboardingModal";
 const NAV_ITEMS = [
   { name: "Feed",     path: "/dashboard",  icon: FaHome },
   { name: "Radar",    path: "/radar",       icon: FaMapMarkerAlt, isSpecial: true },
-  { name: "Donate",   path: "/donations",  icon: FaBoxOpen, hideOnMobileBottom: true },
-  { name: "Ranks",    path: "/leaderboard", icon: FaTrophy },
   { name: "Inbox",    path: "/chat/inbox",  icon: FaEnvelope },
   { name: "Profile",  path: "/profile",     icon: FaUser },
 ];

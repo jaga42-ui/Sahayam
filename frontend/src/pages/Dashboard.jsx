@@ -19,7 +19,6 @@ import {
   FaRunning,
   FaHandsHelping,
   FaShareAlt,
-  FaMedal,
   FaUtensils,
   FaTshirt,
   FaBook,
@@ -43,10 +42,6 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 const FILTER_OPTIONS = [
   { label: "All", icon: FaBoxOpen },
   { label: "Blood", icon: FaHeartbeat },
-  { label: "Food", icon: FaUtensils },
-  { label: "Clothes", icon: FaTshirt },
-  { label: "Book", icon: FaBook },
-  { label: "General", icon: FaHandsHelping },
 ];
 
 const CATEGORY_META = {
@@ -418,12 +413,10 @@ const Dashboard = () => {
 
         {/* ── QUICK ACTIONS ── */}
         <div className="px-4 mb-5 flex gap-2">
-          <motion.button whileTap={{ scale: 0.97 }} onClick={() => navigate("/donations")}
-            className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-3.5 text-[11px] font-black uppercase tracking-widest text-white shadow-md ${
-              isDonor ? "bg-pine-teal shadow-pine-teal/20" : "bg-dark-raspberry shadow-dark-raspberry/20"
-            }`}>
+          <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowSOS(true)}
+            className="flex-1 flex items-center justify-center gap-2 rounded-2xl py-3.5 text-[11px] font-black uppercase tracking-widest text-white shadow-md bg-dark-raspberry shadow-dark-raspberry/20">
             <FaPlus className="text-[10px]" />
-            {isDonor ? "New Post" : "New Request"}
+            Raise Blood SOS
           </motion.button>
           <motion.button whileTap={{ scale: 0.97 }}
             onClick={() => {
@@ -465,13 +458,13 @@ const Dashboard = () => {
               <div className="mb-4 h-16 w-16 flex items-center justify-center rounded-3xl bg-pine-teal/8 border border-pine-teal/12">
                 <FaBoxOpen className="text-2xl text-pine-teal" />
               </div>
-              <h3 className="text-lg font-black text-pine-teal">Nothing here yet</h3>
+              <h3 className="text-lg font-black text-pine-teal">No active requests nearby</h3>
               <p className="mt-2 max-w-xs text-sm text-pine-teal/50 leading-relaxed">
-                Be the first to post, or try a different filter.
+                When someone nearby needs blood, it shows up here. You can raise an SOS anytime.
               </p>
-              <button onClick={() => navigate("/donations")}
-                className="mt-6 flex items-center gap-2 rounded-xl bg-pine-teal px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg">
-                <FaPlus /> New Listing
+              <button onClick={() => setShowSOS(true)}
+                className="mt-6 flex items-center gap-2 rounded-xl bg-dark-raspberry px-6 py-3 text-xs font-black uppercase tracking-widest text-white shadow-lg">
+                <FaPlus /> Raise Blood SOS
               </button>
             </motion.div>
           ) : (
@@ -625,7 +618,6 @@ const Dashboard = () => {
                             alt="" referrerPolicy="no-referrer"
                             className="h-7 w-7 shrink-0 rounded-lg object-cover border border-pine-teal/10" />
                           <span className="text-[11px] font-semibold text-pine-teal/70 truncate min-w-0">{item.donorId?.name || "Anonymous"}</span>
-                          {item.donorId?.points >= 50 && <FaMedal className="text-[9px] text-yellow-500 shrink-0" />}
                           {isMine && (
                             <button onClick={() => handleDelete(item._id)} className="ml-auto text-dusty-lavender active:text-[#d6453f] p-1">
                               <FaTrash className="text-xs" />

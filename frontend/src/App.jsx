@@ -11,7 +11,6 @@ import RouteTransition from "./components/RouteTransition";
 import InstallPrompt from "./components/InstallPrompt";
 
 // LAZY LOADED PAGES
-const CreateDonation = lazy(() => import("./pages/CreateDonation"));
 const Landing = lazy(() => import("./pages/Landing"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
@@ -21,10 +20,7 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Chat = lazy(() => import("./pages/Chat"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const Donations = lazy(() => import("./pages/Donations"));
-const BloodBank = lazy(() => import("./pages/BloodBank"));
 const Inbox = lazy(() => import("./pages/Inbox"));
-const Leaderboard = lazy(() => import("./pages/Leaderboard"));
 const BloodRadar = lazy(() => import("./pages/BloodRadar"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
@@ -84,14 +80,8 @@ function App() {
 
                 {/* Main App Routes */}
                 <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/leaderboard" element={<Leaderboard />} />
                 <Route path="/radar" element={<BloodRadar />} />
                 <Route path="/profile" element={<Profile />} />
-                
-                {/* Form / Posting Routes */}
-                <Route path="/donate" element={<CreateDonation />} /> 
-                <Route path="/donations" element={<Donations />} /> 
-                <Route path="/blood-bank" element={<BloodBank />} />
                 
                 {/* Chat Routes */}
                 <Route path="/chat/inbox" element={<Inbox />} />

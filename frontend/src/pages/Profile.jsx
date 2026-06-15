@@ -6,7 +6,7 @@ import Layout from "../components/Layout";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaUser, FaEnvelope, FaMapMarkerAlt, FaTint, FaBoxOpen,
-  FaAward, FaHistory, FaEdit, FaSave, FaTimes, FaPhone,
+  FaHistory, FaEdit, FaSave, FaTimes, FaPhone,
   FaLocationArrow, FaSpinner, FaStar, FaShieldAlt, FaSignOutAlt,
   FaShareAlt, FaCheckCircle,
 } from "react-icons/fa";
@@ -42,7 +42,6 @@ const Profile = () => {
 
   const [stats,             setStats]             = useState({ totalDonations: 0, activeListings: 0, bloodDonations: 0 });
   const [loading,           setLoading]           = useState(true);
-  const [generatedStory,    setGeneratedStory]    = useState("");
   const [isEditing,         setIsEditing]         = useState(false);
   const [isFetchingLocation, setFetchingLocation] = useState(false);
   const [formData,          setFormData]          = useState({
@@ -107,10 +106,9 @@ const Profile = () => {
   const inputCls = "w-full rounded-xl border border-white/10 bg-white/6 px-4 py-3.5 text-sm font-medium text-white placeholder-white/30 outline-none focus:border-blazing-flame/60 focus:ring-2 focus:ring-blazing-flame/10 transition-all";
 
   const statData = [
-    { icon: FaBoxOpen,     label: "Posts",   value: loading ? "—" : (user.donationsCount || stats.totalDonations), color: "text-blazing-flame" },
-    { icon: FaHistory,     label: "Active",  value: loading ? "—" : stats.activeListings,                          color: "text-pine-teal" },
-    { icon: FaTint,        label: "Blood",   value: loading ? "—" : stats.bloodDonations,                          color: "text-dark-raspberry" },
-    { icon: FaStar,        label: "Points",  value: user.points || 0,                                              color: "text-yellow-400" },
+    { icon: FaBoxOpen,     label: "Requests", value: loading ? "—" : (user.donationsCount || stats.totalDonations), color: "text-blazing-flame" },
+    { icon: FaHistory,     label: "Active",   value: loading ? "—" : stats.activeListings,                          color: "text-pine-teal" },
+    { icon: FaTint,        label: "Donations", value: loading ? "—" : stats.bloodDonations,                         color: "text-dark-raspberry" },
   ];
 
   return (
@@ -159,7 +157,7 @@ const Profile = () => {
 
             <h2 className="text-xl font-black text-white">{user.name}</h2>
             <div className="flex items-center gap-1.5 mt-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-white/50">{user.rank || "Community Member"}</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-white/50">{user.bloodGroup ? `${user.bloodGroup} · Donor` : "Donor"}</span>
               {user.rating > 0 && (
                 <span className="flex items-center gap-1 rounded-full bg-yellow-400/20 border border-yellow-400/30 px-2 py-0.5 text-[10px] font-black text-yellow-300">
                   <FaStar className="text-[8px]" /> {user.rating?.toFixed(1)}
@@ -266,24 +264,28 @@ const Profile = () => {
             </AnimatePresence>
           </div>
 
-          {/* ── POINTS CARD ── */}
+          {/* ── DONOR CARD ── */}
           <div className="aurora-header rounded-3xl p-5 relative overflow-hidden">
             <div className="dark-dot-grid absolute inset-0 opacity-15" />
             <div className="relative z-10 flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Community Standing</p>
-                <p className="text-6xl font-black text-white tracking-tighter">{user.points || 0}</p>
-                <p className="text-[10px] font-bold text-white/40 mt-1 uppercase tracking-widest">Total Points</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Your blood group</p>
+                <p className="text-6xl font-black text-white tracking-tighter">{user.bloodGroup || "—"}</p>
+                <p className="text-[10px] font-bold text-white/40 mt-1 uppercase tracking-widest">
+                  {user.bloodGroup ? "Used to match you to nearby requests" : "Add it so we can match you"}
+                </p>
               </div>
               <div className="text-right">
                 <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-white/40 mb-1">Rank</p>
-                  <p className="text-sm font-black text-dark-raspberry">{user.rank || "Initiate"}</p>
+                  <p className="text-[9px] font-black uppercase tracking-widest text-white/40 mb-1">Status</p>
+                  <p className={`text-sm font-black ${user.isAvailable ? "text-pine-teal" : "text-dusty-lavender"}`}>
+                    {user.isAvailable ? "On-duty" : "Snoozed"}
+                  </p>
                 </div>
               </div>
             </div>
             <div className="pointer-events-none absolute -bottom-8 -right-8 text-white/4">
-              <FaAward className="text-[120px]" />
+              <FaTint className="text-[120px]" />
             </div>
           </div>
 
@@ -301,51 +303,6 @@ const Profile = () => {
               className="shrink-0 flex items-center gap-1.5 rounded-2xl bg-pine-teal px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-sm">
               <FaShareAlt className="text-xs" /> Copy
             </motion.button>
-          </div>
-
-          {/* ── AI STORY ── */}
-          <div className="rounded-3xl border border-dark-raspberry/20 bg-surface p-5 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-dark-raspberry via-pine-teal to-blazing-flame" />
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-widest text-dusty-lavender mb-0.5">AI Feature</p>
-                <p className="text-sm font-bold text-pine-teal">Share your impact story</p>
-              </div>
-              <motion.button whileTap={{ scale: 0.9 }}
-                onClick={async () => {
-                  const tid = toast.loading("Crafting your story…");
-                  try {
-                    const { data } = await api.get("/donations/hero-story");
-                    toast.dismiss(tid);
-                    setGeneratedStory(data.story);
-                    toast.success("Story generated!");
-                  } catch { toast.error("Failed", { id: tid }); }
-                }}
-                className="shrink-0 flex items-center gap-1.5 rounded-2xl bg-dark-raspberry px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-sm">
-                <FaStar className="text-xs" /> Generate
-              </motion.button>
-            </div>
-
-            <AnimatePresence>
-              {generatedStory && (
-                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                  className="mt-4 rounded-2xl border border-pine-teal/10 bg-surface-2 p-4">
-                  <p className="text-sm text-pine-teal italic leading-relaxed">"{generatedStory}"</p>
-                  <motion.button whileTap={{ scale: 0.95 }}
-                    onClick={() => {
-                      if (navigator.share) {
-                        navigator.share({ title: "My Community Impact", text: generatedStory, url: window.location.origin }).catch(() => {});
-                      } else {
-                        navigator.clipboard.writeText(generatedStory + " " + window.location.origin);
-                        toast.success("Copied!");
-                      }
-                    }}
-                    className="mt-3 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-dark-raspberry">
-                    <FaShareAlt /> Share Now
-                  </motion.button>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
 
           {/* ── LOGOUT (mobile) ── */}
