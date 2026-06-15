@@ -5,6 +5,8 @@ const admin = require("firebase-admin");
 
 const { sendPostAlertEmail } = require("../utils/sendEmail");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { findEligibleDonors } = require("../services/donorMatching");
+const { notifyDonors } = require("../utils/notify");
 
 if (!admin.apps.length) {
   try {
@@ -109,93 +111,35 @@ const createDonation = asyncHandler(async (req, res) => {
     io.emit("new_listing", populatedDonation);
   }
 
-  if (isCriticalEmergency) {
+  // Emergency listings fan out through the shared routing engine: compatible,
+  // eligible, nearby donors get a push + email alert in one pass.
+  if (isCriticalEmergency && parsedLat && parsedLng) {
     try {
-      const query = {
-        activeRole: "donor",
-        _id: { $ne: req.user._id },
-        fcmToken: { $exists: true, $ne: null },
-        location: {
-          $near: {
-            $geometry: { type: "Point", coordinates: [parsedLng, parsedLat] },
-            $maxDistance: 50000, // 50km radius
-          },
-        },
-      };
+      const donors = await findEligibleDonors({
+        lng: parsedLng,
+        lat: parsedLat,
+        radiusMeters: 50000,
+        category,
+        bloodGroup,
+        excludeIds: [req.user._id],
+        requireAvailable: false, // a posted listing should reach everyone nearby
+        limit: 200,
+      });
 
-      // Medical Cross-Matching Algorithm
-      const compatibilityMatrix = {
-        "O-": ["O-"],
-        "O+": ["O+", "O-"],
-        "A-": ["A-", "O-"],
-        "A+": ["A+", "A-", "O+", "O-"],
-        "B-": ["B-", "O-"],
-        "B+": ["B+", "B-", "O+", "O-"],
-        "AB-": ["AB-", "A-", "B-", "O-"],
-        "AB+": ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"]
-      };
-
-      if (category === "blood" && bloodGroup && compatibilityMatrix[bloodGroup]) {
-        query.bloodGroup = { $in: compatibilityMatrix[bloodGroup] };
-        console.log(`[MEDICAL MATRIX] Cross-matching ${bloodGroup} to compatible donors:`, compatibilityMatrix[bloodGroup]);
-      }
-
-      const potentialSaviors = await User.find(query).limit(500);
-
-      const tokens = potentialSaviors.map((u) => u.fcmToken);
-
-      if (tokens.length > 0) {
-        const message = {
-          notification: {
-            title: `🚨 CRITICAL EMERGENCY: ${bloodGroup || "Help"} Needed!`,
-            body: `${title} near ${addressText}. Open HopeLink to respond now!`,
-          },
-          tokens: tokens,
-        };
-
-        admin
-          .messaging()
-          .sendEachForMulticast(message)
-          .then((response) =>
-            console.log(
-              `🔥 Firebase SOS Blast: Sent to ${response.successCount} locked phones.`,
-            ),
-          )
-          .catch((error) => console.error("Firebase SOS Blast Error:", error));
-      }
-    } catch (pushError) {
-      console.error("Failed to process push notifications:", pushError);
-    }
-  }
-
-  try {
-    let bccEmails = [];
-    
-    if (parsedLat && parsedLng) {
-      const nearbyUsers = await User.find({
-        _id: { $ne: req.user._id }, 
-        email: { $exists: true, $ne: "" },
-        location: {
-          $near: {
-            $geometry: { type: "Point", coordinates: [parsedLng, parsedLat] },
-            $maxDistance: 50000, 
-          },
-        },
-      }).limit(100); 
-
-      bccEmails = nearbyUsers.map((u) => u.email);
-    }
-
-    if (bccEmails.length > 0) {
-      sendPostAlertEmail(bccEmails, {
-        title: title,
-        message: description || title,
+      const delivery = await notifyDonors(donors, {
+        title: `🚨 CRITICAL EMERGENCY: ${bloodGroup || "Help"} Needed!`,
+        body: `${title} near ${addressText}. Open Sahayam to respond now!`,
+        bloodGroup,
         isEmergency: isCriticalEmergency,
-        bloodGroup: bloodGroup,
-      }).catch((err) => console.error("Email dispatch error:", err));
+        meta: { title },
+      });
+
+      console.log(
+        `🔥 SOS listing ${newDonation._id}: reached ${delivery.push} devices + ${delivery.email} emails across ${donors.length} donors.`,
+      );
+    } catch (dispatchError) {
+      console.error("Failed to dispatch SOS notifications:", dispatchError);
     }
-  } catch (emailError) {
-    console.error("Failed to gather nearby users for email:", emailError);
   }
 
   res.status(201).json(populatedDonation);
@@ -387,13 +331,26 @@ const acceptSOS = asyncHandler(async (req, res) => {
     throw new Error("You cannot respond to your own SOS");
   }
 
-  if (!sosRequest.requestedBy.some(id => id.toString() === heroId.toString())) {
-    sosRequest.requestedBy.push(heroId);
-  }
+  // 👉 ATOMIC CLAIM: only one hero can win the race. The conditional update
+  // succeeds for whoever reaches the DB first; concurrent accepts match zero
+  // documents (status already "pending") and get a clean "already handled".
+  const claimed = await Donation.findOneAndUpdate(
+    {
+      _id: donationId,
+      isEmergency: true,
+      status: { $nin: ["pending", "fulfilled", "hidden", "expired"] },
+    },
+    {
+      $set: { receiverId: heroId, status: "pending" },
+      $addToSet: { requestedBy: heroId },
+    },
+    { new: true },
+  );
 
-  sosRequest.receiverId = heroId;
-  sosRequest.status = "pending";
-  await sosRequest.save();
+  if (!claimed) {
+    res.status(409);
+    throw new Error("Another hero just responded to this emergency.");
+  }
 
   const updatedDonation = await Donation.findById(donationId)
     .populate("donorId", "name profilePic addressText phone")
@@ -404,7 +361,7 @@ const acceptSOS = asyncHandler(async (req, res) => {
     io.emit("listing_updated", updatedDonation);
   }
 
-  res.status(200).json(sosRequest);
+  res.status(200).json(updatedDonation);
 });
 
 const markFulfilled = asyncHandler(async (req, res) => {
@@ -422,9 +379,16 @@ const markFulfilled = asyncHandler(async (req, res) => {
 
   const { calculateRank, getPointsForAction } = require("../utils/gamification");
 
+  // The physical blood donor differs by listing type: for a "request" (someone
+  // needing blood) the hero who gave is the receiver; otherwise it's the poster.
+  const bloodDonorId =
+    donation.category === "blood" && donation.listingType === "request"
+      ? donation.receiverId
+      : donation.donorId;
+
   const donor = await User.findById(donation.donorId);
   if (donor) {
-    donor.points += 10;
+    donor.points += getPointsForAction("SUCCESSFUL_DONATION");
     donor.donationsCount += 1;
 
     if (donor.donationsCount === 1 || donor.donationsCount === 5 || donor.donationsCount === 10) {
@@ -434,6 +398,11 @@ const markFulfilled = asyncHandler(async (req, res) => {
 
     donor.rank = calculateRank(donor.points);
     await donor.save();
+  }
+
+  // Start the eligibility cooldown for whoever actually donated blood.
+  if (donation.category === "blood" && bloodDonorId) {
+    await User.findByIdAndUpdate(bloodDonorId, { lastDonationDate: new Date() });
   }
 
   if (donation.receiverId) {

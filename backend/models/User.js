@@ -38,6 +38,10 @@ const userSchema = new mongoose.Schema(
     bloodGroup: { type: String },
     addressText: { type: String },
     isAvailable: { type: Boolean, default: true },
+
+    // Whole-blood donors are ineligible for ~90 days after donating. Drives the
+    // eligibility filter in the routing engine. Unset = never donated = eligible.
+    lastDonationDate: { type: Date },
     referralCode: {
       type: String,
       unique: true,
@@ -85,6 +89,14 @@ userSchema.pre("save", async function (next) {
 
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Eligible to donate whole blood if they have never donated, or the cooldown
+// (default 90 days) has elapsed since their last donation.
+userSchema.methods.isBloodEligible = function (cooldownDays = 90) {
+  if (!this.lastDonationDate) return true;
+  const cutoff = Date.now() - cooldownDays * 24 * 60 * 60 * 1000;
+  return this.lastDonationDate.getTime() <= cutoff;
 };
 
 module.exports = mongoose.model("User", userSchema);

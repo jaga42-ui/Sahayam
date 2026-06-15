@@ -47,7 +47,7 @@ const RecenterAutomatically = ({ lat, lng }) => {
 };
 
 const BloodRadar = () => {
-  const { user } = useContext(AuthContext);
+  const { user, socket } = useContext(AuthContext);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const blastId = searchParams.get("blastId");
@@ -64,6 +64,10 @@ const BloodRadar = () => {
   const [activeSOS, setActiveSOS] = useState(null);
   const [myAddressText, setMyAddressText] = useState("Locating…");
   const [showTriageModal, setShowTriageModal] = useState(false); // 👉 AI Triage State
+
+  // 👉 LIVE ESCALATION: track the requester's own SOS as the engine widens it.
+  const [myBlastId, setMyBlastId] = useState(null);
+  const [escalationRing, setEscalationRing] = useState(null); // { radiusMeters, level }
 
   const handleTriageData = (data) => {
     setEmotionalMessage(data.description + (data.title ? ` [${data.title}]` : ''));
@@ -100,6 +104,45 @@ const BloodRadar = () => {
     );
   }, [user]);
 
+  // 👉 LIVE ESCALATION: animate the radius ring as the engine widens the search.
+  useEffect(() => {
+    if (!socket) return;
+
+    const onEscalated = (p) => {
+      if (myBlastId && p.blastId !== myBlastId) return; // only my own SOS
+      setEscalationRing({ radiusMeters: p.radiusMeters, level: p.level });
+      toast(
+        `Search widened to ${p.radiusMeters / 1000}km — alerting ${p.reached} more donors`,
+        { icon: "📡", duration: 5000 },
+      );
+    };
+
+    const onExpired = (p) => {
+      if (myBlastId && p.blastId !== myBlastId) return;
+      setEscalationRing(null);
+      setMyBlastId(null);
+      toast.error("No responders found in range. SOS expired.");
+    };
+
+    socket.on("blast_escalated", onEscalated);
+    socket.on("blast_expired", onExpired);
+    return () => {
+      socket.off("blast_escalated", onEscalated);
+      socket.off("blast_expired", onExpired);
+    };
+  }, [socket, myBlastId]);
+
+  // A responder accepting clears the live escalation ring.
+  useEffect(() => {
+    if (!socket) return;
+    const onDonorComing = () => {
+      setEscalationRing(null);
+      setMyBlastId(null);
+    };
+    socket.on("donor_coming", onDonorComing);
+    return () => socket.off("donor_coming", onDonorComing);
+  }, [socket]);
+
   useEffect(() => {
     if (!myLocation) return;
     const fetchDonors = async () => {
@@ -128,6 +171,12 @@ const BloodRadar = () => {
       formData.append("title", `URGENT: ${selectedBloodGroup} Needed!`); formData.append("description", emotionalMessage);
       formData.append("addressText", `Radar Ping: ${myAddressText}`); formData.append("lat", myLocation.lat); formData.append("lng", myLocation.lng);
       await api.post("/donations", formData);
+
+      // 👉 LIVE ESCALATION: track this blast so the map animates as it widens.
+      if (data.blastId) {
+        setMyBlastId(data.blastId);
+        setEscalationRing({ radiusMeters: 5000, level: 1 });
+      }
 
       toast.success(`Your request reached ${data.recipients} nearby helpers.`);
       setShowBlastModal(false); setEmotionalMessage("");
@@ -176,6 +225,25 @@ const BloodRadar = () => {
           </div>
         </motion.div>
 
+        {/* 👉 LIVE ESCALATION HUD */}
+        <AnimatePresence>
+          {escalationRing && (
+            <motion.div
+              initial={{ opacity: 0, y: -12, x: "-50%" }}
+              animate={{ opacity: 1, y: 0, x: "-50%" }}
+              exit={{ opacity: 0, y: -12, x: "-50%" }}
+              className="absolute top-24 left-1/2 z-[401] pointer-events-none"
+            >
+              <div className="glass-dark border border-dark-raspberry/50 px-5 py-2.5 rounded-2xl flex items-center gap-3 shadow-[0_12px_30px_rgba(159,17,100,0.35)]">
+                <span className="w-2.5 h-2.5 rounded-full bg-dark-raspberry animate-pulse shadow-[0_0_12px_rgba(159,17,100,1)]" />
+                <p className="text-white text-[10px] font-black uppercase tracking-widest leading-none">
+                  Live SOS · Level {escalationRing.level} · {escalationRing.radiusMeters / 1000}km radius
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <AnimatePresence>
           {blastId && (
             <motion.div initial={{ y: -100, x: "-50%", opacity: 0 }} animate={{ y: 90, x: "-50%", opacity: 1 }} exit={{ y: -100, x: "-50%", opacity: 0 }} className="absolute top-0 left-1/2 z-[401] bg-white/95 backdrop-blur-xl border border-blazing-flame/50 p-5 rounded-3xl shadow-[0_20px_50px_rgba(138,111,176,0.2)] flex flex-col sm:flex-row items-center gap-5 w-[90%] max-w-xl pointer-events-auto">
@@ -206,6 +274,22 @@ const BloodRadar = () => {
               <Circle center={[myLocation.lat, myLocation.lng]} radius={radius} pathOptions={{ color: "#3b6b54", fillColor: "#3b6b54", fillOpacity: 0.08, weight: 1, dashArray: "5, 10" }} />
               
               <Marker position={[myLocation.lat, myLocation.lng]} icon={mySonarIcon} />
+
+              {/* 👉 LIVE ESCALATION RING — widens in real time as the engine expands the search */}
+              {escalationRing && (
+                <Circle
+                  center={[myLocation.lat, myLocation.lng]}
+                  radius={escalationRing.radiusMeters}
+                  pathOptions={{
+                    color: "#9f1164",
+                    fillColor: "#9f1164",
+                    fillOpacity: 0.08,
+                    weight: 2.5,
+                    dashArray: "8, 10",
+                    className: "animate-pulse",
+                  }}
+                />
+              )}
 
               <MarkerClusterGroup chunkedLoading maxClusterRadius={60}>
                 {donors.map((donor) => (

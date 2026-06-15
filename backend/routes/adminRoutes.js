@@ -13,6 +13,7 @@ const {
   getHeatmapData,
   generateMarketingStrategy
 } = require('../controllers/adminController');
+const { getEngineMetrics } = require('../controllers/metricsController');
 
 const adminGuard = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
@@ -26,6 +27,7 @@ const adminGuard = (req, res, next) => {
 router.use(protect, adminGuard);
 
 router.get('/stats', getDashboardStats);
+router.get('/engine-metrics', getEngineMetrics); // Routing-engine health (fill rate, response time, escalation depth)
 router.get('/heatmap', getHeatmapData);
 router.get('/marketing', generateMarketingStrategy);
 router.get('/users', getAllUsers);

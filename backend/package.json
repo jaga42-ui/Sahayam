@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "HopeLink Backend",
+  "description": "Sahayam Backend — emergency relief & blood-donor routing engine",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

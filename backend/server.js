@@ -18,12 +18,11 @@ const logger = require("./utils/logger");
 
 const cron = require("node-cron");
 const Donation = require("./models/Donation");
-const Feedback = require("./models/Feedback"); 
-const Blast = require("./models/Blast");
+const Feedback = require("./models/Feedback");
 const User = require("./models/User");
 const CronLock = require("./models/CronLock");
-const admin = require("firebase-admin");
 const { protect } = require("./middleware/authMiddleware");
+const { runEscalationCycle } = require("./services/escalationEngine");
 
 dotenv.config();
 
@@ -251,81 +250,25 @@ cron.schedule("0 0 * * *", async () => {
   }
 });
 
-// 👉 AI & SMART ROUTING: Radius Expansion Job
+// 👉 AI & SMART ROUTING: Escalation Engine tick
+// Widens the search radius for unanswered SOS blasts through a timeout-driven
+// state machine. The CronLock acts as a distributed lock so this stays correct
+// across horizontally-scaled instances; all matching/notification logic lives
+// in services/escalationEngine.js.
 cron.schedule("* * * * *", async () => {
   try {
-    // Distributed lock for horizontal scaling (expires in 50 seconds)
     const lock = await CronLock.create({ jobName: 'radiusExpansion', expiresAt: new Date(Date.now() + 50 * 1000) });
     if (!lock) return;
 
-    const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
-    
-    // Find active blasts stuck at level 1 with no responses
-    const stalledBlasts = await Blast.find({
-      pingLevel: 1,
-      active: true,
-      responses: { $size: 0 },
-      createdAt: { $lt: twoMinutesAgo }
-    });
-
-    if (stalledBlasts.length > 0) {
-      logger.info(`📡 [CRON] Expanding radius for ${stalledBlasts.length} stalled emergency blasts.`);
-    }
-
-    for (let blast of stalledBlasts) {
-      const [lng, lat] = blast.location.coordinates;
-      
-      // Query the next 100 closest donors, excluding those already pinged
-      const expandedDonors = await User.find({
-        location: {
-          $near: {
-            $geometry: { type: "Point", coordinates: [lng, lat] },
-            $maxDistance: 50000, // Expand to 50km
-          },
-        },
-        activeRole: "donor",
-        isAvailable: true,
-        _id: { $nin: [...blast.pingedDonors, blast.requester] },
-      }).limit(100);
-
-      if (expandedDonors.length > 0) {
-        const pushTokens = expandedDonors
-          .filter(d => d.fcmToken)
-          .map(d => d.fcmToken);
-
-        if (pushTokens.length > 0 && admin.apps.length > 0) {
-          const pushMessage = {
-            notification: {
-              title: `🚨 EXPANDED ALERT: ${blast.bloodGroup || "Help"} Needed!`,
-              body: "Original responders are unavailable. We need you now! " + blast.message,
-            },
-            tokens: pushTokens,
-          };
-          admin.messaging().sendEachForMulticast(pushMessage).catch(console.error);
-        }
-
-        // 👉 THE FIX: 100% Free Email Fallback instead of Paid Twilio SMS
-        const fallbackEmails = expandedDonors.filter(d => d.email).map(d => d.email);
-        if (fallbackEmails.length > 0) {
-          const { sendPostAlertEmail } = require("./utils/sendEmail");
-          sendPostAlertEmail(fallbackEmails, {
-            message: "Original responders failed to answer. We are expanding the radius! " + blast.message,
-            bloodGroup: blast.bloodGroup,
-            isEmergency: true
-          }).catch(console.error);
-        }
-
-        // Update Blast
-        blast.pingLevel = 2;
-        blast.pingedDonors.push(...expandedDonors.map(d => d._id));
-        await blast.save();
-      }
+    const { escalated, expired } = await runEscalationCycle(io);
+    if (escalated > 0 || expired > 0) {
+      logger.info(`📡 [CRON] Escalation tick — widened ${escalated} blast(s), expired ${expired}.`);
     }
 
     await CronLock.deleteOne({ jobName: 'radiusExpansion' });
   } catch (err) {
-    if (err.code !== 11000) { // Ignore duplicate key errors
-      logger.error("❌ [CRON] Smart Routing Expansion failed:", err);
+    if (err.code !== 11000) { // Ignore duplicate key errors (another instance holds the lock)
+      logger.error("❌ [CRON] Smart Routing Escalation failed:", err);
     }
   }
 });

@@ -40,6 +40,8 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import api from "../utils/api";
+import EngineMetrics from "../components/EngineMetrics";
+import { FaBolt } from "react-icons/fa";
 
 const Admin = () => {
   const { user } = useContext(AuthContext);
@@ -206,6 +208,7 @@ const Admin = () => {
 
   const TABS = [
     { id: "overview",   label: "Overview",    icon: <FaChartPie /> },
+    { id: "engine",     label: "Engine",      icon: <FaBolt /> },
     { id: "users",      label: "Users",       icon: <FaUsers /> },
     { id: "listings",   label: "Content",     icon: <FaBoxOpen /> },
     { id: "events",     label: "Events",      icon: <FaCalendarAlt /> },
@@ -479,6 +482,9 @@ const Admin = () => {
                 </div>
               </div>
             )}
+
+            {/* ROUTING ENGINE METRICS TAB */}
+            {activeTab === "engine" && <EngineMetrics />}
 
             {/* MODERATION QUEUE TAB */}
             {activeTab === "moderation" && (

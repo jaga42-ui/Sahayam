@@ -57,6 +57,28 @@ Sahayam operates on a decoupled client-server architecture:
 
 ---
 
+## 4a. The Routing Engine (core technical highlight)
+
+The heart of Sahayam is a **real-time emergency blood-donor routing engine**. A single, unified matching path serves every caller — the radar map, the emergency blast, the escalation cron, and emergency listings — so matching is consistent and medically correct everywhere.
+
+**Donor matching** (`services/donorMatching.js`) runs a `$geoNear` aggregation that returns donors already sorted by distance (with a real `distance` field for the map). A candidate must be a compatible blood group, **eligible** (whole-blood donors are locked out for 90 days after donating), available, within radius, and not already pinged.
+
+**Blood compatibility** (`utils/bloodCompat.js`) is the single source of truth — the recipient/donor matrix (O− universal donor, AB+ universal recipient). Unit-tested in `tests/bloodCompat.test.js`.
+
+**Escalation state machine** (`services/escalationEngine.js`) — an SOS is a timeout-driven state machine, not a fixed broadcast:
+
+![SOS escalation state machine](docs/escalation-engine.svg)
+
+If nobody responds at a level, a cron tick widens the radius and pings a **fresh** ring of donors (never re-pinging anyone — this is the idempotency guarantee). The cron is guarded by a distributed `CronLock` so it stays correct across horizontally-scaled instances.
+
+**Correctness guarantees**
+- **Atomic claim** — when two heroes accept the same SOS simultaneously, a conditional `findOneAndUpdate` lets exactly one win; the loser gets a clean `409`.
+- **At-least-once delivery** — `utils/notify.js` fans out over push *and* email; for a life-critical alert, receiving both is the safe failure mode.
+
+**Observability** — `GET /api/admin/engine-metrics` reports fill rate, median time-to-first-response, and escalation-depth distribution.
+
+**Demo** — `node scripts/seedDonors.js` scatters 200 synthetic donors (varied blood groups, ~20% on cooldown) around a city so the radar and escalation are visible end-to-end. Wipe with `--clear`.
+
 ## 5. Setup Instructions (Developer Guide)
 
 ### Prerequisites
@@ -71,7 +93,7 @@ Sahayam operates on a decoupled client-server architecture:
 1. **Clone the repository**
    ```bash
    git clone <repository-url>
-   cd hope-link
+   cd Sahayam
    ```
 
 2. **Install Backend Dependencies**

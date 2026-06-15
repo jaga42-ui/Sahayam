@@ -8,6 +8,9 @@ const admin = require("firebase-admin");
 
 const { sendPostAlertEmail } = require("../utils/sendEmail");
 const { evaluateText } = require("../utils/spamDetector");
+const { findEligibleDonors } = require("../services/donorMatching");
+const { notifyDonors } = require("../utils/notify");
+const { levelConfig, nextEscalationAt } = require("../services/escalationEngine");
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -300,25 +303,27 @@ const getNearbyDonors = asyncHandler(async (req, res) => {
     throw new Error("Latitude and longitude are required to scan for nearby nodes");
   }
 
-  let query = {
-    location: {
-      $near: {
-        $geometry: { type: "Point", coordinates: [Number(lng), Number(lat)] },
-        $maxDistance: Number(distance),
-      },
-    },
-    _id: { $ne: req.user._id },
-    activeRole: "donor",
-  };
+  // When a specific group is chosen we treat this as a blood search so the
+  // routing engine applies compatibility + donor eligibility; "All" just shows
+  // every nearby donor. Results carry a real distance (metres) for the map.
+  const isBloodSearch = bloodGroup && bloodGroup !== "All";
 
-  if (bloodGroup && bloodGroup !== "All") query.bloodGroup = bloodGroup;
-  
-  // 👉 THE FIX: Added .limit(200) to prevent OOM crash
-  const donors = await User.find(query)
-    .select("name profilePic bloodGroup addressText phone location rank rating")
-    .limit(200); 
-    
-  res.json(donors);
+  const donors = await findEligibleDonors({
+    lng: Number(lng),
+    lat: Number(lat),
+    radiusMeters: Number(distance),
+    category: isBloodSearch ? "blood" : "other",
+    bloodGroup: isBloodSearch ? bloodGroup : undefined,
+    excludeIds: [req.user._id],
+    requireAvailable: false, // the radar shows all members, available or not
+    limit: 200,
+  });
+
+  // 👉 PRIVACY: the matching engine returns email + fcmToken for the
+  // notification path; never expose those to the map client.
+  const safeDonors = donors.map(({ email, fcmToken, ...donor }) => donor);
+
+  res.json(safeDonors);
 });
 
 const sendEmergencyBlast = asyncHandler(async (req, res) => {
@@ -336,75 +341,55 @@ const sendEmergencyBlast = asyncHandler(async (req, res) => {
     throw new Error(`Broadcast blocked: ${spamCheck.reason}`);
   }
 
-  // 👉 AI & SMART ROUTING: Fetch 50 nearest, then pick top 10 rated
-  const rawNearbyDonors = await User.find({
-    location: {
-      $near: {
-        $geometry: { type: "Point", coordinates: [Number(lng), Number(lat)] },
-        $maxDistance: 20000,
-      },
-    },
-    activeRole: "donor",
-    isAvailable: true,
-    _id: { $ne: req.user._id },
-  }).limit(50);
-
-  // Sort by rating descending and take top 10 elite responders
-  const eliteDonors = rawNearbyDonors
-    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-    .slice(0, 10);
-    
-  const pingedDonorIds = eliteDonors.map(d => d._id);
+  // The SOS always starts at the tightest escalation ring and widens only if
+  // nobody responds (handled by the escalation cron). Matching runs through the
+  // shared engine so compatibility + eligibility are applied consistently.
+  const level1 = levelConfig(1);
+  const donors = await findEligibleDonors({
+    lng: Number(lng),
+    lat: Number(lat),
+    radiusMeters: level1.radiusMeters,
+    category: "blood",
+    bloodGroup,
+    excludeIds: [req.user._id],
+    limit: 100,
+  });
 
   const blast = await Blast.create({
     requester: req.user._id,
     message,
+    category: "blood",
     bloodGroup,
     location: { type: "Point", coordinates: [Number(lng), Number(lat)] },
-    pingLevel: 1,
-    pingedDonors: pingedDonorIds,
+    status: "broadcasting",
+    escalationLevel: 1,
+    pingLevel: 1, // legacy mirror
+    radiusMeters: level1.radiusMeters,
+    nextEscalationAt: nextEscalationAt(1),
+    pingedDonors: donors.map((d) => d._id),
   });
 
-  const pushTokens = eliteDonors
-    .filter((donor) => donor.fcmToken)
-    .map((donor) => donor.fcmToken);
-  const emailAddresses = eliteDonors
-    .filter((donor) => donor.email)
-    .map((donor) => donor.email);
-
-  if (pushTokens.length > 0) {
-    const pushMessage = {
-      notification: {
-        title: `🚨 URGENT: ${bloodGroup || "Help"} Needed Nearby`,
-        body: message,
-      },
-      tokens: pushTokens,
-    };
-    admin
-      .messaging()
-      .sendEachForMulticast(pushMessage)
-      .then((response) =>
-        console.log(`🔥 Firebase Blast: Sent to ${response.successCount} devices.`),
-      )
-      .catch((error) => console.error("Firebase Blast Failed:", error));
-  }
-
-  if (emailAddresses.length > 0) {
-    sendPostAlertEmail(emailAddresses, {
-      message,
-      bloodGroup,
-      isEmergency: true,
+  const delivery = await notifyDonors(donors, {
+    title: `🚨 URGENT: ${bloodGroup || "Help"} Needed Nearby`,
+    body: message,
+    bloodGroup,
+    isEmergency: true,
+    meta: {
       requesterName: req.user.name,
       requesterPhone: req.user.phone,
       lat,
       lng,
-    }).catch(console.error);
-  }
+    },
+  });
+
+  console.log(
+    `🔥 Blast ${blast._id}: reached ${delivery.push} devices + ${delivery.email} emails across ${donors.length} donors.`,
+  );
 
   res.status(200).json({
     success: true,
     blastId: blast._id,
-    recipients: eliteDonors.length,
+    recipients: donors.length,
   });
 });
 
@@ -415,6 +400,11 @@ const respondToBlast = asyncHandler(async (req, res) => {
     throw new Error("SOS alert no longer active");
   }
 
+  if (["expired", "cancelled", "fulfilled"].includes(blast.status)) {
+    res.status(400);
+    throw new Error("This SOS is no longer accepting responders.");
+  }
+
   const alreadyResponded = blast.responses.find(
     (r) => r.donor.toString() === req.user._id.toString(),
   );
@@ -422,6 +412,13 @@ const respondToBlast = asyncHandler(async (req, res) => {
 
   const { calculateRank, getPointsForAction } = require("../utils/gamification");
 
+  // First responder flips the state machine to MATCHED and freezes escalation.
+  if (!blast.firstResponseAt) {
+    blast.firstResponseAt = new Date();
+    blast.matchedAt = new Date();
+    blast.status = "matched";
+    blast.nextEscalationAt = null;
+  }
   blast.responses.push({ donor: req.user._id });
   await blast.save();
 
