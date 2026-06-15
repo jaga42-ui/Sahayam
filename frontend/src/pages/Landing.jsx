@@ -87,107 +87,53 @@ const Landing = () => {
       </header>
 
       {/* ── HERO ── */}
-      <section className="relative px-5 pt-32 pb-20 sm:pt-36 sm:pb-24">
-        <div className="mx-auto grid max-w-5xl items-center gap-12 lg:grid-cols-[1.05fr_0.95fr]">
-          {/* copy */}
-          <div>
-            <motion.div {...fadeUp(0)}
-              className="inline-flex items-center gap-2 rounded-full border border-pine-teal/12 bg-surface px-3 py-1 text-[12px] font-medium text-pine-teal/65">
-              <span className="relative flex h-1.5 w-1.5">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-dark-raspberry opacity-60 animate-ping" />
-                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-dark-raspberry" />
+      <section className="relative px-5 pt-32 pb-20 sm:pt-36 sm:pb-28 text-center">
+        <div className="mx-auto flex max-w-2xl flex-col items-center">
+          {/* brand mark */}
+          <motion.div {...fadeUp(0)} className="relative mb-8 flex h-16 w-16 items-center justify-center">
+            <span className="absolute inset-0 rounded-full border border-dark-raspberry/20 animate-ping" style={{ animationDuration: "2.8s" }} />
+            <span className="absolute inset-[6px] rounded-full border border-dark-raspberry/15 animate-ping" style={{ animationDuration: "2.8s", animationDelay: "0.7s" }} />
+            <img src={logo} alt="Sahayam" className="relative h-11 w-auto" />
+          </motion.div>
+
+          <motion.div {...fadeUp(0.05)}
+            className="inline-flex items-center gap-2 rounded-full border border-pine-teal/12 bg-surface px-3 py-1 text-[12px] font-medium text-pine-teal/65">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-dark-raspberry opacity-60 animate-ping" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-dark-raspberry" />
+            </span>
+            Blood, when minutes matter
+          </motion.div>
+
+          <motion.h1 {...fadeUp(0.1)}
+            className="mt-6 font-display text-[clamp(2.5rem,7vw,4rem)] font-semibold leading-[1.04] tracking-tight text-pine-teal">
+            Find a blood donor,<br />
+            <span className="text-dark-raspberry">closer than you think.</span>
+          </motion.h1>
+
+          <motion.p {...fadeUp(0.16)}
+            className="mt-6 max-w-xl text-[17px] leading-relaxed text-pine-teal/55">
+            When a family needs blood, every minute counts. Sahayam alerts verified,
+            compatible donors nearby in seconds — and keeps widening the search until enough confirm.
+          </motion.p>
+
+          <motion.div {...fadeUp(0.22)} className="mt-9 flex flex-col sm:flex-row items-center gap-3">
+            <Link to={registerLink}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-dark-raspberry px-7 py-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#5e4585]">
+              Become a donor <FaArrowRight className="text-xs" />
+            </Link>
+            <Link to="/login"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-pine-teal/15 bg-surface px-7 py-3.5 text-sm font-semibold text-pine-teal/75 transition-colors hover:text-pine-teal">
+              I have an account
+            </Link>
+          </motion.div>
+
+          <motion.div {...fadeUp(0.28)} className="mt-9 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[13px] text-pine-teal/50">
+            {["Verified donors", "Compatible match", "Free forever"].map((t) => (
+              <span key={t} className="inline-flex items-center gap-1.5">
+                <FaCheck className="text-[10px] text-dark-raspberry" /> {t}
               </span>
-              Blood, when minutes matter
-            </motion.div>
-
-            <motion.h1 {...fadeUp(0.06)}
-              className="mt-5 font-display text-[clamp(2.4rem,6vw,3.75rem)] font-semibold leading-[1.05] tracking-tight text-pine-teal">
-              Find a blood donor,<br />
-              <span className="text-dark-raspberry">closer than you think.</span>
-            </motion.h1>
-
-            <motion.p {...fadeUp(0.12)}
-              className="mt-5 max-w-md text-[16px] leading-relaxed text-pine-teal/55">
-              When a family needs blood, every minute counts. Sahayam alerts verified,
-              compatible donors nearby in seconds — and keeps widening the search until
-              enough confirm.
-            </motion.p>
-
-            <motion.div {...fadeUp(0.18)} className="mt-8 flex flex-col sm:flex-row sm:items-center gap-3">
-              <Link to={registerLink}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-dark-raspberry px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#5e4585]">
-                Become a donor <FaArrowRight className="text-xs" />
-              </Link>
-              <Link to="/login"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-pine-teal/15 bg-surface px-6 py-3.5 text-sm font-semibold text-pine-teal/75 transition-colors hover:text-pine-teal">
-                I have an account
-              </Link>
-            </motion.div>
-
-            <motion.div {...fadeUp(0.24)} className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-pine-teal/50">
-              {["Verified donors", "Compatible match", "Free forever"].map((t) => (
-                <span key={t} className="inline-flex items-center gap-1.5">
-                  <FaCheck className="text-[10px] text-dark-raspberry" /> {t}
-                </span>
-              ))}
-            </motion.div>
-          </div>
-
-          {/* product visual: a live request card */}
-          <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
-            className="relative mx-auto w-full max-w-sm">
-            {/* soft glow */}
-            <div className="pointer-events-none absolute -inset-6 rounded-[2.5rem] bg-dark-raspberry/5 blur-2xl" />
-
-            <div className="relative rounded-3xl border border-pine-teal/10 bg-surface p-5 shadow-[0_24px_60px_-20px_rgba(59,107,84,0.22)]">
-              <div className="h-0.5 w-full rounded-full bg-[#d6453f] mb-4" />
-              <div className="flex items-start gap-3.5">
-                <div className="shrink-0 h-14 w-14 rounded-2xl border border-[#d6453f]/30 bg-[#d6453f]/[0.06] flex flex-col items-center justify-center text-[#c0392b]">
-                  <span className="text-base font-bold leading-none">O−</span>
-                  <span className="text-[8px] font-semibold uppercase tracking-[0.15em] mt-1 opacity-60">blood</span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#c0392b]">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-[#d6453f] opacity-60 animate-ping" />
-                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#d6453f]" />
-                    </span>
-                    Urgent
-                  </span>
-                  <h3 className="mt-1 font-display text-[15px] font-semibold text-pine-teal leading-snug">
-                    O− needed at Fortis Hospital
-                  </h3>
-                  <p className="mt-1 text-[13px] text-pine-teal/55">Whitefield · 2.1 km away</p>
-                </div>
-              </div>
-
-              {/* coverage */}
-              <div className="mt-4 rounded-2xl border border-pine-teal/8 bg-surface-2 p-3.5">
-                <div className="flex items-center justify-between text-[12px]">
-                  <span className="text-pine-teal/50">Replacement donors</span>
-                  <span className="font-semibold text-pine-teal">2 of 3 confirmed</span>
-                </div>
-                <div className="mt-2 h-1.5 w-full rounded-full bg-pine-teal/10 overflow-hidden">
-                  <motion.div
-                    initial={{ width: 0 }} animate={{ width: "66%" }}
-                    transition={{ duration: 1, delay: 0.7, ease: "easeOut" }}
-                    className="h-full rounded-full bg-dark-raspberry" />
-                </div>
-              </div>
-
-              <div className="mt-4 flex items-center gap-2">
-                <div className="flex -space-x-2">
-                  {["#3b6b54", "#6e4fa0", "#d6453f"].map((c, i) => (
-                    <div key={i} className="h-7 w-7 rounded-full border-2 border-surface" style={{ background: c }} />
-                  ))}
-                </div>
-                <span className="text-[12px] text-pine-teal/55">+1 donor on the way</span>
-                <span className="ml-auto rounded-lg bg-[#d6453f] px-3 py-1.5 text-[12px] font-semibold text-white">Respond</span>
-              </div>
-            </div>
+            ))}
           </motion.div>
         </div>
       </section>
