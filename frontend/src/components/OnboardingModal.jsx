@@ -1,16 +1,30 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaHeartbeat, FaShieldAlt, FaStar, FaTimes } from "react-icons/fa";
+import { FaHeartbeat, FaShieldAlt, FaLock, FaTimes } from "react-icons/fa";
+
+const STEPS = [
+  {
+    icon: FaHeartbeat,
+    tint: "bg-dark-raspberry/10 text-dark-raspberry",
+    title: "Raise an SOS",
+    desc: "Need blood? Post the group, hospital and how many donors you need — nearby donors are alerted in seconds.",
+  },
+  {
+    icon: FaShieldAlt,
+    tint: "bg-pine-teal/10 text-pine-teal",
+    title: "Only the right donors",
+    desc: "We ping donors whose blood group is compatible and who are eligible to donate right now, and keep widening the search until enough confirm.",
+  },
+  {
+    icon: FaLock,
+    tint: "bg-[#d6453f]/10 text-[#c0392b]",
+    title: "Private & safe",
+    desc: "Coordinate in a secure chat. Your phone number stays private until you choose to share it.",
+  },
+];
 
 const OnboardingModal = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    const hasSeen = localStorage.getItem("sahayam_onboarded");
-    if (!hasSeen) {
-      setIsOpen(true);
-    }
-  }, []);
+  const [isOpen, setIsOpen] = useState(() => !localStorage.getItem("sahayam_onboarded"));
 
   const handleClose = () => {
     localStorage.setItem("sahayam_onboarded", "true");
@@ -21,71 +35,50 @@ const OnboardingModal = () => {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[6000] flex items-center justify-center p-4 sm:p-6" role="dialog" aria-modal="true">
+      <div className="fixed inset-0 z-[6000] flex items-center justify-center p-4" role="dialog" aria-modal="true">
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="absolute inset-0 bg-pine-teal/80 backdrop-blur-sm"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          className="absolute inset-0 bg-pine-teal/70 backdrop-blur-sm"
           onClick={handleClose}
         />
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          initial={{ opacity: 0, scale: 0.96, y: 16 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-xl bg-white border border-white rounded-[2.5rem] p-6 sm:p-8 shadow-2xl flex flex-col max-h-[85vh] overflow-hidden"
+          exit={{ opacity: 0, scale: 0.96, y: 16 }}
+          transition={{ type: "spring", stiffness: 300, damping: 28 }}
+          className="relative w-full max-w-md bg-surface border border-pine-teal/10 rounded-3xl p-6 sm:p-7 shadow-2xl flex flex-col max-h-[88vh] overflow-hidden"
         >
-          <div className="flex justify-between items-center mb-6 border-b border-dusty-lavender/20 pb-4">
-            <h3 className="text-2xl font-black text-pine-teal uppercase tracking-tight">Welcome to Sahayam</h3>
-            <button
-              onClick={handleClose}
-              className="text-dusty-lavender hover:text-blazing-flame p-2 bg-white hover:bg-pearl-beige rounded-full transition-colors border border-dusty-lavender/20"
-            >
-              <FaTimes />
+          <div className="flex items-start justify-between gap-4 mb-5">
+            <div>
+              <h3 className="font-display text-2xl font-semibold tracking-tight text-pine-teal">Welcome to Sahayam</h3>
+              <p className="mt-1 text-[14px] text-pine-teal/55">Find a blood donor when minutes matter.</p>
+            </div>
+            <button onClick={handleClose} aria-label="Close"
+              className="shrink-0 h-9 w-9 flex items-center justify-center rounded-full border border-pine-teal/12 text-dusty-lavender hover:text-pine-teal transition-colors">
+              <FaTimes className="text-sm" />
             </button>
           </div>
 
-          <div className="overflow-y-auto pr-4 no-scrollbar space-y-6 text-sm text-pine-teal/80 leading-relaxed mb-6 flex-1">
-            <p className="font-bold text-base text-pine-teal">
-              Sahayam is a modern community coordination platform. Here is how you can help:
-            </p>
-
-            <div className="flex gap-4 items-start">
-              <div className="w-10 h-10 shrink-0 bg-blazing-flame/10 rounded-xl flex items-center justify-center text-blazing-flame text-xl">
-                <FaHeartbeat />
-              </div>
-              <div>
-                <h4 className="font-black text-pine-teal uppercase tracking-widest text-[10px] mb-1">Emergency SOS Routing</h4>
-                <p>When someone triggers an SOS, Sahayam bypasses standard feeds and immediately blasts the closest top-rated donors via email and push notifications. If unanswered, the AI expands the radius up to 50km.</p>
-              </div>
-            </div>
-
-            <div className="flex gap-4 items-start">
-              <div className="w-10 h-10 shrink-0 bg-pine-teal/10 rounded-xl flex items-center justify-center text-pine-teal text-xl">
-                <FaShieldAlt />
-              </div>
-              <div>
-                <h4 className="font-black text-pine-teal uppercase tracking-widest text-[10px] mb-1">Verified Organizations</h4>
-                <p>To prevent fraud, organizations can register as NGOs and undergo an admin verification process. Verified NGOs have special privileges on the platform.</p>
-              </div>
-            </div>
-
-            <div className="flex gap-4 items-start">
-              <div className="w-10 h-10 shrink-0 bg-[#eab308]/10 rounded-xl flex items-center justify-center text-[#eab308] text-xl">
-                <FaStar />
-              </div>
-              <div>
-                <h4 className="font-black text-pine-teal uppercase tracking-widest text-[10px] mb-1">Gamification & Ranks</h4>
-                <p>Every heroic action earns you points. Gain points for responding to an SOS, completing successful donations, and submitting app feedback. Climb the ranks from Rookie to Apex Savior!</p>
-              </div>
-            </div>
+          <div className="space-y-4 overflow-y-auto no-scrollbar">
+            {STEPS.map((s) => {
+              const Icon = s.icon;
+              return (
+                <div key={s.title} className="flex gap-3.5">
+                  <div className={`shrink-0 h-10 w-10 flex items-center justify-center rounded-xl ${s.tint}`}>
+                    <Icon className="text-base" />
+                  </div>
+                  <div>
+                    <h4 className="text-[15px] font-semibold text-pine-teal">{s.title}</h4>
+                    <p className="mt-0.5 text-[13.5px] leading-relaxed text-pine-teal/55">{s.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          <button
-            onClick={handleClose}
-            className="w-full py-4 bg-blazing-flame hover:bg-[#6e4fa0] text-white rounded-xl font-black uppercase tracking-widest text-[10px] sm:text-xs transition-colors shadow-[0_10px_25px_rgba(138,111,176,0.3)] active:scale-95"
-          >
-            I'm Ready to Save Lives
+          <button onClick={handleClose}
+            className="mt-6 w-full rounded-xl bg-dark-raspberry py-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#5e4585]">
+            Get started
           </button>
         </motion.div>
       </div>

@@ -454,18 +454,18 @@ const Dashboard = () => {
                     const hoursLeft  = item.criticalDeadline
                       ? Math.round((new Date(item.criticalDeadline) - Date.now()) / 3600000)
                       : null;
+                    const statItems = [];
+                    if (item.patientDetails?.name) statItems.push({ label: "Patient", value: `${item.patientDetails.name}${item.patientDetails.age ? `, ${item.patientDetails.age}` : ""}` });
+                    if (item.quantity) statItems.push({ label: "Needs", value: item.quantity });
+                    if (hoursLeft !== null) statItems.push({ label: "Deadline", value: hoursLeft > 0 ? `${hoursLeft}h left` : "Overdue", danger: hoursLeft <= 0 });
 
                     return (
                       <motion.article key={item._id} layout custom={idx}
                         variants={cardVariants} initial="hidden" animate="show" exit="exit"
-                        className={`group relative overflow-hidden rounded-2xl bg-surface transition-shadow ${
-                          item.isEmergency
-                            ? "border border-[#d6453f]/25 shadow-[0_1px_0_0_rgba(214,69,63,0.08)]"
-                            : "border border-pine-teal/10 hover:border-pine-teal/20"
-                        }`}>
+                        className="group relative overflow-hidden rounded-2xl bg-surface border border-pine-teal/10 shadow-[0_1px_2px_rgba(59,107,84,0.04),0_10px_24px_-14px_rgba(59,107,84,0.18)] hover:-translate-y-0.5 hover:shadow-[0_2px_6px_rgba(59,107,84,0.06),0_18px_40px_-16px_rgba(59,107,84,0.26)] transition-all duration-300">
 
-                        {/* thin urgency accent */}
-                        {item.isEmergency && <div className="h-0.5 w-full bg-[#d6453f]" />}
+                        {/* urgency accent stripe */}
+                        {item.isEmergency && <span className="absolute left-0 top-0 h-full w-1 bg-[#d6453f]" />}
 
                         {item.image && (
                           <div className="relative h-40 w-full overflow-hidden border-b border-pine-teal/8">
@@ -474,18 +474,18 @@ const Dashboard = () => {
                           </div>
                         )}
 
-                        <div className="p-4">
+                        <div className="p-4 pl-[18px]">
                           <div className="flex items-start gap-3.5">
-                            {/* blood-group chip / category icon */}
+                            {/* blood-group chip / category icon — solid */}
                             {isBlood ? (
-                              <div className={`shrink-0 h-14 w-14 rounded-2xl border flex flex-col items-center justify-center ${
-                                item.isEmergency ? "border-[#d6453f]/30 bg-[#d6453f]/[0.06] text-[#c0392b]" : "border-dark-raspberry/25 bg-dark-raspberry/[0.05] text-dark-raspberry"
+                              <div className={`shrink-0 h-[58px] w-[58px] rounded-2xl flex flex-col items-center justify-center text-white shadow-sm ${
+                                item.isEmergency ? "bg-[#d6453f]" : "bg-gradient-to-br from-dark-raspberry to-[#523a7d]"
                               }`}>
-                                <span className="text-base font-bold leading-none">{item.bloodGroup || "—"}</span>
-                                <span className="text-[8px] font-semibold uppercase tracking-[0.15em] mt-1 opacity-60">blood</span>
+                                <span className="text-lg font-bold leading-none">{item.bloodGroup || "—"}</span>
+                                <span className="text-[8px] font-bold uppercase tracking-[0.12em] mt-1 text-white/75">blood</span>
                               </div>
                             ) : (
-                              <div className={`shrink-0 h-14 w-14 rounded-2xl border flex items-center justify-center ${meta.soft}`}>
+                              <div className={`shrink-0 h-[58px] w-[58px] rounded-2xl border flex items-center justify-center ${meta.soft}`}>
                                 <CategoryIcon className="text-xl" />
                               </div>
                             )}
@@ -493,7 +493,7 @@ const Dashboard = () => {
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
                                 {item.isEmergency ? (
-                                  <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-[#c0392b]">
+                                  <span className="inline-flex items-center gap-1.5 rounded-md bg-[#d6453f]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#c0392b]">
                                     <span className="relative flex h-1.5 w-1.5">
                                       <span className="absolute inline-flex h-full w-full rounded-full bg-[#d6453f] opacity-60 animate-ping" />
                                       <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#d6453f]" />
@@ -501,60 +501,53 @@ const Dashboard = () => {
                                     Urgent
                                   </span>
                                 ) : (
-                                  <span className="text-[11px] font-semibold text-pine-teal/50">{meta.label}</span>
+                                  <span className="rounded-md bg-pine-teal/8 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-pine-teal/65">{meta.label}</span>
                                 )}
                                 {item.verifiedByInstitution && (
-                                  <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#2b7fff]">
+                                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2b7fff]">
                                     <FaShieldAlt className="text-[9px]" /> Verified
                                   </span>
                                 )}
-                                <span className="ml-auto text-[11px] text-pine-teal/35 shrink-0">{dateStr}</span>
+                                <span className="ml-auto text-[11px] font-medium text-pine-teal/40 shrink-0">{dateStr}</span>
                               </div>
 
-                              <h3 className={`mt-1 font-display font-semibold leading-snug line-clamp-2 ${
-                                item.isEmergency ? "text-[#b8322c]" : "text-pine-teal"
-                              } text-[15px]`}>
+                              <h3 className="mt-1.5 text-[15.5px] font-bold leading-snug text-pine-teal line-clamp-2">
                                 {item.title}
                               </h3>
 
                               {place && (
-                                <p className="mt-1 flex items-center gap-1.5 text-[13px] text-pine-teal/55 min-w-0">
-                                  <FaMapMarkerAlt className="text-[10px] text-dark-raspberry/70 shrink-0" />
+                                <p className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-pine-teal/60 min-w-0">
+                                  <FaMapMarkerAlt className="text-[10px] text-dark-raspberry shrink-0" />
                                   <span className="truncate">{place}</span>
                                 </p>
                               )}
                             </div>
                           </div>
 
-                          {/* detail line: patient / units / deadline */}
-                          {(item.patientDetails?.name || item.quantity || hoursLeft !== null) && (
-                            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-pine-teal/60">
-                              {item.patientDetails?.name && (
-                                <span><span className="text-pine-teal/40">Patient</span> {item.patientDetails.name}{item.patientDetails.age ? `, ${item.patientDetails.age}` : ""}</span>
-                              )}
-                              {item.quantity && (
-                                <span><span className="text-pine-teal/40">Needs</span> {item.quantity}</span>
-                              )}
-                              {hoursLeft !== null && (
-                                <span className={`inline-flex items-center gap-1 ${hoursLeft <= 0 ? "text-[#c0392b]" : ""}`}>
-                                  <FaClock className="text-[10px]" />
-                                  {hoursLeft > 0 ? `${hoursLeft}h left` : "Overdue"}
-                                </span>
-                              )}
+                          {/* structured stat strip */}
+                          {statItems.length > 0 && (
+                            <div className="mt-3.5 flex overflow-hidden rounded-xl border border-pine-teal/10 bg-pearl-beige/50 divide-x divide-pine-teal/10">
+                              {statItems.map((s, si) => (
+                                <div key={si} className="min-w-0 flex-1 px-3 py-2">
+                                  <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-pine-teal/40">{s.label}</p>
+                                  <p className={`mt-0.5 truncate text-[12.5px] font-semibold ${s.danger ? "text-[#c0392b]" : "text-pine-teal"}`}>{s.value}</p>
+                                </div>
+                              ))}
                             </div>
                           )}
 
                           {/* responders */}
                           {item.isEmergency && item.status !== "fulfilled" && (
-                            <p className="mt-2.5 text-[12px] text-pine-teal/50">
+                            <p className="mt-3 flex items-center gap-1.5 text-[12px] font-medium text-pine-teal/55">
+                              <FaUsers className="text-[10px] text-pine-teal/40" />
                               {item.requestedBy?.length
-                                ? <><span className="font-semibold text-pine-teal">{item.requestedBy.length}</span> {item.requestedBy.length > 1 ? "donors" : "donor"} responding</>
+                                ? <><span className="font-bold text-pine-teal">{item.requestedBy.length}</span> {item.requestedBy.length > 1 ? "donors" : "donor"} responding</>
                                 : "No one has responded yet"}
                             </p>
                           )}
 
                           {/* footer: poster + actions */}
-                          <div className="mt-4 flex items-center gap-2.5">
+                          <div className="mt-3.5 pt-3.5 border-t border-pine-teal/8 flex items-center gap-2.5">
                             <img
                               src={item.donorId?.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.donorId?.name || "S")}&background=3b6b54&color=fff&bold=true&size=64`}
                               alt="" referrerPolicy="no-referrer"
