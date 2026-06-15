@@ -10,6 +10,13 @@ const blastSchema = new mongoose.Schema({
   message: { type: String, required: true },
   category: { type: String, default: 'blood' },
   bloodGroup: { type: String },
+
+  // Replacement-donor mode: many Indian hospitals require the family to bring N
+  // replacement donors to release units. The blast keeps recruiting (escalating)
+  // until this many donors have committed.
+  unitsNeeded: { type: Number, default: 1, min: 1 },
+  hospitalName: { type: String },
+
   location: {
     type: { type: String, default: 'Point' },
     coordinates: [Number] // [lng, lat]
@@ -38,6 +45,11 @@ const blastSchema = new mongoose.Schema({
   pingLevel: { type: Number, default: 1 },
   pingedDonors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, { timestamps: true });
+
+// Covered once enough replacement donors have committed.
+blastSchema.methods.isCovered = function () {
+  return this.responses.length >= (this.unitsNeeded || 1);
+};
 
 // Drive the escalation cron efficiently.
 blastSchema.index({ status: 1, nextEscalationAt: 1 });

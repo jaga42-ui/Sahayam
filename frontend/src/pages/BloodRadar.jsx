@@ -68,6 +68,8 @@ const BloodRadar = () => {
   // 👉 LIVE ESCALATION: track the requester's own SOS as the engine widens it.
   const [myBlastId, setMyBlastId] = useState(null);
   const [escalationRing, setEscalationRing] = useState(null); // { radiusMeters, level }
+  const [donorsNeeded, setDonorsNeeded] = useState(1);        // replacement-donor mode
+  const [sosProgress, setSosProgress] = useState(null);       // { committed, needed }
 
   const handleTriageData = (data) => {
     setEmotionalMessage(data.description + (data.title ? ` [${data.title}]` : ''));
@@ -121,6 +123,7 @@ const BloodRadar = () => {
       if (myBlastId && p.blastId !== myBlastId) return;
       setEscalationRing(null);
       setMyBlastId(null);
+      setSosProgress(null);
       toast.error("No responders found in range. SOS expired.");
     };
 
@@ -132,16 +135,28 @@ const BloodRadar = () => {
     };
   }, [socket, myBlastId]);
 
-  // A responder accepting clears the live escalation ring.
+  // A responder committing updates live coverage; the ring clears only once the
+  // request is fully covered (replacement-donor mode may need several donors).
   useEffect(() => {
     if (!socket) return;
-    const onDonorComing = () => {
-      setEscalationRing(null);
-      setMyBlastId(null);
+    const onDonorComing = (p) => {
+      if (myBlastId && p?.blastId && p.blastId !== myBlastId) return;
+      if (typeof p?.committed === "number") {
+        setSosProgress({ committed: p.committed, needed: p.needed });
+        toast.success(
+          p.covered
+            ? "Fully covered — all donors confirmed! 🎉"
+            : `A donor confirmed — ${p.committed} of ${p.needed}.`,
+        );
+      }
+      if (p?.covered) {
+        setEscalationRing(null);
+        setMyBlastId(null);
+      }
     };
     socket.on("donor_coming", onDonorComing);
     return () => socket.off("donor_coming", onDonorComing);
-  }, [socket]);
+  }, [socket, myBlastId]);
 
   useEffect(() => {
     if (!myLocation) return;
@@ -162,7 +177,8 @@ const BloodRadar = () => {
     try {
       const selectedBloodGroup = user.bloodGroup || "Blood";
       const { data } = await api.post("/auth/emergency-blast", {
-        lat: myLocation.lat, lng: myLocation.lng, message: emotionalMessage, bloodGroup: selectedBloodGroup, radius: radius
+        lat: myLocation.lat, lng: myLocation.lng, message: emotionalMessage,
+        bloodGroup: selectedBloodGroup, radius: radius, unitsNeeded: donorsNeeded,
       });
 
       const formData = new FormData();
@@ -176,6 +192,7 @@ const BloodRadar = () => {
       if (data.blastId) {
         setMyBlastId(data.blastId);
         setEscalationRing({ radiusMeters: 5000, level: 1 });
+        setSosProgress({ committed: 0, needed: data.unitsNeeded || donorsNeeded });
       }
 
       toast.success(`Your request reached ${data.recipients} nearby helpers.`);
@@ -225,20 +242,29 @@ const BloodRadar = () => {
           </div>
         </motion.div>
 
-        {/* 👉 LIVE ESCALATION HUD */}
+        {/* 👉 LIVE ESCALATION + COVERAGE HUD */}
         <AnimatePresence>
-          {escalationRing && (
+          {(escalationRing || sosProgress) && (
             <motion.div
               initial={{ opacity: 0, y: -12, x: "-50%" }}
               animate={{ opacity: 1, y: 0, x: "-50%" }}
               exit={{ opacity: 0, y: -12, x: "-50%" }}
               className="absolute top-24 left-1/2 z-[401] pointer-events-none"
             >
-              <div className="glass-dark border border-dark-raspberry/50 px-5 py-2.5 rounded-2xl flex items-center gap-3 shadow-[0_12px_30px_rgba(159,17,100,0.35)]">
-                <span className="w-2.5 h-2.5 rounded-full bg-dark-raspberry animate-pulse shadow-[0_0_12px_rgba(159,17,100,1)]" />
-                <p className="text-white text-[10px] font-black uppercase tracking-widest leading-none">
-                  Live SOS · Level {escalationRing.level} · {escalationRing.radiusMeters / 1000}km radius
-                </p>
+              <div className="glass-dark border border-dark-raspberry/50 px-5 py-2.5 rounded-2xl flex flex-col items-center gap-1 shadow-[0_12px_30px_rgba(159,17,100,0.35)]">
+                <div className="flex items-center gap-3">
+                  <span className="w-2.5 h-2.5 rounded-full bg-dark-raspberry animate-pulse shadow-[0_0_12px_rgba(159,17,100,1)]" />
+                  <p className="text-white text-[10px] font-black uppercase tracking-widest leading-none">
+                    {escalationRing
+                      ? `Live SOS · Level ${escalationRing.level} · ${escalationRing.radiusMeters / 1000}km radius`
+                      : "Live SOS"}
+                  </p>
+                </div>
+                {sosProgress && sosProgress.needed > 1 && (
+                  <p className="text-blazing-flame text-[9px] font-black uppercase tracking-widest leading-none">
+                    {sosProgress.committed} of {sosProgress.needed} donors confirmed
+                  </p>
+                )}
               </div>
             </motion.div>
           )}
@@ -350,7 +376,27 @@ const BloodRadar = () => {
                 </div>
                 <p className="text-dusty-lavender text-[10px] sm:text-[11px] font-bold uppercase tracking-widest mb-8 border-b border-dusty-lavender/20 pb-4">Notify community members within {radius / 1000}km</p>
 
-                <textarea value={emotionalMessage} onChange={(e) => setEmotionalMessage(e.target.value)} placeholder="Describe how we can help..." className="w-full h-32 sm:h-40 bg-white/50 border border-dusty-lavender/30 rounded-2xl p-5 text-pine-teal text-sm outline-none focus:border-dark-raspberry focus:bg-white transition-all resize-none mb-6 placeholder-dusty-lavender/70" />
+                <textarea value={emotionalMessage} onChange={(e) => setEmotionalMessage(e.target.value)} placeholder="Describe how we can help..." className="w-full h-32 sm:h-40 bg-white/50 border border-dusty-lavender/30 rounded-2xl p-5 text-pine-teal text-sm outline-none focus:border-dark-raspberry focus:bg-white transition-all resize-none mb-5 placeholder-dusty-lavender/70" />
+
+                {/* 👉 REPLACEMENT-DONOR MODE: how many donors are needed */}
+                <div className="flex items-center justify-between gap-3 mb-6 bg-white/50 border border-dusty-lavender/30 rounded-2xl px-5 py-3.5">
+                  <div>
+                    <p className="text-pine-teal text-xs font-black uppercase tracking-widest">Donors needed</p>
+                    <p className="text-dusty-lavender text-[9px] font-bold uppercase tracking-widest mt-0.5">Replacement donors at the hospital</p>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {[1, 2, 3, 4].map((n) => (
+                      <button key={n} type="button" onClick={() => setDonorsNeeded(n)}
+                        className={`h-9 w-9 rounded-xl text-xs font-black transition-all ${
+                          donorsNeeded === n
+                            ? "bg-dark-raspberry text-white shadow-md"
+                            : "bg-white text-dusty-lavender border border-dusty-lavender/30 hover:text-pine-teal"
+                        }`}>
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
                 <div className="flex gap-3 sm:gap-4 pb-4 sm:pb-0">
                   <button onClick={() => setShowBlastModal(false)} className="flex-1 py-4 bg-transparent border border-dusty-lavender/30 hover:bg-dusty-lavender/10 rounded-2xl text-pine-teal font-black uppercase tracking-widest text-[10px] transition-colors">Cancel</button>

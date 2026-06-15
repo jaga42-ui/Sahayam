@@ -53,10 +53,13 @@ async function runEscalationCycle(io) {
   const now = new Date();
   const stats = { escalated: 0, expired: 0 };
 
+  // Keep widening while fewer donors have committed than the request needs
+  // (replacement-donor mode). For a normal 1-unit SOS this is the same as
+  // "nobody has responded yet".
   const dueBlasts = await Blast.find({
     status: { $in: ["broadcasting", "escalating"] },
-    responses: { $size: 0 },
     nextEscalationAt: { $lte: now },
+    $expr: { $lt: [{ $size: "$responses" }, { $ifNull: ["$unitsNeeded", 1] }] },
   }).limit(50);
 
   for (const blast of dueBlasts) {

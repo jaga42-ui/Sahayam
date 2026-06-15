@@ -327,12 +327,15 @@ const getNearbyDonors = asyncHandler(async (req, res) => {
 });
 
 const sendEmergencyBlast = asyncHandler(async (req, res) => {
-  const { lat, lng, message, bloodGroup } = req.body;
+  const { lat, lng, message, bloodGroup, hospitalName } = req.body;
 
   if (!lat || !lng || !message) {
     res.status(400);
     throw new Error("Location and message are required for a blast");
   }
+
+  // Replacement-donor mode: how many donors the family needs to bring (1–20).
+  const unitsNeeded = Math.min(Math.max(parseInt(req.body.unitsNeeded, 10) || 1, 1), 20);
 
   // 👉 AI & SMART ROUTING: Spam Detection
   const spamCheck = evaluateText(message);
@@ -360,6 +363,8 @@ const sendEmergencyBlast = asyncHandler(async (req, res) => {
     message,
     category: "blood",
     bloodGroup,
+    unitsNeeded,
+    hospitalName,
     location: { type: "Point", coordinates: [Number(lng), Number(lat)] },
     status: "broadcasting",
     escalationLevel: 1,
@@ -369,9 +374,10 @@ const sendEmergencyBlast = asyncHandler(async (req, res) => {
     pingedDonors: donors.map((d) => d._id),
   });
 
+  const unitsLabel = unitsNeeded > 1 ? ` — ${unitsNeeded} donors needed` : "";
   const delivery = await notifyDonors(donors, {
-    title: `🚨 URGENT: ${bloodGroup || "Help"} Needed Nearby`,
-    body: message,
+    title: `🚨 URGENT: ${bloodGroup || "Help"} Needed Nearby${unitsLabel}`,
+    body: hospitalName ? `${message} (at ${hospitalName})` : message,
     bloodGroup,
     isEmergency: true,
     meta: {
@@ -383,13 +389,14 @@ const sendEmergencyBlast = asyncHandler(async (req, res) => {
   });
 
   console.log(
-    `🔥 Blast ${blast._id}: reached ${delivery.push} devices + ${delivery.email} emails across ${donors.length} donors.`,
+    `🔥 Blast ${blast._id}: reached ${delivery.push} devices + ${delivery.email} emails across ${donors.length} donors (need ${unitsNeeded}).`,
   );
 
   res.status(200).json({
     success: true,
     blastId: blast._id,
     recipients: donors.length,
+    unitsNeeded,
   });
 });
 
@@ -412,14 +419,19 @@ const respondToBlast = asyncHandler(async (req, res) => {
 
   const { calculateRank, getPointsForAction } = require("../utils/gamification");
 
-  // First responder flips the state machine to MATCHED and freezes escalation.
-  if (!blast.firstResponseAt) {
-    blast.firstResponseAt = new Date();
-    blast.matchedAt = new Date();
+  blast.responses.push({ donor: req.user._id });
+  if (!blast.firstResponseAt) blast.firstResponseAt = new Date();
+
+  // Replacement-donor mode: only fully matched (and escalation stopped) once
+  // enough donors have committed. Otherwise the cron keeps recruiting.
+  const committed = blast.responses.length;
+  const needed = blast.unitsNeeded || 1;
+  const covered = committed >= needed;
+  if (covered) {
     blast.status = "matched";
+    blast.matchedAt = new Date();
     blast.nextEscalationAt = null;
   }
-  blast.responses.push({ donor: req.user._id });
   await blast.save();
 
   const responder = await User.findById(req.user._id);
@@ -433,11 +445,19 @@ const respondToBlast = asyncHandler(async (req, res) => {
       donorName: req.user.name,
       donorPic: req.user.profilePic,
       blastId: blast._id,
+      committed,
+      needed,
+      covered,
     });
   }
 
   res.json({
-    message: "Hero status confirmed! The requester has been notified.",
+    message: covered
+      ? "You're confirmed — the request is now fully covered!"
+      : `You're confirmed! ${committed} of ${needed} donors so far.`,
+    committed,
+    needed,
+    covered,
   });
 });
 
