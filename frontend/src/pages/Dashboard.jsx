@@ -395,47 +395,57 @@ const Dashboard = () => {
         <div className="mx-auto w-full max-w-2xl">
 
           {/* ── HEADER ── */}
-          <header className="px-5 pt-8 pb-5">
-            <div className="flex items-start justify-between gap-3">
+          <header className="px-5 pt-6 pb-4">
+            {/* Name row */}
+            <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <p className="text-sm font-medium text-pine-teal/45">{getGreeting()},</p>
-                <h1 className="font-display text-[2rem] font-semibold tracking-tight text-pine-teal leading-tight truncate">
+                <h1 className="font-display text-2xl font-semibold tracking-tight text-pine-teal truncate leading-tight">
                   {user?.name?.split(" ")[0]}
                 </h1>
+                <div className="flex items-center gap-2 mt-1">
+                  {user?.bloodGroup && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-dark-raspberry/10 border border-dark-raspberry/20 px-2 py-0.5 text-[11px] font-bold text-dark-raspberry">
+                      <FaTint className="text-[7px]" /> {user.bloodGroup}
+                    </span>
+                  )}
+                  <span className={`text-[11px] font-semibold ${user?.isAvailable ? "text-pine-teal" : "text-dusty-lavender/55"}`}>
+                    {user?.isAvailable ? "● On-duty" : "○ Snoozed"}
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-0.5 shrink-0 -mr-1.5">
-                <button onClick={enableNotifications} className={iconBtn} aria-label="Notifications">
-                  <FaBell className="text-sm" />
-                </button>
-                <button onClick={toggleDarkMode} className={iconBtn} aria-label="Toggle theme">
-                  {isDarkMode ? <FaSun className="text-sm text-amber-500" /> : <FaMoon className="text-sm" />}
-                </button>
-              </div>
+              <button onClick={enableNotifications} className={iconBtn} aria-label="Enable notifications">
+                <FaBell className="text-sm" />
+              </button>
             </div>
 
-            <p className="mt-1 text-[15px] text-pine-teal/55">
-              {activeCount === 0
-                ? "No active requests nearby right now."
-                : <>
-                    <span className="font-semibold text-pine-teal">{activeCount}</span> active request{activeCount !== 1 ? "s" : ""} nearby
-                    {urgentCount > 0 && <> · <span className="font-semibold text-[#c0392b]">{urgentCount} urgent</span></>}
-                  </>}
-            </p>
+            {/* Live pulse strip */}
+            <motion.div
+              key={urgentCount}
+              initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+              className={`mt-3.5 flex items-center gap-2.5 rounded-xl px-3.5 py-2.5 ${
+                urgentCount > 0
+                  ? "bg-[#fef3f2] border border-[#d6453f]/20"
+                  : "bg-pine-teal/5 border border-pine-teal/12"
+              }`}>
+              <span className="relative flex h-2 w-2 shrink-0">
+                {urgentCount > 0 && <span className="absolute inline-flex h-full w-full rounded-full bg-[#d6453f] opacity-50 animate-ping" />}
+                <span className={`relative inline-flex h-2 w-2 rounded-full ${urgentCount > 0 ? "bg-[#d6453f]" : "bg-pine-teal/50"}`} />
+              </span>
+              <p className="text-[13px] font-medium text-pine-teal/65 leading-none">
+                {loading ? "Scanning nearby…" : activeCount === 0
+                  ? "All quiet — you're on standby"
+                  : urgentCount > 0
+                    ? <><span className="font-bold text-[#c0392b]">{urgentCount} urgent</span>{activeCount > urgentCount ? ` · ${activeCount - urgentCount} more nearby` : " nearby"}</>
+                    : <><span className="font-bold text-pine-teal">{activeCount}</span> {activeCount === 1 ? "request" : "requests"} nearby</>
+                }
+              </p>
+            </motion.div>
 
-            <div className="mt-5 flex gap-2.5">
-              <motion.button whileTap={{ scale: 0.97 }} whileHover={{ scale: 1.02, y: -1 }} onClick={() => setShowSOS(true)}
-                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-dark-raspberry py-3.5 text-sm font-semibold text-white shadow-[0_4px_18px_-6px_rgba(107,50,140,0.55)] transition-shadow hover:shadow-[0_6px_28px_-6px_rgba(107,50,140,0.75)]">
-                <FaPlus className="text-xs" /> Raise an SOS
-              </motion.button>
-              <motion.button whileTap={{ scale: 0.97 }} whileHover={{ scale: 1.02, y: -1 }}
-                onClick={() => {
-                  const link = encodeURIComponent(`${window.location.origin}/?ref=${user?.referralCode}`);
-                  window.open(`https://wa.me/?text=I%20just%20joined%20Sahayam.%20Come%20join%20me%3A%20${link}`, "_blank");
-                }}
-                className="flex items-center justify-center gap-2 rounded-xl border border-pine-teal/20 bg-surface px-4 py-3.5 text-sm font-medium text-pine-teal/70 shadow-sm transition-all hover:border-pine-teal/40 hover:text-pine-teal hover:shadow-[0_4px_16px_-6px_rgba(59,107,84,0.3)]">
-                <FaShareAlt className="text-xs" /> Invite
-              </motion.button>
-            </div>
+            {/* Raise SOS — primary CTA */}
+            <motion.button whileTap={{ scale: 0.97 }} whileHover={{ scale: 1.01 }} onClick={() => setShowSOS(true)}
+              className="mt-3 w-full flex items-center justify-center gap-2.5 rounded-xl bg-dark-raspberry py-3.5 text-[13.5px] font-semibold text-white shadow-[0_4px_20px_-6px_rgba(107,50,140,0.5)] transition-shadow hover:shadow-[0_6px_28px_-6px_rgba(107,50,140,0.7)]">
+              <FaPlus className="text-[11px]" /> Raise an SOS
+            </motion.button>
           </header>
 
           {/* ── FILTER + COUNT ── */}
@@ -517,17 +527,19 @@ const Dashboard = () => {
               [...Array(3)].map((_, n) => <SkeletonCard key={n} />)
             ) : processedFeed.length === 0 ? (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col items-center justify-center py-24 text-center">
-                <div className="mb-4 h-14 w-14 flex items-center justify-center rounded-2xl border border-pine-teal/12 bg-surface">
-                  <FaHeartbeat className="text-xl text-dark-raspberry/70" />
+                className="flex flex-col items-center justify-center py-20 text-center px-6">
+                <div className="mb-5 h-16 w-16 flex items-center justify-center rounded-3xl border border-pine-teal/10 bg-surface shadow-sm">
+                  <FaHeartbeat className="text-2xl text-pine-teal/30" />
                 </div>
-                <h3 className="font-display text-lg font-semibold text-pine-teal">All quiet nearby</h3>
-                <p className="mt-1.5 max-w-xs text-sm text-pine-teal/45 leading-relaxed">
-                  When someone nearby needs blood, it appears here. You can raise an SOS anytime.
+                <h3 className="font-display text-[17px] font-semibold text-pine-teal">You're on standby</h3>
+                <p className="mt-2 max-w-[260px] text-[13.5px] text-pine-teal/45 leading-relaxed">
+                  {user?.bloodGroup
+                    ? `When someone nearby needs ${user.bloodGroup}, you'll be notified first.`
+                    : "When someone nearby needs blood, their request appears here."}
                 </p>
-                <motion.button whileTap={{ scale: 0.97 }} whileHover={{ scale: 1.03, y: -1 }} onClick={() => setShowSOS(true)}
-                  className="mt-6 flex items-center gap-2 rounded-xl bg-dark-raspberry px-5 py-2.5 text-sm font-semibold text-white shadow-[0_4px_18px_-6px_rgba(107,50,140,0.5)] transition-shadow hover:shadow-[0_6px_24px_-6px_rgba(107,50,140,0.7)]">
-                  <FaPlus className="text-xs" /> Raise an SOS
+                <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowSOS(true)}
+                  className="mt-5 flex items-center gap-2 rounded-xl border border-dark-raspberry/25 bg-dark-raspberry/8 px-5 py-2.5 text-[13px] font-semibold text-dark-raspberry">
+                  <FaPlus className="text-[10px]" /> Post a request
                 </motion.button>
               </motion.div>
             ) : (
@@ -559,153 +571,177 @@ const Dashboard = () => {
                     if (hoursLeft !== null) statItems.push({ label: "Deadline", value: hoursLeft > 0 ? `${hoursLeft}h left` : "Overdue", danger: hoursLeft <= 0 });
                     if (isExpiringSoon) statItems.push({ label: "Expires", value: `${expiresInHours}h`, danger: true });
 
-                    return (
-                      <motion.article key={item._id} layout custom={idx}
-                        variants={cardVariants} initial="hidden" animate="show" exit="exit"
-                        className="group relative overflow-hidden rounded-2xl bg-surface border border-pine-teal/10 shadow-[0_1px_2px_rgba(59,107,84,0.04),0_10px_24px_-14px_rgba(59,107,84,0.18)] hover:-translate-y-0.5 hover:shadow-[0_2px_6px_rgba(59,107,84,0.06),0_18px_40px_-16px_rgba(59,107,84,0.26)] transition-all duration-300">
+                    const avatarSrc = item.donorId?.profilePic ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(item.donorId?.name || "S")}&background=3b6b54&color=fff&bold=true&size=64`;
 
-                        {/* urgency accent stripe */}
-                        {item.isEmergency && <span className="absolute left-0 top-0 h-full w-1 bg-[#d6453f]" />}
+                    /* ── ACTION BUTTON (shared logic, different styles per card type) ── */
+                    const actionBtn = item.status === "fulfilled" ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-pine-teal/8 px-3 py-1.5 text-[11px] font-semibold text-pine-teal border border-pine-teal/15">
+                        <FaCheckCircle className="text-[10px]" /> Done
+                      </span>
+                    ) : isMine && localRole === "donor" ? (
+                      <motion.button whileTap={{ scale: 0.95 }}
+                        onClick={() => setRequestsModal({ isOpen: true, donation: item })}
+                        disabled={!item.requestedBy?.length}
+                        className="inline-flex items-center gap-1 rounded-full bg-pine-teal px-3 py-1.5 text-[11px] font-semibold text-white disabled:opacity-40">
+                        <FaUsers className="text-[10px]" />
+                        {item.requestedBy?.length ? `${item.requestedBy.length}` : "0"}
+                      </motion.button>
+                    ) : isApproved ? (
+                      <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate(`/chat/${item._id}`)}
+                        className="inline-flex items-center gap-1 rounded-full bg-dark-raspberry px-3 py-1.5 text-[11px] font-semibold text-white">
+                        <FaCommentDots className="text-[10px]" /> Chat
+                      </motion.button>
+                    ) : alreadyReq ? (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-pine-teal/20 bg-pine-teal/6 px-3 py-1.5 text-[11px] font-semibold text-pine-teal">
+                        <FaCheck className="text-[10px]" /> Sent
+                      </span>
+                    ) : null;
 
-                        {item.image && (
-                          <div className="relative h-40 w-full overflow-hidden border-b border-pine-teal/8">
-                            <img src={optimizeImageUrl(item.image)} alt={item.title}
-                              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
-                          </div>
-                        )}
+                    if (item.isEmergency) {
+                      /* ══════════════════════════════════════
+                         EMERGENCY CARD — split layout
+                      ══════════════════════════════════════ */
+                      return (
+                        <motion.article key={item._id} layout custom={idx}
+                          variants={cardVariants} initial="hidden" animate="show" exit="exit"
+                          className="overflow-hidden rounded-2xl border border-[#d6453f]/25 bg-[#fef6f5] shadow-[0_2px_8px_rgba(214,69,63,0.07),0_14px_36px_-14px_rgba(214,69,63,0.22)]">
 
-                        <div className="p-4 pl-[18px]">
-                          <div className="flex items-start gap-3.5">
-                            {/* blood-group chip / category icon — solid */}
-                            {isBlood ? (
-                              <div className={`shrink-0 h-[58px] w-[58px] rounded-2xl flex flex-col items-center justify-center text-white shadow-sm ${
-                                item.isEmergency ? "bg-[#d6453f]" : "bg-gradient-to-br from-dark-raspberry to-[#523a7d]"
-                              }`}>
-                                <span className="text-lg font-bold leading-none">{item.bloodGroup || "—"}</span>
-                                <span className="text-[8px] font-bold uppercase tracking-[0.12em] mt-1 text-white/75">blood</span>
-                              </div>
-                            ) : (
-                              <div className={`shrink-0 h-[58px] w-[58px] rounded-2xl border flex items-center justify-center ${meta.soft}`}>
-                                <CategoryIcon className="text-xl" />
-                              </div>
-                            )}
+                          <div className="flex">
+                            {/* Left — blood group column */}
+                            <div className="shrink-0 w-[68px] bg-gradient-to-b from-[#d6453f] to-[#b33329] flex flex-col items-center justify-center py-5 gap-1.5">
+                              <span className="text-[22px] font-black text-white leading-none tracking-tight">{item.bloodGroup || "—"}</span>
+                              <span className="text-[7px] font-black uppercase tracking-widest text-white/55">blood</span>
+                              <span className="mt-1.5 relative flex h-2 w-2">
+                                <span className="absolute inline-flex h-full w-full rounded-full bg-white opacity-50 animate-ping" />
+                                <span className="relative inline-flex h-2 w-2 rounded-full bg-white" />
+                              </span>
+                            </div>
 
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-2">
-                                {item.isEmergency ? (
-                                  <span className="inline-flex items-center gap-1.5 rounded-md bg-[#d6453f]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#c0392b]">
-                                    <span className="relative flex h-1.5 w-1.5">
-                                      <span className="absolute inline-flex h-full w-full rounded-full bg-[#d6453f] opacity-60 animate-ping" />
-                                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#d6453f]" />
-                                    </span>
-                                    Urgent
-                                  </span>
-                                ) : (
-                                  <span className="rounded-md bg-pine-teal/8 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-pine-teal/65">{meta.label}</span>
-                                )}
+                            {/* Right — content */}
+                            <div className="flex-1 min-w-0 px-3.5 pt-3 pb-2.5">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-[#c0392b]">Urgent</span>
                                 {(item.verifiedByInstitution || isDonorVerified) && (
-                                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2b7fff]">
-                                    <FaShieldAlt className="text-[9px]" /> Verified
+                                  <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-[#2b7fff]">
+                                    <FaShieldAlt className="text-[8px]" /> Verified
                                   </span>
                                 )}
-                                <span className="ml-auto text-[11px] font-medium text-pine-teal/40 shrink-0">{dateStr}</span>
+                                <span className="ml-auto text-[10px] text-[#d6453f]/40 shrink-0">{dateStr}</span>
                               </div>
 
-                              <h3 className="mt-1.5 text-[15.5px] font-bold leading-snug text-pine-teal line-clamp-2">
-                                {item.title}
-                              </h3>
+                              <h3 className="mt-1 text-[15px] font-bold leading-snug text-[#7a1a16] line-clamp-2">{item.title}</h3>
 
                               {place && (
-                                <p className="mt-1 flex items-center gap-1.5 text-[13px] font-medium text-pine-teal/60 min-w-0">
-                                  <FaMapMarkerAlt className="text-[10px] text-dark-raspberry shrink-0" />
+                                <p className="mt-1 flex items-center gap-1 text-[12px] font-medium text-[#c0392b]/55 min-w-0">
+                                  <FaMapMarkerAlt className="text-[9px] shrink-0" />
                                   <span className="truncate">{place}</span>
                                 </p>
                               )}
+
+                              {statItems.length > 0 && (
+                                <div className="mt-2 flex gap-3.5 flex-wrap">
+                                  {statItems.map((s, si) => (
+                                    <div key={si}>
+                                      <p className="text-[9px] font-bold uppercase tracking-wide text-[#d6453f]/40">{s.label}</p>
+                                      <p className={`text-[12px] font-bold leading-snug ${s.danger ? "text-[#c0392b]" : "text-[#7a1a16]"}`}>{s.value}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              <div className="mt-2 flex items-center gap-1.5">
+                                <img src={avatarSrc} alt="" referrerPolicy="no-referrer" className="h-4 w-4 rounded-full object-cover shrink-0" />
+                                <span className="text-[11px] text-[#c0392b]/45 truncate">
+                                  {item.donorId?.name || "Anonymous"}
+                                  {item.requestedBy?.length > 0 && <> · <span className="font-semibold text-[#c0392b]/60">{item.requestedBy.length} responding</span></>}
+                                </span>
+                              </div>
                             </div>
                           </div>
 
-                          {/* structured stat strip */}
-                          {statItems.length > 0 && (
-                            <div className="mt-3.5 flex overflow-hidden rounded-xl border border-pine-teal/10 bg-pearl-beige/50 divide-x divide-pine-teal/10">
-                              {statItems.map((s, si) => (
-                                <div key={si} className="min-w-0 flex-1 px-3 py-2">
-                                  <p className="text-[9px] font-bold uppercase tracking-[0.1em] text-pine-teal/40">{s.label}</p>
-                                  <p className={`mt-0.5 truncate text-[12.5px] font-semibold ${s.danger ? "text-[#c0392b]" : "text-pine-teal"}`}>{s.value}</p>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-
-                          {/* responders */}
-                          {item.isEmergency && item.status !== "fulfilled" && (
-                            <p className="mt-3 flex items-center gap-1.5 text-[12px] font-medium text-pine-teal/55">
-                              <FaUsers className="text-[10px] text-pine-teal/40" />
-                              {item.requestedBy?.length
-                                ? <><span className="font-bold text-pine-teal">{item.requestedBy.length}</span> {item.requestedBy.length > 1 ? "donors" : "donor"} responding</>
-                                : "No one has responded yet"}
-                            </p>
-                          )}
-
-                          {/* footer: poster + actions */}
-                          <div className="mt-3.5 pt-3.5 border-t border-pine-teal/8 flex items-center gap-2.5">
-                            <img
-                              src={item.donorId?.profilePic || `https://ui-avatars.com/api/?name=${encodeURIComponent(item.donorId?.name || "S")}&background=3b6b54&color=fff&bold=true&size=64`}
-                              alt="" referrerPolicy="no-referrer"
-                              className="h-6 w-6 shrink-0 rounded-full object-cover" />
-                            <span className="text-[12px] font-medium text-pine-teal/55 truncate min-w-0">{item.donorId?.name || "Anonymous"}</span>
-
-                            <div className="ml-auto flex items-center gap-2 shrink-0">
-                                              {item.status === "fulfilled" ? (
-                                <span className="inline-flex items-center gap-1.5 rounded-full bg-pine-teal/8 px-3.5 py-2 text-[12px] font-semibold text-pine-teal border border-pine-teal/15">
-                                  <FaCheckCircle className="text-xs" /> Fulfilled
-                                </span>
-                              ) : isMine && localRole === "donor" ? (
-                                <motion.button whileTap={{ scale: 0.95 }} whileHover={{ scale: 1.04, y: -1 }}
-                                  onClick={() => setRequestsModal({ isOpen: true, donation: item })}
-                                  disabled={!item.requestedBy?.length}
-                                  className="inline-flex items-center gap-1.5 rounded-full bg-pine-teal px-3.5 py-2 text-[12px] font-semibold text-white shadow-[0_2px_12px_-4px_rgba(59,107,84,0.55)] transition-shadow hover:shadow-[0_4px_18px_-4px_rgba(59,107,84,0.7)] disabled:opacity-40 disabled:shadow-none">
-                                  <FaUsers className="text-[11px]" />
-                                  {item.requestedBy?.length ? `${item.requestedBy.length} request${item.requestedBy.length > 1 ? "s" : ""}` : "No requests"}
-                                </motion.button>
-                              ) : isApproved ? (
-                                <motion.button whileTap={{ scale: 0.95 }} whileHover={{ scale: 1.04, y: -1 }} onClick={() => navigate(`/chat/${item._id}`)}
-                                  className="inline-flex items-center gap-1.5 rounded-full bg-dark-raspberry px-3.5 py-2 text-[12px] font-semibold text-white shadow-[0_2px_12px_-4px_rgba(107,50,140,0.5)] transition-shadow hover:shadow-[0_4px_18px_-4px_rgba(107,50,140,0.7)]">
-                                  <FaCommentDots className="text-[11px]" /> Chat
-                                </motion.button>
-                              ) : alreadyReq ? (
-                                <span className="inline-flex items-center gap-1.5 rounded-full border border-pine-teal/20 bg-pine-teal/6 px-3.5 py-2 text-[12px] font-semibold text-pine-teal">
-                                  <FaCheck className="text-[11px]" /> Requested
-                                </span>
-                              ) : item.isEmergency ? (
-                                <motion.button whileTap={{ scale: 0.95 }} whileHover={{ scale: 1.05, y: -1 }} onClick={() => handleRequest(item._id)}
-                                  className="inline-flex items-center gap-1.5 rounded-full bg-[#d6453f] px-3.5 py-2 text-[12px] font-semibold text-white shadow-[0_2px_14px_-4px_rgba(214,69,63,0.6)] transition-shadow hover:shadow-[0_4px_22px_-4px_rgba(214,69,63,0.8)]">
-                                  <FaHeartbeat className="text-[11px] animate-pulse" /> Respond
-                                </motion.button>
-                              ) : (
-                                <motion.button whileTap={{ scale: 0.95 }} whileHover={{ scale: 1.04, y: -1 }} onClick={() => handleRequest(item._id)}
-                                  className="inline-flex items-center gap-1.5 rounded-full bg-dark-raspberry px-3.5 py-2 text-[12px] font-semibold text-white shadow-[0_2px_12px_-4px_rgba(107,50,140,0.45)] transition-shadow hover:shadow-[0_4px_18px_-4px_rgba(107,50,140,0.65)]">
-                                  <FaHandsHelping className="text-[11px]" /> {isDonor ? "I can help" : "Request"}
-                                </motion.button>
-                              )}
-
-                              <motion.button whileTap={{ scale: 0.92 }} whileHover={{ scale: 1.08 }} onClick={() => handleShare(item)}
-                                className="h-9 w-9 flex items-center justify-center rounded-full border border-pine-teal/12 bg-surface text-dusty-lavender transition-all hover:border-pine-teal/30 hover:bg-pine-teal/6 hover:text-pine-teal hover:shadow-sm" aria-label="Share">
-                                <FaShareAlt className="text-[11px]" />
+                          {/* Bottom CTA */}
+                          <div className="px-3 pb-3 pt-1 flex items-center gap-2">
+                            {actionBtn ? (
+                              <div className="flex-1">{actionBtn}</div>
+                            ) : (
+                              <motion.button whileTap={{ scale: 0.97 }} onClick={() => handleRequest(item._id)}
+                                className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-[#d6453f] py-3 text-[13px] font-bold text-white shadow-[0_4px_18px_-6px_rgba(214,69,63,0.55)] transition-shadow hover:shadow-[0_6px_24px_-6px_rgba(214,69,63,0.75)]">
+                                <FaHeartbeat className="animate-pulse text-[11px]" /> Respond Now
                               </motion.button>
+                            )}
+                            <motion.button whileTap={{ scale: 0.9 }} onClick={() => handleShare(item)}
+                              className="h-10 w-10 flex items-center justify-center rounded-xl border border-[#d6453f]/15 bg-[#fdf0ef] text-[#d6453f]/50 hover:text-[#d6453f] transition-colors shrink-0" aria-label="Share">
+                              <FaShareAlt className="text-[11px]" />
+                            </motion.button>
+                            {isMine && (
+                              <motion.button whileTap={{ scale: 0.9 }} onClick={() => handleDelete(item._id)}
+                                className="h-10 w-10 flex items-center justify-center rounded-xl border border-[#d6453f]/15 bg-[#fdf0ef] text-[#d6453f]/40 hover:text-[#d6453f] transition-colors shrink-0" aria-label="Delete">
+                                <FaTrash className="text-[10px]" />
+                              </motion.button>
+                            )}
+                          </div>
+                        </motion.article>
+                      );
+                    }
 
-                              {isMine && (
-                                <motion.button whileTap={{ scale: 0.92 }} whileHover={{ scale: 1.08 }} onClick={() => handleDelete(item._id)}
-                                  className="h-9 w-9 flex items-center justify-center rounded-full border border-pine-teal/12 bg-surface text-dusty-lavender transition-all hover:border-[#d6453f]/30 hover:bg-[#d6453f]/6 hover:text-[#d6453f] hover:shadow-sm" aria-label="Delete">
-                                  <FaTrash className="text-[11px]" />
-                                </motion.button>
-                              )}
-                            </div>
+                    /* ══════════════════════════════════════
+                       NON-EMERGENCY CARD — compact row
+                    ══════════════════════════════════════ */
+                    return (
+                      <motion.article key={item._id} layout custom={idx}
+                        variants={cardVariants} initial="hidden" animate="show" exit="exit"
+                        className="overflow-hidden rounded-xl bg-surface border border-pine-teal/8 shadow-[0_1px_3px_rgba(59,107,84,0.05),0_6px_18px_-10px_rgba(59,107,84,0.12)]">
+
+                        <div className="flex items-center gap-3 px-4 py-3.5">
+                          {/* Blood group pill */}
+                          <div className="shrink-0 h-10 w-10 rounded-xl bg-gradient-to-br from-dark-raspberry to-[#523a7d] flex flex-col items-center justify-center shadow-sm">
+                            <span className="text-[11px] font-black text-white leading-none">{item.bloodGroup || <CategoryIcon className="text-sm" />}</span>
+                          </div>
+
+                          {/* Content */}
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[14px] font-semibold text-pine-teal line-clamp-1 leading-snug">{item.title}</p>
+                            <p className="mt-0.5 flex items-center gap-1 text-[11.5px] text-pine-teal/40">
+                              {place && <><FaMapMarkerAlt className="text-[9px] shrink-0 text-dark-raspberry/50" /><span className="truncate max-w-[120px]">{place}</span><span className="shrink-0 mx-1">·</span></>}
+                              <span className="shrink-0">{dateStr}</span>
+                              {(item.verifiedByInstitution || isDonorVerified) && <><span className="mx-1">·</span><span className="text-[#2b7fff] font-semibold flex items-center gap-0.5"><FaShieldAlt className="text-[8px]" />Verified</span></>}
+                            </p>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="shrink-0 flex items-center gap-1.5">
+                            {actionBtn || (
+                              <motion.button whileTap={{ scale: 0.95 }} onClick={() => handleRequest(item._id)}
+                                className="inline-flex items-center gap-1 rounded-full border border-dark-raspberry/25 bg-dark-raspberry/8 px-3 py-1.5 text-[11px] font-semibold text-dark-raspberry transition-colors hover:bg-dark-raspberry hover:text-white">
+                                <FaHandsHelping className="text-[10px]" /> {isDonor ? "Help" : "Request"}
+                              </motion.button>
+                            )}
+                            <motion.button whileTap={{ scale: 0.88 }} onClick={() => handleShare(item)}
+                              className="h-8 w-8 flex items-center justify-center rounded-full text-dusty-lavender/50 hover:text-pine-teal hover:bg-pine-teal/6 transition-all" aria-label="Share">
+                              <FaShareAlt className="text-[10px]" />
+                            </motion.button>
+                            {isMine && (
+                              <motion.button whileTap={{ scale: 0.88 }} onClick={() => handleDelete(item._id)}
+                                className="h-8 w-8 flex items-center justify-center rounded-full text-dusty-lavender/40 hover:text-[#d6453f] hover:bg-[#d6453f]/6 transition-all" aria-label="Delete">
+                                <FaTrash className="text-[10px]" />
+                              </motion.button>
+                            )}
                           </div>
                         </div>
+
+                        {/* Expiry warning strip */}
+                        {isExpiringSoon && (
+                          <div className="px-4 py-1.5 border-t border-pine-teal/6 bg-amber-50/60 flex items-center gap-1.5">
+                            <FaClock className="text-[9px] text-amber-500/70 shrink-0" />
+                            <span className="text-[10px] font-semibold text-amber-600/70">Expires in {expiresInHours}h</span>
+                          </div>
+                        )}
                       </motion.article>
                     );
                   })}
                 </AnimatePresence>
+
 
                 {hasMore && (
                   <motion.button whileTap={{ scale: 0.97 }} whileHover={{ scale: 1.01, y: -1 }} onClick={loadMore} disabled={loadingMore}
