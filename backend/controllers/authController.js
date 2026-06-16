@@ -559,6 +559,51 @@ const verifyEmail = asyncHandler(async (req, res) => {
   res.json({ message: "Email successfully verified! You can now log in." });
 });
 
+const resendVerification = asyncHandler(async (req, res) => {
+  const email = req.body.email ? req.body.email.toLowerCase().trim() : "";
+  const user = await User.findOne({ email });
+  if (!user) return res.json({ message: "If that account exists, a new code has been sent." });
+  if (user.isEmailVerified) return res.json({ message: "Email is already verified." });
+
+  user.emailVerificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+  await user.save();
+
+  const { sendVerificationEmail } = require("../utils/sendEmail");
+  sendVerificationEmail(user.email, user.name, user.emailVerificationToken).catch(console.error);
+  res.json({ message: "Verification code resent." });
+});
+
+const submitKYC = asyncHandler(async (req, res) => {
+  const { documentType } = req.body;
+  const allowed = ["aadhaar", "passport", "driving_license"];
+  if (!documentType || !allowed.includes(documentType)) {
+    res.status(400);
+    throw new Error("Valid document type is required");
+  }
+  if (!req.file) {
+    res.status(400);
+    throw new Error("Document image is required");
+  }
+
+  const { cloudinary } = require("../config/cloudinary");
+  const result = await new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder: "sahayam_kyc", resource_type: "image" },
+      (err, r) => (err ? reject(err) : resolve(r)),
+    );
+    stream.end(req.file.buffer);
+  });
+
+  await User.findByIdAndUpdate(req.user._id, {
+    "kycStatus.documentType": documentType,
+    "kycStatus.kycDocumentUrl": result.secure_url,
+    "kycStatus.kycSubmittedAt": new Date(),
+    "kycStatus.documentVerified": false,
+  });
+
+  res.json({ message: "KYC document submitted for review. We'll verify within 48 hours." });
+});
+
 // How rare is this donor's blood group within 5 km?
 const donorRarity = asyncHandler(async (req, res) => {
   const me = await User.findById(req.user._id).select("bloodGroup location isAvailable");
@@ -680,6 +725,8 @@ module.exports = {
   resetPassword,
   toggleAvailability,
   verifyEmail,
+  resendVerification,
+  submitKYC,
   donorRarity,
   updateEmergencyContacts,
   familySafetyNet,

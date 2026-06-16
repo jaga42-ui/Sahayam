@@ -20,6 +20,8 @@ const userSchema = new mongoose.Schema(
     kycStatus: {
       documentVerified: { type: Boolean, default: false },
       documentType: { type: String, enum: ["aadhaar", "passport", "driving_license", "none"], default: "none" },
+      kycDocumentUrl: { type: String },
+      kycSubmittedAt: { type: Date },
     },
 
     // Web Push Subscription
@@ -75,6 +77,8 @@ const userSchema = new mongoose.Schema(
       from: { type: String },
       createdAt: { type: Date, default: Date.now },
     }],
+
+    noShowCount: { type: Number, default: 0 },
 
     lastActiveAt: { type: Date, default: Date.now },
   },

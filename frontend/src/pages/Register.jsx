@@ -56,10 +56,9 @@ const Register = () => {
     try {
       const payload = { ...formData, activeRole, refCode };
       if (!payload.bloodGroup) delete payload.bloodGroup;
-      const { data } = await api.post("/auth/register", payload);
-      login(data);
-      toast.success("Welcome to Sahayam!");
-      navigate("/dashboard");
+      await api.post("/auth/register", payload);
+      toast.success("Account created! Check your email for a 6-digit code.");
+      navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`);
     } catch (err) {
       toast.error(err.response?.data?.message || "Registration failed.");
     } finally {

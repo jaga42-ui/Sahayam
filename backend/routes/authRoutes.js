@@ -16,6 +16,8 @@ const {
   saveFCMToken,
   toggleAvailability,
   verifyEmail,
+  resendVerification,
+  submitKYC,
   donorRarity,
   updateEmergencyContacts,
   familySafetyNet,
@@ -23,6 +25,7 @@ const {
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 const { validateRegister, validateLogin } = require('../middleware/validateMiddleware');
+const { upload } = require('../config/cloudinary');
 
 // Standard Auth
 /**
@@ -61,6 +64,7 @@ router.post('/register', validateRegister, registerUser);
 router.post('/login', validateLogin, loginUser);
 router.post('/google', googleLogin);
 router.post('/verify-email', verifyEmail);
+router.post('/resend-verification', resendVerification);
 
 // Password Reset Routes (Public)
 router.post('/forgotpassword', forgotPassword); 
@@ -80,6 +84,9 @@ router.get('/nearby-donors', protect, getNearbyDonors);
 // Emergency Blast & Response Routes
 router.post('/emergency-blast', protect, sendEmergencyBlast);
 router.post('/respond-blast/:id', protect, respondToBlast);
+
+// KYC
+router.post('/kyc', protect, upload.single('document'), submitKYC);
 
 // Donor identity & community features
 router.get('/donor-rarity', protect, donorRarity);

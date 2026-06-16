@@ -216,7 +216,47 @@ const resolveReport = asyncHandler(async (req, res) => {
   }
 });
 
-module.exports = { 
-  getDashboardStats, getAllUsers, getAllListings, deleteUser, 
-  deleteListing, toggleAdminRole, sendBroadcast, resolveReport, getHeatmapData, generateMarketingStrategy
+const getCampsAdmin = asyncHandler(async (req, res) => {
+  const BloodCamp = require("../models/BloodCamp");
+  const camps = await BloodCamp.find({})
+    .populate("organizer", "name email organizationName")
+    .sort({ createdAt: -1 });
+  res.json(camps);
+});
+
+const updateCampStatus = asyncHandler(async (req, res) => {
+  const BloodCamp = require("../models/BloodCamp");
+  const { status } = req.body;
+  const allowed = ["upcoming", "ongoing", "completed", "cancelled"];
+  if (!allowed.includes(status)) { res.status(400); throw new Error("Invalid status"); }
+  const camp = await BloodCamp.findByIdAndUpdate(req.params.id, { status }, { new: true })
+    .populate("organizer", "name email organizationName");
+  if (!camp) { res.status(404); throw new Error("Camp not found"); }
+  res.json(camp);
+});
+
+const getKYCRequests = asyncHandler(async (req, res) => {
+  const pending = await User.find({
+    "kycStatus.kycDocumentUrl": { $exists: true, $ne: null },
+  })
+    .select("name email phone bloodGroup kycStatus createdAt")
+    .sort({ "kycStatus.kycSubmittedAt": 1 });
+  res.json(pending);
+});
+
+const approveKYC = asyncHandler(async (req, res) => {
+  const { approved } = req.body;
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { "kycStatus.documentVerified": !!approved },
+    { new: true, select: "name email kycStatus" },
+  );
+  if (!user) { res.status(404); throw new Error("User not found"); }
+  res.json(user);
+});
+
+module.exports = {
+  getDashboardStats, getAllUsers, getAllListings, deleteUser,
+  deleteListing, toggleAdminRole, sendBroadcast, resolveReport, getHeatmapData, generateMarketingStrategy,
+  getCampsAdmin, updateCampStatus, getKYCRequests, approveKYC,
 };

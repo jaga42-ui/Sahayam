@@ -22,6 +22,7 @@ const Chat = lazy(() => import("./pages/Chat"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Inbox = lazy(() => import("./pages/Inbox"));
 const BloodRadar = lazy(() => import("./pages/BloodRadar"));
+const VerifyEmail = lazy(() => import("./pages/VerifyEmail"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -77,6 +78,7 @@ function App() {
                 {/* Auth Recovery Routes */}
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
+                <Route path="/verify-email" element={<VerifyEmail />} />
 
                 {/* Main App Routes */}
                 <Route path="/dashboard" element={<Dashboard />} />

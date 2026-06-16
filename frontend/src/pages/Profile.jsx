@@ -51,6 +51,9 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const [stats,              setStats]              = useState({ totalDonations: 0, activeListings: 0, bloodDonations: 0 });
+  const [kycFile,            setKycFile]            = useState(null);
+  const [kycType,            setKycType]            = useState("aadhaar");
+  const [kycUploading,       setKycUploading]       = useState(false);
   const [loading,            setLoading]            = useState(true);
   const [isEditing,          setIsEditing]          = useState(false);
   const [isFetchingLocation, setFetchingLocation]   = useState(false);
@@ -156,6 +159,24 @@ const Profile = () => {
       setContacts(data);
     } catch { toast.error("Failed to save contacts."); }
     finally { setSavingContacts(false); }
+  };
+
+  const handleKYCSubmit = async () => {
+    if (!kycFile) return toast.error("Select a document image first.");
+    setKycUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("document", kycFile);
+      fd.append("documentType", kycType);
+      await api.post("/auth/kyc", fd);
+      toast.success("KYC submitted! We'll verify within 48 hours.");
+      setKycFile(null);
+      login({ ...user, kycStatus: { ...user.kycStatus, kycSubmittedAt: new Date().toISOString(), documentType: kycType } });
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Upload failed.");
+    } finally {
+      setKycUploading(false);
+    }
   };
 
   const generateCertificate = () => {
@@ -659,6 +680,80 @@ const Profile = () => {
                 </motion.form>
               )}
             </AnimatePresence>
+          </div>
+
+          {/* ── KYC VERIFICATION ── */}
+          <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
+            <div className="px-5 py-4 border-b border-pine-teal/8 flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-black text-pine-teal uppercase tracking-widest">Identity Verification</h3>
+                <p className="text-[11px] text-pine-teal/40 mt-0.5">Verified donors get priority matching in SOS alerts</p>
+              </div>
+              {user.kycStatus?.documentVerified && (
+                <span className="flex items-center gap-1.5 rounded-full bg-pine-teal/12 border border-pine-teal/25 px-3 py-1.5 text-[10px] font-black text-pine-teal">
+                  <FaCheckCircle className="text-[9px]" /> Verified
+                </span>
+              )}
+            </div>
+            <div className="p-4">
+              {user.kycStatus?.documentVerified ? (
+                <div className="flex items-center gap-3 rounded-2xl border border-pine-teal/15 bg-pine-teal/5 px-4 py-3.5">
+                  <FaUserShield className="text-pine-teal text-lg shrink-0" />
+                  <div>
+                    <p className="text-sm font-black text-pine-teal">KYC Verified</p>
+                    <p className="text-[11px] text-pine-teal/45 mt-0.5">Your {user.kycStatus.documentType?.replace("_", " ")} has been verified</p>
+                  </div>
+                </div>
+              ) : user.kycStatus?.kycSubmittedAt && !user.kycStatus?.documentVerified ? (
+                <div className="flex items-center gap-3 rounded-2xl border border-amber-400/25 bg-amber-50/60 px-4 py-3.5">
+                  <FaShieldAlt className="text-amber-500 text-lg shrink-0" />
+                  <div>
+                    <p className="text-sm font-black text-amber-700">Under review</p>
+                    <p className="text-[11px] text-amber-600/70 mt-0.5">Submitted {new Date(user.kycStatus.kycSubmittedAt).toLocaleDateString("en-IN", { day:"numeric", month:"short" })} · up to 48h</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div>
+                    <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-dusty-lavender">Document type</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {[["aadhaar","Aadhaar"],["passport","Passport"],["driving_license","Driving Lic."]].map(([val, lbl]) => (
+                        <button key={val} type="button" onClick={() => setKycType(val)}
+                          className={`rounded-xl border py-2.5 text-[11px] font-bold transition-all ${
+                            kycType === val
+                              ? "border-pine-teal bg-pine-teal/10 text-pine-teal"
+                              : "border-border bg-surface-2 text-pine-teal/50"
+                          }`}>
+                          {lbl}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-dusty-lavender">Upload document image</label>
+                    <label className={`flex items-center gap-3 rounded-2xl border cursor-pointer px-4 py-3.5 transition-all ${
+                      kycFile ? "border-pine-teal/30 bg-pine-teal/5" : "border-dashed border-pine-teal/20 bg-surface-2 hover:border-pine-teal/35"
+                    }`}>
+                      <input type="file" accept="image/*" className="hidden"
+                        onChange={(e) => setKycFile(e.target.files[0] || null)} />
+                      <FaUserShield className="text-pine-teal/40 text-lg shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-[12px] font-bold text-pine-teal/70 truncate">
+                          {kycFile ? kycFile.name : "Tap to select image"}
+                        </p>
+                        <p className="text-[10px] text-pine-teal/35">JPG, PNG · max 10MB</p>
+                      </div>
+                    </label>
+                  </div>
+                  <motion.button whileTap={{ scale: 0.97 }} onClick={handleKYCSubmit}
+                    disabled={kycUploading || !kycFile}
+                    className="w-full flex items-center justify-center gap-2 rounded-2xl bg-pine-teal py-3.5 text-[11px] font-black uppercase tracking-widest text-white shadow-teal disabled:opacity-40">
+                    {kycUploading ? <FaSpinner className="animate-spin" /> : <><FaShieldAlt /> Submit for Verification</>}
+                  </motion.button>
+                  <p className="text-[10px] text-pine-teal/30 text-center">Documents are encrypted and never shared with third parties</p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* ── NOTIFICATIONS ── */}

@@ -1,17 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
-const { 
-  getDashboardStats, 
-  getAllUsers, 
-  getAllListings, 
-  deleteUser, 
+const {
+  getDashboardStats,
+  getAllUsers,
+  getAllListings,
+  deleteUser,
   deleteListing,
   toggleAdminRole,
-  sendBroadcast, // 👉 NEW IMPORT
-  resolveReport,  // 👉 NEW IMPORT
+  sendBroadcast,
+  resolveReport,
   getHeatmapData,
-  generateMarketingStrategy
+  generateMarketingStrategy,
+  getCampsAdmin,
+  updateCampStatus,
+  getKYCRequests,
+  approveKYC,
 } = require('../controllers/adminController');
 const { getEngineMetrics } = require('../controllers/metricsController');
 
@@ -39,5 +43,13 @@ router.patch('/users/:id/role', toggleAdminRole);
 // 👉 THE NEW MISSION CONTROL ROUTES
 router.post('/broadcast', sendBroadcast);
 router.patch('/resolve-report/:id', resolveReport);
+
+// Blood camps moderation
+router.get('/camps', getCampsAdmin);
+router.patch('/camps/:id/status', updateCampStatus);
+
+// KYC verification queue
+router.get('/kyc', getKYCRequests);
+router.patch('/kyc/:id', approveKYC);
 
 module.exports = router;

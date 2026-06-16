@@ -52,8 +52,10 @@ const Admin = () => {
   const [usersList, setUsersList] = useState([]);
   const [listings, setListings] = useState([]);
   const [eventsList, setEventsList] = useState([]);
-  const [feedbacks, setFeedbacks] = useState([]); // 👉 Added state for feedback
-  const [heatmapData, setHeatmapData] = useState(null); // 👉 Added state for heatmap
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [heatmapData, setHeatmapData] = useState(null);
+  const [camps, setCamps] = useState([]);
+  const [kycRequests, setKycRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const [broadcastMsg, setBroadcastMsg] = useState("");
@@ -78,7 +80,7 @@ const Admin = () => {
     const fetchAdminData = async () => {
       try {
         // 👉 Added the feedback endpoint to the initial data fetch
-        const [statsRes, usersRes, listingsRes, eventsRes, feedbackRes, heatmapRes] =
+        const [statsRes, usersRes, listingsRes, eventsRes, feedbackRes, heatmapRes, campsRes, kycRes] =
           await Promise.all([
             api.get("/admin/stats"),
             api.get("/admin/users"),
@@ -86,6 +88,8 @@ const Admin = () => {
             api.get("/events"),
             api.get("/admin/feedback"),
             api.get("/admin/heatmap"),
+            api.get("/admin/camps").catch(() => ({ data: [] })),
+            api.get("/admin/kyc").catch(() => ({ data: [] })),
           ]);
         setStats(statsRes.data);
         setUsersList(usersRes.data);
@@ -93,6 +97,8 @@ const Admin = () => {
         setEventsList(eventsRes.data);
         setFeedbacks(feedbackRes.data);
         setHeatmapData(heatmapRes.data);
+        setCamps(campsRes.data);
+        setKycRequests(kycRes.data);
         setLoading(false);
       } catch (error) {
         toast.error("Failed to load admin data");
@@ -195,6 +201,24 @@ const Admin = () => {
     }
   };
 
+  const handleCampStatus = async (id, status) => {
+    try {
+      const { data } = await api.patch(`/admin/camps/${id}/status`, { status });
+      setCamps((p) => p.map((c) => c._id === id ? data : c));
+      toast.success(`Camp marked as ${status}.`);
+    } catch { toast.error("Failed to update camp status."); }
+  };
+
+  const handleKYC = async (userId, approved) => {
+    try {
+      await api.patch(`/admin/kyc/${userId}`, { approved });
+      setKycRequests((p) => p.map((u) =>
+        u._id === userId ? { ...u, kycStatus: { ...u.kycStatus, documentVerified: approved } } : u
+      ));
+      toast.success(approved ? "KYC approved." : "KYC rejected.");
+    } catch { toast.error("Failed to update KYC."); }
+  };
+
   if (!user || !user.isAdmin) return null;
 
   const COLORS = ["#3b6b54", "#8a6fb0", "#6e4fa0"];
@@ -207,14 +231,16 @@ const Admin = () => {
     : [];
 
   const TABS = [
-    { id: "overview",   label: "Overview",    icon: <FaChartPie /> },
-    { id: "engine",     label: "Engine",      icon: <FaBolt /> },
-    { id: "users",      label: "Users",       icon: <FaUsers /> },
-    { id: "listings",   label: "Content",     icon: <FaBoxOpen /> },
-    { id: "events",     label: "Events",      icon: <FaCalendarAlt /> },
-    { id: "moderation", label: "Moderation",  icon: <FaFlag /> },
-    { id: "feedback",   label: "Feedback",    icon: <FaCommentAlt /> },
-    { id: "heatmap",    label: "Heatmap",     icon: <FaMapMarkerAlt /> },
+    { id: "overview",   label: "Overview",   icon: <FaChartPie /> },
+    { id: "engine",     label: "Engine",     icon: <FaBolt /> },
+    { id: "users",      label: "Users",      icon: <FaUsers /> },
+    { id: "listings",   label: "Content",    icon: <FaBoxOpen /> },
+    { id: "events",     label: "Events",     icon: <FaCalendarAlt /> },
+    { id: "moderation", label: "Moderation", icon: <FaFlag /> },
+    { id: "camps",      label: "Camps",      icon: <FaCalendarAlt /> },
+    { id: "kyc",        label: "KYC",        icon: <FaShieldAlt /> },
+    { id: "feedback",   label: "Feedback",   icon: <FaCommentAlt /> },
+    { id: "heatmap",    label: "Heatmap",    icon: <FaMapMarkerAlt /> },
   ];
 
   return (
@@ -687,6 +713,125 @@ const Admin = () => {
                     ))}
                   </MapContainer>
                 </div>
+              </div>
+            )}
+
+            {/* CAMPS TAB */}
+            {activeTab === "camps" && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <h2 className="text-sm font-black uppercase tracking-widest text-pine-teal">Blood Camps ({camps.length})</h2>
+                </div>
+                {camps.length === 0 ? (
+                  <div className="bg-white/70 rounded-[2rem] p-10 text-center border border-white">
+                    <p className="text-pine-teal/40 font-semibold">No camps registered yet.</p>
+                  </div>
+                ) : camps.map((camp) => {
+                  const statusColor = {
+                    upcoming: "bg-pine-teal/10 text-pine-teal border-pine-teal/20",
+                    ongoing: "bg-blue-50 text-blue-600 border-blue-200",
+                    completed: "bg-gray-50 text-gray-500 border-gray-200",
+                    cancelled: "bg-red-50 text-red-500 border-red-200",
+                  }[camp.status] || "bg-gray-50 text-gray-400 border-gray-100";
+                  return (
+                    <motion.div key={camp._id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                      className="bg-white/70 backdrop-blur rounded-[2rem] p-5 border border-white shadow-sm">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <span className={`text-[10px] font-black uppercase tracking-widest rounded-full border px-2.5 py-1 ${statusColor}`}>
+                              {camp.status}
+                            </span>
+                            {camp.bloodGroupsNeeded?.slice(0,4).map((bg) => (
+                              <span key={bg} className="text-[10px] font-black text-dark-raspberry bg-dark-raspberry/8 border border-dark-raspberry/15 rounded-md px-1.5 py-0.5">{bg}</span>
+                            ))}
+                          </div>
+                          <h3 className="font-bold text-pine-teal text-base leading-snug">{camp.title}</h3>
+                          <p className="text-[12px] text-dusty-lavender mt-0.5">
+                            {camp.venue} · {new Date(camp.date).toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" })}
+                          </p>
+                          <p className="text-[11px] text-pine-teal/40 mt-0.5">
+                            By {camp.organizer?.organizationName || camp.organizer?.name || "Unknown"} · {camp.registrations?.length || 0} registered
+                          </p>
+                        </div>
+                        <div className="shrink-0 flex flex-col gap-1.5">
+                          {camp.status !== "upcoming" && (
+                            <button onClick={() => handleCampStatus(camp._id, "upcoming")}
+                              className="text-[11px] font-bold px-3 py-1.5 rounded-xl bg-pine-teal/10 text-pine-teal border border-pine-teal/20 hover:bg-pine-teal hover:text-white transition-all">
+                              Approve
+                            </button>
+                          )}
+                          {camp.status !== "cancelled" && (
+                            <button onClick={() => handleCampStatus(camp._id, "cancelled")}
+                              className="text-[11px] font-bold px-3 py-1.5 rounded-xl bg-red-50 text-red-500 border border-red-200 hover:bg-red-500 hover:text-white transition-all">
+                              Cancel
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* KYC TAB */}
+            {activeTab === "kyc" && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between px-1">
+                  <h2 className="text-sm font-black uppercase tracking-widest text-pine-teal">KYC Requests ({kycRequests.length})</h2>
+                  <span className="text-[11px] text-pine-teal/40">
+                    {kycRequests.filter((u) => !u.kycStatus?.documentVerified).length} pending
+                  </span>
+                </div>
+                {kycRequests.length === 0 ? (
+                  <div className="bg-white/70 rounded-[2rem] p-10 text-center border border-white">
+                    <p className="text-pine-teal/40 font-semibold">No KYC submissions yet.</p>
+                  </div>
+                ) : kycRequests.map((u) => (
+                  <motion.div key={u._id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+                    className="bg-white/70 backdrop-blur rounded-[2rem] p-5 border border-white shadow-sm">
+                    <div className="flex items-start gap-4">
+                      {/* Document preview */}
+                      {u.kycStatus?.kycDocumentUrl && (
+                        <a href={u.kycStatus.kycDocumentUrl} target="_blank" rel="noopener noreferrer"
+                          className="shrink-0 h-20 w-20 rounded-2xl overflow-hidden border border-pine-teal/10 shadow-sm hover:opacity-80 transition-opacity">
+                          <img src={u.kycStatus.kycDocumentUrl} alt="KYC doc"
+                            className="w-full h-full object-cover" />
+                        </a>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="font-bold text-pine-teal">{u.name}</p>
+                          {u.kycStatus?.documentVerified ? (
+                            <span className="text-[10px] font-black text-pine-teal bg-pine-teal/10 border border-pine-teal/20 rounded-full px-2 py-0.5">Verified</span>
+                          ) : (
+                            <span className="text-[10px] font-black text-amber-600 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">Pending</span>
+                          )}
+                        </div>
+                        <p className="text-[12px] text-dusty-lavender">{u.email} · {u.bloodGroup || "—"}</p>
+                        <p className="text-[11px] text-pine-teal/40 mt-0.5">
+                          {u.kycStatus?.documentType?.replace("_", " ")} ·{" "}
+                          Submitted {u.kycStatus?.kycSubmittedAt
+                            ? new Date(u.kycStatus.kycSubmittedAt).toLocaleDateString("en-IN", { day:"numeric", month:"short" })
+                            : "—"}
+                        </p>
+                        {!u.kycStatus?.documentVerified && (
+                          <div className="flex gap-2 mt-3">
+                            <button onClick={() => handleKYC(u._id, true)}
+                              className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl bg-pine-teal/10 text-pine-teal border border-pine-teal/20 hover:bg-pine-teal hover:text-white transition-all">
+                              <FaCheck className="text-[9px]" /> Approve
+                            </button>
+                            <button onClick={() => handleKYC(u._id, false)}
+                              className="flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-xl bg-red-50 text-red-500 border border-red-200 hover:bg-red-500 hover:text-white transition-all">
+                              <FaBan className="text-[9px]" /> Reject
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
               </div>
             )}
 
