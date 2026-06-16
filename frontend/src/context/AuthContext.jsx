@@ -89,11 +89,36 @@ export const AuthProvider = ({ children }) => {
       setThankYouPrompt(data);
     });
 
+    newSocket.on("milestone_reached", (data) => {
+      const labels = {
+        1:   "First donation! You saved a life.",
+        5:   "5 donations — you're a true hero!",
+        10:  "10 donations — Bronze Hero unlocked!",
+        25:  "25 donations — Silver Legend status!",
+        50:  "50 donations — Gold Lifesaver!",
+        100: "100 donations — Platinum Champion!",
+      };
+      toast.success(labels[data.count] || `${data.count} donations milestone reached!`, {
+        duration: 7000,
+        style: { background: "#fff", color: "#3b6b54", border: "1px solid rgba(59,107,84,0.25)", fontWeight: 700 },
+      });
+    });
+
+    newSocket.on("request_reset", (data) => {
+      toast(`Your matched donor dropped out for "${data.donationTitle}". We've re-opened the listing.`, {
+        icon: "🔄",
+        duration: 9000,
+        style: { background: "#fff", color: "#3b6b54", border: "1px solid rgba(59,107,84,0.15)" },
+      });
+    });
+
     return () => {
       newSocket.off("role_updated", handleRoleUpdate);
       newSocket.off("new_message_notification");
       newSocket.off("thank_you_received");
       newSocket.off("donation_fulfilled_prompt");
+      newSocket.off("milestone_reached");
+      newSocket.off("request_reset");
       newSocket.disconnect();
     };
   }, [user]);

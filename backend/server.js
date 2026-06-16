@@ -141,6 +141,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Standard Routes
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/donations", require("./routes/donationRoutes"));
+app.use("/api/camps", require("./routes/campRoutes"));
 app.use("/api/chat", require("./routes/chatRoutes"));
 app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/events", require("./routes/events"));
@@ -270,6 +271,84 @@ cron.schedule("* * * * *", async () => {
     if (err.code !== 11000) { // Ignore duplicate key errors (another instance holds the lock)
       logger.error("❌ [CRON] Smart Routing Escalation failed:", err);
     }
+  }
+});
+
+// ── NO-SHOW DETECTION (hourly) ──
+// Donors who were matched (status "pending") but never completed the handshake
+// in >24h are flagged as no-shows. The donation resets to active so a new donor can claim it.
+cron.schedule("0 * * * *", async () => {
+  try {
+    const lock = await CronLock.create({ jobName: 'noShowDetection', expiresAt: new Date(Date.now() + 55 * 60 * 1000) });
+    if (!lock) return;
+
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+    const stale = await Donation.find({
+      status: "pending",
+      updatedAt: { $lt: cutoff },
+      receiverId: { $exists: true, $ne: null },
+    });
+
+    for (const don of stale) {
+      await User.findByIdAndUpdate(don.receiverId, { $inc: { noShowCount: 1 } });
+      const prevReceiver = don.receiverId;
+      don.status = "active";
+      don.receiverId = null;
+      // Remove the no-show donor from requestedBy so they can't claim again
+      don.requestedBy = (don.requestedBy || []).filter(
+        (id) => id.toString() !== prevReceiver.toString()
+      );
+      await don.save();
+      io.to(don.donorId.toString()).emit("request_reset", {
+        donationId: don._id,
+        donationTitle: don.title,
+      });
+    }
+
+    if (stale.length > 0) {
+      logger.info(`[CRON] No-show detection: reset ${stale.length} stale donation(s)`);
+    }
+    await CronLock.deleteOne({ jobName: 'noShowDetection' });
+  } catch (err) {
+    if (err.code !== 11000) logger.error("❌ [CRON] No-show detection failed:", err);
+  }
+});
+
+// ── WEEKLY DIGEST (Sunday ~9:30am IST = 04:00 UTC) ──
+cron.schedule("0 4 * * 0", async () => {
+  try {
+    const lock = await CronLock.create({ jobName: 'weeklyDigest', expiresAt: new Date(Date.now() + 60 * 60 * 1000) });
+    if (!lock) return;
+
+    const donors = await User.find({
+      fcmToken: { $exists: true, $ne: null, $type: "string" },
+      isAvailable: true,
+    }).select("fcmToken");
+
+    const admin = require("firebase-admin");
+    if (!admin.apps.length) {
+      await CronLock.deleteOne({ jobName: 'weeklyDigest' });
+      return;
+    }
+
+    let sent = 0;
+    for (const donor of donors) {
+      try {
+        await admin.messaging().send({
+          token: donor.fcmToken,
+          notification: {
+            title: "You could save a life today",
+            body: "Someone nearby may need your blood group. Stay on-duty on Sahayam.",
+          },
+          webpush: { fcmOptions: { link: "/" } },
+        });
+        sent++;
+      } catch { /* skip invalid/expired tokens */ }
+    }
+    logger.info(`[CRON] Weekly digest: notified ${sent} donors`);
+    await CronLock.deleteOne({ jobName: 'weeklyDigest' });
+  } catch (err) {
+    if (err.code !== 11000) logger.error("❌ [CRON] Weekly digest failed:", err);
   }
 });
 

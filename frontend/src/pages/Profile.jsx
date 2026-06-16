@@ -158,6 +158,41 @@ const Profile = () => {
     finally { setSavingContacts(false); }
   };
 
+  const generateCertificate = () => {
+    const count = passport?.donationsCount || user?.donationsCount || 0;
+    const date = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Donation Certificate — Sahayam</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;800&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:#f5f0eb;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:32px;font-family:'Inter',sans-serif}
+  .cert{background:#fff;max-width:760px;width:100%;border:3px solid #3b6b54;border-radius:18px;padding:64px 72px;text-align:center;position:relative;box-shadow:0 32px 80px -16px rgba(59,107,84,0.25)}
+  .cert::before{content:'';position:absolute;inset:12px;border:1px solid rgba(167,60,100,0.3);border-radius:10px;pointer-events:none}
+  .brand{font-size:30px;font-weight:900;color:#3b6b54;letter-spacing:-1px}.brand span{color:#a73c64}
+  .divider{margin:6px auto 28px;font-size:10px;letter-spacing:5px;text-transform:uppercase;color:#a73c64}
+  .presented{font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#999;margin-bottom:10px}
+  .name{font-family:'Playfair Display',serif;font-size:44px;color:#1a3a2a;margin-bottom:24px}
+  .body-text{font-size:15px;color:#666;line-height:1.8;max-width:500px;margin:0 auto 28px}
+  .badge{display:inline-block;background:linear-gradient(135deg,#a73c64,#6b1a3a);color:#fff;padding:12px 28px;border-radius:10px;font-size:24px;font-weight:900;margin-bottom:28px}
+  .count{font-size:56px;font-weight:900;color:#a73c64;line-height:1}.count-label{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#aaa;margin-bottom:40px}
+  .footer{border-top:1px dashed #e0ddd8;padding-top:20px;font-size:11px;color:#bbb;line-height:1.7}
+</style></head><body>
+<div class="cert">
+  <div class="brand">Saha<span>yam</span></div>
+  <div class="divider">Certificate of Recognition</div>
+  <div class="presented">This is presented to</div>
+  <div class="name">${user?.name || ""}</div>
+  <div class="body-text">In recognition of extraordinary compassion and voluntary commitment to saving human lives through blood donation.</div>
+  <div class="badge">${user?.bloodGroup || "—"}</div><br>
+  <div class="count">${count}</div>
+  <div class="count-label">${count === 1 ? "Donation" : "Donations"} Completed</div>
+  <div class="footer">Issued on ${date} · Sahayam Community Blood Network<br><em>"Every drop counts. Every donor matters."</em></div>
+</div>
+</body></html>`;
+    const blob = new Blob([html], { type: "text/html" });
+    window.open(URL.createObjectURL(blob), "_blank");
+  };
+
   const sharePassport = () => {
     const text = `I'm a verified ${user?.bloodGroup || ""} blood donor on Sahayam — ${passport?.donationsCount || 0} donations. Join me: ${window.location.origin}`;
     if (navigator.share) {
@@ -315,6 +350,114 @@ const Profile = () => {
               <FaTint className="text-[120px]" />
             </div>
           </div>
+
+          {/* ── COOLDOWN COUNTDOWN + CERTIFICATE ── */}
+          {passport && (
+            <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
+              <SectionHeader title="Donor Status" />
+              <div className="p-4 flex items-center gap-4">
+                {/* Circular countdown arc */}
+                <div className="shrink-0 relative">
+                  {(() => {
+                    const total = 90;
+                    const remaining = passport.daysUntilEligible || 0;
+                    const elapsed = total - remaining;
+                    const pct = Math.min(elapsed / total, 1);
+                    const r = 30;
+                    const circ = 2 * Math.PI * r;
+                    const dash = pct * circ;
+                    return (
+                      <svg width="76" height="76" viewBox="0 0 76 76">
+                        <circle cx="38" cy="38" r={r} fill="none" stroke="rgba(59,107,84,0.08)" strokeWidth="6" />
+                        <circle cx="38" cy="38" r={r} fill="none"
+                          stroke={passport.eligible ? "#3b6b54" : "#a73c64"}
+                          strokeWidth="6"
+                          strokeDasharray={`${dash} ${circ}`}
+                          strokeLinecap="round"
+                          transform="rotate(-90 38 38)"
+                          style={{ transition: "stroke-dasharray 0.6s ease" }}
+                        />
+                        <text x="38" y="43" textAnchor="middle" fontSize="13" fontWeight="900"
+                          fill={passport.eligible ? "#3b6b54" : "#a73c64"}>
+                          {passport.eligible ? "OK" : `${remaining}d`}
+                        </text>
+                      </svg>
+                    );
+                  })()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  {passport.eligible ? (
+                    <>
+                      <p className="text-sm font-black text-pine-teal">Eligible to donate</p>
+                      <p className="text-[12px] text-pine-teal/45 mt-0.5">Your 90-day cooldown has passed.</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-black text-dark-raspberry">Cooldown active</p>
+                      <p className="text-[12px] text-pine-teal/45 mt-0.5">{passport.daysUntilEligible} days until next eligible donation</p>
+                    </>
+                  )}
+                  <motion.button whileTap={{ scale: 0.95 }} onClick={generateCertificate}
+                    className="mt-2.5 inline-flex items-center gap-1.5 rounded-xl border border-pine-teal/20 bg-pine-teal/8 px-3.5 py-2 text-[11px] font-black uppercase tracking-widest text-pine-teal">
+                    <FaCertificate className="text-[11px]" /> Download Certificate
+                  </motion.button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── POINTS REDEMPTION LADDER ── */}
+          {(() => {
+            const pts = user?.points || 0;
+            const tiers = [
+              { pts: 100,  label: "Bronze",   color: "from-amber-700 to-amber-500",   perk: "Community badge + profile verified" },
+              { pts: 250,  label: "Silver",   color: "from-slate-500 to-slate-300",   perk: "Priority matching in SOS alerts" },
+              { pts: 500,  label: "Gold",     color: "from-yellow-600 to-yellow-400", perk: "Gold donor badge + leaderboard" },
+              { pts: 1000, label: "Platinum", color: "from-purple-700 to-purple-400", perk: "Exclusive discounts — coming soon" },
+            ];
+            const currentTier = [...tiers].reverse().find((t) => pts >= t.pts);
+            return (
+              <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
+                <div className="px-5 py-4 border-b border-pine-teal/8">
+                  <h3 className="text-sm font-black text-pine-teal uppercase tracking-widest">Points Ladder</h3>
+                  <p className="text-[11px] text-pine-teal/40 mt-0.5">You have <span className="font-black text-pine-teal">{pts}</span> points</p>
+                </div>
+                <div className="p-4 space-y-2.5">
+                  {tiers.map((t) => {
+                    const unlocked = pts >= t.pts;
+                    const isCurrent = currentTier?.label === t.label;
+                    return (
+                      <div key={t.label} className={`flex items-center gap-3 rounded-2xl border px-4 py-3.5 transition-all ${
+                        isCurrent
+                          ? "border-pine-teal/30 bg-pine-teal/8"
+                          : unlocked
+                          ? "border-pine-teal/12 bg-surface-2"
+                          : "border-pine-teal/6 bg-surface-2 opacity-50"
+                      }`}>
+                        <div className={`shrink-0 h-10 w-10 rounded-xl bg-gradient-to-br ${t.color} flex items-center justify-center shadow-sm`}>
+                          <FaTrophy className="text-white text-xs" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="text-[13px] font-black text-pine-teal">{t.label}</p>
+                            {isCurrent && <span className="text-[9px] font-black uppercase tracking-widest text-pine-teal bg-pine-teal/15 rounded-full px-2 py-0.5">Current</span>}
+                          </div>
+                          <p className="text-[11px] text-pine-teal/45 mt-0.5">{t.perk}</p>
+                        </div>
+                        <div className="shrink-0 text-right">
+                          <p className="text-[11px] font-black text-pine-teal/60">{t.pts} pts</p>
+                          {unlocked
+                            ? <FaCheckCircle className="text-pine-teal text-sm ml-auto mt-0.5" />
+                            : <p className="text-[10px] text-pine-teal/30 font-semibold mt-0.5">+{t.pts - pts}</p>
+                          }
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            );
+          })()}
 
           {/* ── THANKS RECEIVED ── */}
           {thanksReceived.length > 0 && (

@@ -79,6 +79,20 @@ const createDonation = asyncHandler(async (req, res) => {
 
   const isCriticalEmergency = isEmergency === "true" || isEmergency === true;
 
+  // Prevent SOS spam: reject if user already has an active emergency post in the last 30 minutes
+  if (isCriticalEmergency) {
+    const recentSOS = await Donation.findOne({
+      donorId: req.user._id,
+      isEmergency: true,
+      status: { $in: ["active", "pending"] },
+      createdAt: { $gte: new Date(Date.now() - 30 * 60 * 1000) },
+    });
+    if (recentSOS) {
+      res.status(429);
+      throw new Error("You already have an active SOS posted in the last 30 minutes.");
+    }
+  }
+
   const newDonation = await Donation.create({
     donorId: req.user._id,
     listingType: listingType || "donation",
@@ -407,6 +421,16 @@ const markFulfilled = asyncHandler(async (req, res) => {
 
     donor.rank = calculateRank(donor.points);
     await donor.save();
+
+    const MILESTONES = [1, 5, 10, 25, 50, 100];
+    if (MILESTONES.includes(donor.donationsCount)) {
+      const ioRef = req.app.get("io");
+      if (ioRef) {
+        ioRef.to(donation.donorId.toString()).emit("milestone_reached", {
+          count: donor.donationsCount,
+        });
+      }
+    }
   }
 
   // Start the eligibility cooldown for whoever actually donated blood.
