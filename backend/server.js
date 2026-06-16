@@ -139,6 +139,14 @@ app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
 app.use("/api/auth/forgotpassword", authLimiter);
 
+const otpLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { message: "Too many OTP attempts. Please wait 15 minutes." },
+});
+app.use("/api/auth/verify-email", otpLimiter);
+app.use("/api/auth/resend-verification", otpLimiter);
+
 app.use("/api/donations", (req, res, next) => {
   if (req.method === "POST") return postLimiter(req, res, next);
   next();

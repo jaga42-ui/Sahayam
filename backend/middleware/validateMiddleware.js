@@ -13,10 +13,11 @@ const registerSchema = Joi.object({
     .pattern(/^(\+91)?[6-9]\d{9}$/)
     .required()
     .messages({ "string.pattern.base": "Phone must be a valid 10-digit Indian mobile number starting with 6–9" }),
-  activeRole: Joi.string().valid('donor', 'receiver', 'admin', 'ngo').default('donor'),
+  activeRole: Joi.string().valid('donor', 'receiver', 'ngo').default('donor'),
   organizationName: Joi.string().when('activeRole', { is: 'ngo', then: Joi.required(), otherwise: Joi.optional() }),
   bloodGroup: Joi.string().allow('').optional(),
-  address: Joi.string().allow('').optional()
+  address: Joi.string().allow('').optional(),
+  refCode: Joi.string().allow('').optional()
 });
 
 const loginSchema = Joi.object({
