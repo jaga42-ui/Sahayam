@@ -64,7 +64,16 @@ const userSchema = new mongoose.Schema(
     emergencyContacts: [{
       name: { type: String },
       phone: { type: String },
-      relation: { type: String }
+      relation: { type: String },
+      bloodGroup: { type: String },
+    }],
+
+    // Thank-you messages received from people user helped
+    thanksReceived: [{
+      donationId: { type: mongoose.Schema.Types.ObjectId, ref: "Donation" },
+      message: { type: String },
+      from: { type: String },
+      createdAt: { type: Date, default: Date.now },
     }],
 
     lastActiveAt: { type: Date, default: Date.now },

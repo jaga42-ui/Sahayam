@@ -559,6 +559,111 @@ const verifyEmail = asyncHandler(async (req, res) => {
   res.json({ message: "Email successfully verified! You can now log in." });
 });
 
+// How rare is this donor's blood group within 5 km?
+const donorRarity = asyncHandler(async (req, res) => {
+  const me = await User.findById(req.user._id).select("bloodGroup location isAvailable");
+  if (!me.bloodGroup) return res.json({ count: 0, bloodGroup: null });
+
+  const hasCoords = me.location?.coordinates?.[0] !== 0 || me.location?.coordinates?.[1] !== 0;
+
+  let count = 0;
+  if (hasCoords) {
+    count = await User.countDocuments({
+      bloodGroup: me.bloodGroup,
+      isAvailable: true,
+      _id: { $ne: me._id },
+      location: {
+        $near: {
+          $geometry: { type: "Point", coordinates: me.location.coordinates },
+          $maxDistance: 5000,
+        },
+      },
+    });
+  }
+
+  res.json({ count, bloodGroup: me.bloodGroup });
+});
+
+const updateEmergencyContacts = asyncHandler(async (req, res) => {
+  const { contacts } = req.body;
+  if (!Array.isArray(contacts)) {
+    res.status(400);
+    throw new Error("contacts must be an array");
+  }
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { emergencyContacts: contacts.slice(0, 5) },
+    { new: true, select: "emergencyContacts" },
+  );
+  res.json(user.emergencyContacts);
+});
+
+const familySafetyNet = asyncHandler(async (req, res) => {
+  const me = await User.findById(req.user._id).select("emergencyContacts location");
+  if (!me.emergencyContacts?.length) return res.json([]);
+
+  const hasCoords = me.location?.coordinates?.[0] !== 0 || me.location?.coordinates?.[1] !== 0;
+
+  const results = await Promise.all(
+    me.emergencyContacts.map(async (c) => {
+      const contact = c.toObject();
+      if (!contact.bloodGroup || !hasCoords) return { ...contact, donorCount: 0 };
+
+      const donorCount = await User.countDocuments({
+        bloodGroup: contact.bloodGroup,
+        isAvailable: true,
+        _id: { $ne: req.user._id },
+        location: {
+          $near: {
+            $geometry: { type: "Point", coordinates: me.location.coordinates },
+            $maxDistance: 10000,
+          },
+        },
+      });
+      return { ...contact, donorCount };
+    }),
+  );
+
+  res.json(results);
+});
+
+const donorPassport = asyncHandler(async (req, res) => {
+  const Donation = require("../models/Donation");
+  const user = await User.findById(req.user._id);
+  const recent = await Donation.find({
+    $or: [
+      { donorId: req.user._id, status: "fulfilled" },
+      { receiverId: req.user._id, status: "fulfilled" },
+    ],
+  })
+    .sort({ createdAt: -1 })
+    .limit(5)
+    .select("title bloodGroup createdAt");
+
+  const eligible = user.isBloodEligible();
+  const daysUntilEligible = eligible
+    ? 0
+    : Math.ceil(
+        (new Date(user.lastDonationDate).getTime() + 90 * 24 * 60 * 60 * 1000 - Date.now()) /
+          (24 * 60 * 60 * 1000),
+      );
+
+  res.json({
+    name: user.name,
+    bloodGroup: user.bloodGroup,
+    donationsCount: user.donationsCount,
+    points: user.points,
+    rank: user.rank,
+    rating: user.rating,
+    isVerified: user.kycStatus?.documentVerified,
+    lastDonationDate: user.lastDonationDate,
+    eligible,
+    daysUntilEligible,
+    thanksReceived: user.thanksReceived?.slice(-3) || [],
+    recentDonations: recent,
+  });
+});
+
 module.exports = {
   registerUser,
   loginUser,
@@ -575,4 +680,8 @@ module.exports = {
   resetPassword,
   toggleAvailability,
   verifyEmail,
+  donorRarity,
+  updateEmergencyContacts,
+  familySafetyNet,
+  donorPassport,
 };

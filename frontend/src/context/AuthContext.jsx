@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect } from "react";
 import { io } from "socket.io-client";
 import toast from "react-hot-toast";
+import { FaHeart } from "react-icons/fa";
 import api from "../utils/api";
 import { requestFirebaseToken } from "../firebase";
 
@@ -18,6 +19,7 @@ export const AuthProvider = ({ children }) => {
 
   const [unreadCount, setUnreadCount] = useState(0);
   const [socket, setSocket] = useState(null);
+  const [thankYouPrompt, setThankYouPrompt] = useState(null); // { donationId, donationTitle, donorName }
 
   useEffect(() => {
     if (!user) return;
@@ -66,9 +68,32 @@ export const AuthProvider = ({ children }) => {
 
     newSocket.on("role_updated", handleRoleUpdate);
 
+    newSocket.on("thank_you_received", (data) => {
+      toast.custom(
+        () => (
+          <div style={{ display:"flex", alignItems:"center", gap:12, background:"#fff", border:"1px solid rgba(167,60,100,0.25)", borderRadius:16, padding:"12px 16px", boxShadow:"0 8px 24px -8px rgba(107,50,140,0.25)" }}>
+            <div style={{ width:36, height:36, borderRadius:10, background:"rgba(167,60,100,0.1)", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+              <FaHeart style={{ color:"#a73c64", fontSize:14 }} />
+            </div>
+            <div>
+              <p style={{ fontSize:13, fontWeight:800, color:"#a73c64", margin:0 }}>Someone you helped just said thanks!</p>
+              <p style={{ fontSize:12, color:"#3b6b54", margin:"2px 0 0" }}>{data.from}: &ldquo;{data.message}&rdquo;</p>
+            </div>
+          </div>
+        ),
+        { duration: 8000 },
+      );
+    });
+
+    newSocket.on("donation_fulfilled_prompt", (data) => {
+      setThankYouPrompt(data);
+    });
+
     return () => {
       newSocket.off("role_updated", handleRoleUpdate);
       newSocket.off("new_message_notification");
+      newSocket.off("thank_you_received");
+      newSocket.off("donation_fulfilled_prompt");
       newSocket.disconnect();
     };
   }, [user]);
@@ -159,7 +184,7 @@ export const AuthProvider = ({ children }) => {
   const toggleDarkMode = () => setIsDarkMode(!isDarkMode);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, switchRole, toggleAvailability, setUser, unreadCount, setUnreadCount, enableNotifications, socket, isDarkMode, toggleDarkMode }}>
+    <AuthContext.Provider value={{ user, login, logout, switchRole, toggleAvailability, setUser, unreadCount, setUnreadCount, enableNotifications, socket, isDarkMode, toggleDarkMode, thankYouPrompt, setThankYouPrompt }}>
       {children}
     </AuthContext.Provider>
   );

@@ -4,18 +4,19 @@ const router = express.Router();
 // 👉 IMPORT YOUR NEW CLOUDINARY ENGINE
 const { upload } = require('../config/cloudinary');
 
-const { 
-  createDonation, 
-  getDonations, 
-  getNearbyFeed, 
-  getMyHistory, 
-  deleteDonation, 
-  markFulfilled, 
+const {
+  createDonation,
+  getDonations,
+  getNearbyFeed,
+  getMyHistory,
+  deleteDonation,
+  markFulfilled,
   requestItem,
   approveRequest,
   acceptSOS,
-  reportDonation, // 👉 NEW: Imported the Report handler
-  triageSOS
+  reportDonation,
+  triageSOS,
+  sendThankYou,
 } = require('../controllers/donationController');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -40,7 +41,10 @@ router.patch('/:id/sos-accept', protect, acceptSOS);
 // 👉 NEW: The Report & Auto-Moderation Route
 router.put('/:id/report', protect, reportDonation);
 
-// 👉 AI Triage Assistant (parses an emergency message into a structured SOS)
+// AI Triage Assistant
 router.post('/triage', protect, triageSOS);
+
+// Thank You after fulfillment
+router.post('/:id/thank', protect, sendThankYou);
 
 module.exports = router;

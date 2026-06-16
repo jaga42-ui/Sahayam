@@ -28,6 +28,8 @@ import {
   FaPlus,
   FaClock,
   FaArrowRight,
+  FaHeart,
+  FaTint,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -99,7 +101,7 @@ const SkeletonCard = () => (
 );
 
 const Dashboard = () => {
-  const { user, socket, enableNotifications, isDarkMode, toggleDarkMode } = useContext(AuthContext);
+  const { user, socket, enableNotifications, isDarkMode, toggleDarkMode, thankYouPrompt, setThankYouPrompt } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [localRole,      setLocalRole]      = useState(user?.activeRole || "donor");
@@ -122,6 +124,9 @@ const Dashboard = () => {
   const [isFetchingLoc,  setFetchingLoc]    = useState(false);
   const [typingTimeout,  setTypingTimeout]  = useState(null);
   const [isListening,    setIsListening]    = useState(false);
+  const [thankYouMsg,    setThankYouMsg]    = useState("");
+  const [sendingThanks,  setSendingThanks]  = useState(false);
+  const [donorRarity,    setDonorRarity]    = useState(null); // { count, bloodGroup }
 
   const isDonor = localRole === "donor";
 
@@ -139,11 +144,15 @@ const Dashboard = () => {
     const load = async () => {
       setLoading(true);
       try {
-        if (localStorage.getItem("__mockfeed") === "1") { setFeed(MOCK_FEED); setHasMore(false); setLoading(false); return; } // TEMP-PREVIEW
-        const { data } = await api.get("/donations/feed?page=1&limit=12");
-        setFeed(data.donations || (Array.isArray(data) ? data : []));
-        setHasMore(data.hasMore || false);
+        if (localStorage.getItem("__mockfeed") === "1") { setFeed(MOCK_FEED); setHasMore(false); setLoading(false); return; }
+        const [feedRes, rarityRes] = await Promise.all([
+          api.get("/donations/feed?page=1&limit=12"),
+          api.get("/auth/donor-rarity").catch(() => null),
+        ]);
+        setFeed(feedRes.data.donations || (Array.isArray(feedRes.data) ? feedRes.data : []));
+        setHasMore(feedRes.data.hasMore || false);
         setPage(1);
+        if (rarityRes?.data) setDonorRarity(rarityRes.data);
       } catch {
         toast.error("Failed to load feed");
       } finally {
@@ -446,6 +455,22 @@ const Dashboard = () => {
               className="mt-3 w-full flex items-center justify-center gap-2.5 rounded-xl bg-dark-raspberry py-3.5 text-[13.5px] font-semibold text-white shadow-[0_4px_20px_-6px_rgba(107,50,140,0.5)] transition-shadow hover:shadow-[0_6px_28px_-6px_rgba(107,50,140,0.7)]">
               <FaPlus className="text-[11px]" /> Raise an SOS
             </motion.button>
+
+            {/* Critical infrastructure strip */}
+            {donorRarity?.bloodGroup && (
+              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                className="mt-2.5 flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-[#6b1a3a]/10 to-transparent border border-dark-raspberry/15 px-3.5 py-2.5">
+                <div className="h-7 w-7 shrink-0 rounded-lg bg-dark-raspberry/15 flex items-center justify-center">
+                  <FaHeartbeat className="text-[10px] text-dark-raspberry" />
+                </div>
+                <p className="text-[12px] font-medium text-pine-teal/70 leading-snug">
+                  {donorRarity.count === 0
+                    ? <><span className="font-bold text-dark-raspberry">You may be the only {donorRarity.bloodGroup} donor</span> currently active nearby</>
+                    : <>You're <span className="font-bold text-dark-raspberry">1 of {donorRarity.count + 1} {donorRarity.bloodGroup} donors</span> within 5km</>
+                  }
+                </p>
+              </motion.div>
+            )}
           </header>
 
           {/* ── FILTER + COUNT ── */}
@@ -937,6 +962,75 @@ const Dashboard = () => {
                     </motion.button>
                   </div>
                 ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ══ THANK YOU MODAL ══ */}
+      <AnimatePresence>
+        {thankYouPrompt && (
+          <motion.div className="fixed inset-0 z-[110] flex flex-col justify-end">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => { setThankYouPrompt(null); setThankYouMsg(""); }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div
+              initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 32, stiffness: 300 }}
+              className="relative z-10 mx-auto w-full max-w-2xl bg-surface rounded-t-[28px] overflow-hidden shadow-2xl">
+
+              <div className="flex flex-col items-center pt-3 pb-0 border-b border-pine-teal/8">
+                <div className="h-1 w-10 rounded-full bg-pine-teal/20 mb-3" />
+                <div className="w-full px-5 pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-11 w-11 shrink-0 rounded-2xl bg-dark-raspberry/10 flex items-center justify-center">
+                      <FaHeart className="text-dark-raspberry" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-black text-pine-teal">Mission Complete!</h2>
+                      <p className="text-[12px] text-pine-teal/45 mt-0.5">
+                        {thankYouPrompt.donorName} helped you. Send them a thank you?
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-5 space-y-3">
+                <textarea
+                  rows={3}
+                  placeholder={`Tell ${thankYouPrompt.donorName} what their help meant to you…`}
+                  value={thankYouMsg}
+                  onChange={(e) => setThankYouMsg(e.target.value)}
+                  className="w-full rounded-xl border border-pine-teal/15 bg-surface-2 px-4 py-3.5 text-sm text-pine-teal placeholder-pine-teal/30 outline-none focus:border-dark-raspberry/40 resize-none transition-all"
+                />
+                <div className="flex gap-2">
+                  <motion.button whileTap={{ scale: 0.95 }}
+                    onClick={() => { setThankYouPrompt(null); setThankYouMsg(""); }}
+                    className="h-12 w-12 shrink-0 flex items-center justify-center rounded-xl border border-pine-teal/12 bg-surface-2 text-pine-teal/40">
+                    <FaTimes />
+                  </motion.button>
+                  <motion.button whileTap={{ scale: 0.97 }} disabled={sendingThanks || !thankYouMsg.trim()}
+                    onClick={async () => {
+                      if (!thankYouMsg.trim()) return;
+                      setSendingThanks(true);
+                      try {
+                        await api.post(`/donations/${thankYouPrompt.donationId}/thank`, { message: thankYouMsg });
+                        toast.success("Thank you sent!");
+                        setThankYouPrompt(null);
+                        setThankYouMsg("");
+                      } catch { toast.error("Could not send thank you."); }
+                      finally { setSendingThanks(false); }
+                    }}
+                    className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-dark-raspberry py-3.5 text-[12px] font-black uppercase tracking-widest text-white shadow-md disabled:opacity-50">
+                    {sendingThanks ? <FaSpinner className="animate-spin" /> : <><FaHeart className="text-xs" /> Send Thanks</>}
+                  </motion.button>
+                </div>
+                <button onClick={() => { setThankYouPrompt(null); setThankYouMsg(""); }}
+                  className="w-full text-center text-[12px] text-pine-teal/35 hover:text-pine-teal/60 transition-colors py-1">
+                  Skip
+                </button>
               </div>
             </motion.div>
           </motion.div>

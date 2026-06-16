@@ -440,6 +440,14 @@ const markFulfilled = asyncHandler(async (req, res) => {
     io.to(chatRoomId).emit("chat_terminated", {
       message: "Mission AccomplISHED. Secure channel closed.",
     });
+    // Prompt the recipient to send a thank-you to the donor
+    if (donation.receiverId) {
+      io.to(donation.receiverId.toString()).emit("donation_fulfilled_prompt", {
+        donationId: donation._id,
+        donationTitle: donation.title,
+        donorName: donor?.name || "your donor",
+      });
+    }
   }
 
   res.json({ message: "Handshake Successful", pointsEarned: 50 });
@@ -543,6 +551,52 @@ const triageSOS = asyncHandler(async (req, res) => {
   }
 });
 
+const sendThankYou = asyncHandler(async (req, res) => {
+  const { message } = req.body;
+  if (!message?.trim()) {
+    res.status(400);
+    throw new Error("Message is required");
+  }
+
+  const donation = await Donation.findById(req.params.id).populate("donorId", "name _id");
+  if (!donation) {
+    res.status(404);
+    throw new Error("Donation not found");
+  }
+
+  const isReceiver = donation.receiverId?.toString() === req.user._id.toString();
+  const isRequester = donation.requestedBy?.some((id) => id.toString() === req.user._id.toString());
+  if (!isReceiver && !isRequester) {
+    res.status(403);
+    throw new Error("Not authorized");
+  }
+
+  donation.thankYouMessage = { text: message.trim(), sentAt: new Date(), fromName: req.user.name };
+  await donation.save();
+
+  await User.findByIdAndUpdate(donation.donorId._id, {
+    $push: {
+      thanksReceived: {
+        donationId: donation._id,
+        message: message.trim(),
+        from: req.user.name,
+        createdAt: new Date(),
+      },
+    },
+  });
+
+  const io = req.app.get("io");
+  if (io) {
+    io.to(donation.donorId._id.toString()).emit("thank_you_received", {
+      from: req.user.name,
+      message: message.trim(),
+      donationTitle: donation.title,
+    });
+  }
+
+  res.json({ message: "Thank you sent!" });
+});
+
 module.exports = {
   createDonation,
   getDonations,
@@ -555,4 +609,5 @@ module.exports = {
   acceptSOS,
   reportDonation,
   triageSOS,
+  sendThankYou,
 };

@@ -1,21 +1,25 @@
 const express = require('express');
 const router = express.Router();
-const { 
-  registerUser, 
-  loginUser, 
-  toggleRole, 
-  googleLogin, 
-  updateProfile, 
+const {
+  registerUser,
+  loginUser,
+  toggleRole,
+  googleLogin,
+  updateProfile,
   getMe,
-  updateLocation,       
-  getNearbyDonors,      
+  updateLocation,
+  getNearbyDonors,
   sendEmergencyBlast,
   respondToBlast,
-  forgotPassword, 
+  forgotPassword,
   resetPassword,
   saveFCMToken,
   toggleAvailability,
-  verifyEmail
+  verifyEmail,
+  donorRarity,
+  updateEmergencyContacts,
+  familySafetyNet,
+  donorPassport,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 const { validateRegister, validateLogin } = require('../middleware/validateMiddleware');
@@ -76,5 +80,11 @@ router.get('/nearby-donors', protect, getNearbyDonors);
 // Emergency Blast & Response Routes
 router.post('/emergency-blast', protect, sendEmergencyBlast);
 router.post('/respond-blast/:id', protect, respondToBlast);
+
+// Donor identity & community features
+router.get('/donor-rarity', protect, donorRarity);
+router.get('/donor-passport', protect, donorPassport);
+router.put('/emergency-contacts', protect, updateEmergencyContacts);
+router.get('/family-safety-net', protect, familySafetyNet);
 
 module.exports = router;

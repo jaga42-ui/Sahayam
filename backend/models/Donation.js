@@ -89,6 +89,12 @@ const donationSchema = new mongoose.Schema(
       ],
       default: "active",
     },
+
+    thankYouMessage: {
+      text: { type: String },
+      sentAt: { type: Date },
+      fromName: { type: String },
+    },
   },
   { timestamps: true },
 );
