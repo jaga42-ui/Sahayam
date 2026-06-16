@@ -19,7 +19,7 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage((payload) => {
   console.log('[firebase-messaging-sw.js] Received background message ', payload);
   
-  const notificationTitle = payload.notification.title || "HopeLink Alert";
+  const notificationTitle = payload.notification.title || "Sahayam Alert";
   const notificationOptions = {
     body: payload.notification.body,
     icon: '/logo.png', // Ensure you have logo.png in your public folder
@@ -34,7 +34,7 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close(); // Closes the notification on the phone
   
-  // Dynamically grabs your base URL (e.g., https://hopelink.vercel.app) and adds /chat/inbox
+  // Dynamically grabs your base URL and adds /chat/inbox
   const targetUrl = self.location.origin + '/chat/inbox';
   
   event.waitUntil(

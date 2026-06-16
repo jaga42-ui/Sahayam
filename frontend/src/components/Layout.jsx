@@ -50,7 +50,7 @@ const Layout = ({ children }) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    const socket = io(import.meta.env.VITE_BACKEND_URL || "https://hopelink-api.onrender.com", {
+    const socket = io(import.meta.env.VITE_BACKEND_URL || "https://sahayam-api.onrender.com", {
       transports: ["websocket", "polling"],
     });
     socket.on("global_alert", (data) => {

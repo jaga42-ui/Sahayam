@@ -17,7 +17,7 @@ import api from "../utils/api";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
   ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
-  : "https://hopelink-api.onrender.com";
+  : "https://sahayam-api.onrender.com";
 
 const springIn = { type: "spring", stiffness: 300, damping: 26 };
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];

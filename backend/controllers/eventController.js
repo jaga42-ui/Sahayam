@@ -48,7 +48,7 @@ const createEvent = asyncHandler(async (req, res) => {
       const message = {
         notification: {
           title: `📢 Local Event: ${title}`,
-          body: `Happening near you on ${new Date(eventDate).toLocaleDateString()}. Open HopeLink to view details.`,
+          body: `Happening near you on ${new Date(eventDate).toLocaleDateString()}. Open Sahayam to view details.`,
         },
         tokens: tokens,
       };

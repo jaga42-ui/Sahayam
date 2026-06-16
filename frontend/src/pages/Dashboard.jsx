@@ -37,7 +37,7 @@ import api from "../utils/api";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
   ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
-  : "https://hopelink-api.onrender.com";
+  : "https://sahayam-api.onrender.com";
 
 const FILTER_OPTIONS = [
   { label: "All" },

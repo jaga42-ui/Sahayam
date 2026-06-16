@@ -9,7 +9,7 @@ const AuthContext = createContext();
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL 
   ? import.meta.env.VITE_BACKEND_URL.replace('/api', '') 
-  : "https://hopelink-api.onrender.com";
+  : "https://sahayam-api.onrender.com";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {

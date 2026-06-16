@@ -56,7 +56,7 @@ const createDonation = asyncHandler(async (req, res) => {
     try {
       const uploadPromise = new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
-          { folder: "hopelink_uploads", width: 800, crop: "limit" },
+          { folder: "sahayam_uploads", width: 800, crop: "limit" },
           (error, result) => {
             if (error) reject(error);
             else resolve(result);

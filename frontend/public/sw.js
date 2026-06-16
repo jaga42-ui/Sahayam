@@ -5,7 +5,7 @@ self.addEventListener('push', function(event) {
     
     const options = {
       body: data.body,
-      icon: '/pwa-192x192.png', // The beautiful HopeLink logo you set up!
+      icon: '/pwa-192x192.png',
       badge: '/pwa-192x192.png', // The tiny icon in the Android status bar
       vibrate: [200, 100, 200, 100, 200, 100, 200], // A unique vibration pattern
       data: {
