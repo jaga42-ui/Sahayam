@@ -2,7 +2,7 @@ import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import AuthContext from "../context/AuthContext";
-import { FaSpinner, FaGoogle, FaArrowRight, FaHeart } from "react-icons/fa";
+import { FaSpinner, FaGoogle, FaArrowRight, FaHeart, FaEye, FaEyeSlash } from "react-icons/fa";
 import toast from "react-hot-toast";
 import api from "../utils/api";
 import logo from "../assets/logo.png";
@@ -12,10 +12,11 @@ const inputBase =
   "w-full rounded-xl border border-border bg-pearl-beige/60 px-4 py-3.5 text-sm font-medium text-pine-teal placeholder-pine-teal/35 outline-none transition-all focus:border-pine-teal focus:ring-2 focus:ring-pine-teal/10 focus:bg-surface";
 
 const Login = () => {
-  const [email,    setEmail]    = useState("");
-  const [password, setPassword] = useState("");
-  const [loading,  setLoading]  = useState(false);
-  const [showPolicy, setPolicy] = useState(false);
+  const [email,       setEmail]       = useState("");
+  const [password,    setPassword]    = useState("");
+  const [showPass,    setShowPass]    = useState(false);
+  const [loading,     setLoading]     = useState(false);
+  const [showPolicy,  setPolicy]      = useState(false);
 
   const { login } = useContext(AuthContext);
   const navigate  = useNavigate();
@@ -115,12 +116,18 @@ const Login = () => {
                   Forgot?
                 </Link>
               </div>
-              <input
-                type="password" value={password}
-                onChange={(e) => setPassword(e.target.value)} required
-                placeholder="••••••••"
-                className={inputBase}
-              />
+              <div className="relative">
+                <input
+                  type={showPass ? "text" : "password"} value={password}
+                  onChange={(e) => setPassword(e.target.value)} required
+                  placeholder="••••••••"
+                  className={inputBase + " pr-11"}
+                />
+                <button type="button" onClick={() => setShowPass((v) => !v)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-pine-teal/35 hover:text-pine-teal transition-colors">
+                  {showPass ? <FaEyeSlash className="text-sm" /> : <FaEye className="text-sm" />}
+                </button>
+              </div>
             </div>
 
             <motion.button
