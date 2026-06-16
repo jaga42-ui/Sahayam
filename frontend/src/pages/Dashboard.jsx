@@ -42,6 +42,8 @@ const FILTER_OPTIONS = [
   { label: "Urgent" },
 ];
 
+const BLOOD_GROUPS = ["All", "O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
+
 const CATEGORY_META = {
   blood:   { label: "Blood",   icon: FaHeartbeat,   soft: "bg-dark-raspberry/8 text-dark-raspberry border-dark-raspberry/20" },
   food:    { label: "Food",    icon: FaUtensils,    soft: "bg-pine-teal/8 text-pine-teal border-pine-teal/20" },
@@ -105,6 +107,10 @@ const Dashboard = () => {
   const [loading,        setLoading]        = useState(true);
   const [responders,     setResponders]     = useState([]);
   const [filterCategory, setFilter]         = useState("All");
+  const [bloodGroupFilter, setBloodGroupFilter] = useState(() => localStorage.getItem("sg_bgFilter") || "All");
+  const [offlineQueue,   setOfflineQueue]   = useState(() => {
+    try { return JSON.parse(localStorage.getItem("sg_offlineQueue") || "[]"); } catch { return []; }
+  });
   const [page,           setPage]           = useState(1);
   const [hasMore,        setHasMore]        = useState(false);
   const [loadingMore,    setLoadingMore]    = useState(false);
@@ -171,13 +177,38 @@ const Dashboard = () => {
 
   useEffect(() => () => { if (typingTimeout) clearTimeout(typingTimeout); }, [typingTimeout]);
 
-  const processedFeed = useMemo(
-    () => (filterCategory === "Urgent" ? feed.filter((i) => i.isEmergency) : feed),
-    [feed, filterCategory],
-  );
+  // Process offline request queue when connectivity is restored
+  useEffect(() => {
+    const processQueue = async () => {
+      if (!navigator.onLine || offlineQueue.length === 0) return;
+      const queue = [...offlineQueue];
+      setOfflineQueue([]);
+      localStorage.removeItem("sg_offlineQueue");
+      for (const { id } of queue) {
+        try {
+          await api.post(`/donations/${id}/request`, {});
+          toast.success("Queued request submitted!");
+        } catch { /* already shown optimistically */ }
+      }
+    };
+    window.addEventListener("online", processQueue);
+    return () => window.removeEventListener("online", processQueue);
+  }, [offlineQueue]);
+
+  const processedFeed = useMemo(() => {
+    let f = filterCategory === "Urgent" ? feed.filter((i) => i.isEmergency) : feed;
+    if (bloodGroupFilter !== "All") f = f.filter((i) => i.bloodGroup === bloodGroupFilter);
+    return f;
+  }, [feed, filterCategory, bloodGroupFilter]);
 
   const activeCount = useMemo(() => feed.filter((i) => i.status !== "fulfilled").length, [feed]);
   const urgentCount = useMemo(() => feed.filter((i) => i.isEmergency && i.status !== "fulfilled").length, [feed]);
+
+  const pendingDonations = useMemo(() =>
+    feed.filter((i) => i.status === "pending" && (
+      (i.donorId?._id || i.donorId) === user?._id ||
+      (i.receiverId?._id || i.receiverId) === user?._id
+    )), [feed, user?._id]);
 
   const loadMore = async () => {
     if (!hasMore || loadingMore) return;
@@ -296,6 +327,14 @@ const Dashboard = () => {
   };
 
   const handleRequest = async (id) => {
+    if (!navigator.onLine) {
+      const newQueue = [...offlineQueue, { id }];
+      setOfflineQueue(newQueue);
+      localStorage.setItem("sg_offlineQueue", JSON.stringify(newQueue));
+      setFeed((p) => p.map((i) => i._id === id ? { ...i, requestedBy: [...(i.requestedBy || []), { _id: user._id, name: user.name }] } : i));
+      toast("Queued — will send when you reconnect", { icon: "📶" });
+      return;
+    }
     try {
       await api.post(`/donations/${id}/request`, {});
       setFeed((p) => p.map((i) => i._id === id ? { ...i, requestedBy: [...(i.requestedBy || []), { _id: user._id, name: user.name }] } : i));
@@ -400,29 +439,77 @@ const Dashboard = () => {
           </header>
 
           {/* ── FILTER + COUNT ── */}
-          <div className="sticky top-0 z-30 bg-pearl-beige/90 backdrop-blur-xl border-b border-pine-teal/8 px-5 py-3 flex items-center justify-between">
-            <div className="inline-flex rounded-lg border border-pine-teal/10 bg-surface p-0.5">
-              {FILTER_OPTIONS.map(({ label }) => {
-                const active = filterCategory === label;
+          <div className="sticky top-0 z-30 bg-pearl-beige/90 backdrop-blur-xl border-b border-pine-teal/8 px-5 pt-3 pb-2 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="inline-flex rounded-lg border border-pine-teal/10 bg-surface p-0.5">
+                {FILTER_OPTIONS.map(({ label }) => {
+                  const active = filterCategory === label;
+                  return (
+                    <button key={label} onClick={() => setFilter(label)}
+                      className={`relative rounded-md px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
+                        active ? "text-white" : "text-pine-teal/50 hover:text-pine-teal"
+                      }`}>
+                      {active && (
+                        <motion.span layoutId="feedFilter"
+                          className="absolute inset-0 rounded-md bg-pine-teal"
+                          transition={{ type: "spring", stiffness: 400, damping: 32 }} />
+                      )}
+                      <span className="relative z-10">{label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              <span className="text-xs font-medium text-pine-teal/40">
+                {processedFeed.length} shown
+              </span>
+            </div>
+            {/* Blood group chips */}
+            <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-0.5">
+              {BLOOD_GROUPS.map((bg) => {
+                const active = bloodGroupFilter === bg;
                 return (
-                  <button key={label} onClick={() => setFilter(label)}
-                    className={`relative rounded-md px-3.5 py-1.5 text-[13px] font-medium transition-colors ${
-                      active ? "text-white" : "text-pine-teal/50 hover:text-pine-teal"
+                  <button key={bg} onClick={() => {
+                    setBloodGroupFilter(bg);
+                    localStorage.setItem("sg_bgFilter", bg);
+                  }}
+                    className={`shrink-0 rounded-full px-3 py-1 text-[12px] font-semibold transition-all ${
+                      active
+                        ? "bg-dark-raspberry text-white shadow-sm"
+                        : "bg-surface border border-pine-teal/10 text-pine-teal/55 hover:text-pine-teal hover:border-pine-teal/25"
                     }`}>
-                    {active && (
-                      <motion.span layoutId="feedFilter"
-                        className="absolute inset-0 rounded-md bg-pine-teal"
-                        transition={{ type: "spring", stiffness: 400, damping: 32 }} />
-                    )}
-                    <span className="relative z-10">{label}</span>
+                    {bg}
                   </button>
                 );
               })}
             </div>
-            <span className="text-xs font-medium text-pine-teal/40">
-              {processedFeed.length} shown
-            </span>
           </div>
+
+          {/* ── PENDING DONATION BANNER ── */}
+          <AnimatePresence>
+            {pendingDonations.map((item) => {
+              const isDonorSide = (item.donorId?._id || item.donorId) === user?._id;
+              return (
+                <motion.div key={item._id}
+                  initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}
+                  className="mx-5 mt-4 flex items-center gap-3 rounded-2xl border border-dark-raspberry/25 bg-dark-raspberry/8 px-4 py-3.5">
+                  <span className="relative flex h-2 w-2 shrink-0">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-dark-raspberry opacity-60 animate-ping" />
+                    <span className="relative inline-flex h-2 w-2 rounded-full bg-dark-raspberry" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-black uppercase tracking-widest text-dark-raspberry">
+                      {isDonorSide ? "Donation Matched" : "Donor Confirmed"}
+                    </p>
+                    <p className="text-[13px] font-medium text-pine-teal truncate">{item.title}</p>
+                  </div>
+                  <motion.button whileTap={{ scale: 0.95 }} onClick={() => navigate(`/chat/${item._id}`)}
+                    className="shrink-0 rounded-full bg-dark-raspberry px-3.5 py-1.5 text-[11px] font-bold text-white">
+                    {isDonorSide ? "Enter PIN" : "Chat"}
+                  </motion.button>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
 
           {/* ── FEED ── */}
           <div className="px-5 pt-4 pb-32 space-y-3">
@@ -462,10 +549,15 @@ const Dashboard = () => {
                     const hoursLeft  = item.criticalDeadline
                       ? Math.round((new Date(item.criticalDeadline) - Date.now()) / 3600000)
                       : null;
+                    const ageHours       = Math.round((Date.now() - new Date(item.createdAt)) / 3600000);
+                    const expiresInHours = 72 - ageHours;
+                    const isExpiringSoon = !item.isEmergency && expiresInHours <= 12 && expiresInHours > 0;
+                    const isDonorVerified = item.donorId?.kycStatus?.documentVerified || item.donorId?.isVerified;
                     const statItems = [];
                     if (item.patientDetails?.name) statItems.push({ label: "Patient", value: `${item.patientDetails.name}${item.patientDetails.age ? `, ${item.patientDetails.age}` : ""}` });
                     if (item.quantity) statItems.push({ label: "Needs", value: item.quantity });
                     if (hoursLeft !== null) statItems.push({ label: "Deadline", value: hoursLeft > 0 ? `${hoursLeft}h left` : "Overdue", danger: hoursLeft <= 0 });
+                    if (isExpiringSoon) statItems.push({ label: "Expires", value: `${expiresInHours}h`, danger: true });
 
                     return (
                       <motion.article key={item._id} layout custom={idx}
@@ -511,7 +603,7 @@ const Dashboard = () => {
                                 ) : (
                                   <span className="rounded-md bg-pine-teal/8 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-pine-teal/65">{meta.label}</span>
                                 )}
-                                {item.verifiedByInstitution && (
+                                {(item.verifiedByInstitution || isDonorVerified) && (
                                   <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-[#2b7fff]">
                                     <FaShieldAlt className="text-[9px]" /> Verified
                                   </span>

@@ -8,7 +8,8 @@ import {
   FaUser, FaEnvelope, FaMapMarkerAlt, FaTint, FaBoxOpen,
   FaHistory, FaEdit, FaSave, FaTimes, FaPhone,
   FaLocationArrow, FaSpinner, FaStar, FaShieldAlt, FaSignOutAlt,
-  FaShareAlt, FaCheckCircle,
+  FaShareAlt, FaCheckCircle, FaBell, FaToggleOn, FaToggleOff,
+  FaTrophy, FaHeart,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
 import api from "../utils/api";
@@ -37,7 +38,7 @@ const StatChip = ({ icon: Icon, label, value, color, delay = 0 }) => (
 );
 
 const Profile = () => {
-  const { user, login, logout } = useContext(AuthContext);
+  const { user, login, logout, toggleAvailability, enableNotifications } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [stats,             setStats]             = useState({ totalDonations: 0, activeListings: 0, bloodDonations: 0 });
@@ -105,10 +106,13 @@ const Profile = () => {
 
   const inputCls = "w-full rounded-xl border border-white/10 bg-white/6 px-4 py-3.5 text-sm font-medium text-white placeholder-white/30 outline-none focus:border-blazing-flame/60 focus:ring-2 focus:ring-blazing-flame/10 transition-all";
 
+  const livesHelped = Math.max(user.donationsCount || 0, stats.bloodDonations) * 3;
+
   const statData = [
-    { icon: FaBoxOpen,     label: "Requests", value: loading ? "—" : (user.donationsCount || stats.totalDonations), color: "text-blazing-flame" },
-    { icon: FaHistory,     label: "Active",   value: loading ? "—" : stats.activeListings,                          color: "text-pine-teal" },
-    { icon: FaTint,        label: "Donations", value: loading ? "—" : stats.bloodDonations,                         color: "text-dark-raspberry" },
+    { icon: FaTint,     label: "Donated",   value: loading ? "—" : (user.donationsCount || stats.bloodDonations), color: "text-dark-raspberry" },
+    { icon: FaHeart,    label: "Lives",      value: loading ? "—" : livesHelped,                                   color: "text-blazing-flame" },
+    { icon: FaTrophy,   label: "Points",     value: loading ? "—" : (user.points || 0),                           color: "text-pine-teal" },
+    { icon: FaHistory,  label: "Active",     value: loading ? "—" : stats.activeListings,                         color: "text-dusty-lavender" },
   ];
 
   return (
@@ -271,22 +275,43 @@ const Profile = () => {
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Your blood group</p>
                 <p className="text-6xl font-black text-white tracking-tighter">{user.bloodGroup || "—"}</p>
-                <p className="text-[10px] font-bold text-white/40 mt-1 uppercase tracking-widest">
-                  {user.bloodGroup ? "Used to match you to nearby requests" : "Add it so we can match you"}
-                </p>
+                {user.rank && (
+                  <span className="inline-flex items-center gap-1 mt-1.5 rounded-full bg-white/10 border border-white/15 px-2.5 py-1 text-[10px] font-black text-white/70 uppercase tracking-widest">
+                    <FaTrophy className="text-[9px] text-yellow-400" /> {user.rank}
+                  </span>
+                )}
               </div>
-              <div className="text-right">
-                <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-white/40 mb-1">Status</p>
-                  <p className={`text-sm font-black ${user.isAvailable ? "text-pine-teal" : "text-dusty-lavender"}`}>
-                    {user.isAvailable ? "On-duty" : "Snoozed"}
-                  </p>
-                </div>
+              <div className="text-right space-y-2">
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={toggleAvailability}
+                  className={`flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all ${
+                    user.isAvailable
+                      ? "border-pine-teal/40 bg-pine-teal/20 text-pine-teal"
+                      : "border-white/15 bg-white/8 text-white/50"
+                  }`}
+                >
+                  {user.isAvailable
+                    ? <><FaToggleOn className="text-base text-pine-teal" /> On-duty</>
+                    : <><FaToggleOff className="text-base" /> Snoozed</>}
+                </motion.button>
               </div>
             </div>
             <div className="pointer-events-none absolute -bottom-8 -right-8 text-white/4">
               <FaTint className="text-[120px]" />
             </div>
+          </div>
+
+          {/* ── NOTIFICATIONS ── */}
+          <div className="rounded-3xl border border-pine-teal/10 bg-surface p-5 flex items-center justify-between gap-4 shadow-sm">
+            <div className="min-w-0">
+              <p className="text-[10px] font-black uppercase tracking-widest text-dusty-lavender mb-0.5">Push Alerts</p>
+              <p className="text-sm font-bold text-pine-teal">Get notified when blood is needed nearby</p>
+            </div>
+            <motion.button whileTap={{ scale: 0.9 }} onClick={enableNotifications}
+              className="shrink-0 flex items-center gap-1.5 rounded-2xl bg-dark-raspberry px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-sm">
+              <FaBell className="text-xs" /> Enable
+            </motion.button>
           </div>
 
           {/* ── REFERRAL ── */}

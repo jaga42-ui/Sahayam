@@ -188,17 +188,23 @@ const getNearbyFeed = asyncHandler(async (req, res) => {
   const limit = Math.min(Number(req.query.limit) || 12, 100);
   const skip = (page - 1) * limit;
 
-  // 👉 THE FIX: Removed countDocuments() here as well
+  // Non-emergency posts auto-expire after 72 h; emergency posts always show.
+  const expiryThreshold = new Date(Date.now() - 72 * 60 * 60 * 1000);
+
   let donations = await Donation.find({
     category: "blood",
-    status: { $nin: ["fulfilled", "hidden"] },
+    status: { $nin: ["fulfilled", "hidden", "expired"] },
+    $or: [
+      { isEmergency: true },
+      { createdAt: { $gte: expiryThreshold } },
+    ],
   })
     .populate(
       "donorId",
-      "name profilePic addressText points rank rating totalRatings phone",
+      "name profilePic addressText points rank rating totalRatings phone kycStatus isVerified",
     )
     .populate("requestedBy", "name profilePic")
-    .sort({ createdAt: -1 })
+    .sort({ isEmergency: -1, createdAt: -1 })
     .skip(skip)
     .limit(limit + 1);
 
