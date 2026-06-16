@@ -71,7 +71,8 @@ const registerUser = asyncHandler(async (req, res) => {
     addressText: "",
     location: { type: "Point", coordinates: [0, 0] },
     isEmailVerified: false,
-    emailVerificationToken: Math.floor(100000 + Math.random() * 900000).toString(), // 6-digit OTP
+    emailVerificationToken: Math.floor(100000 + Math.random() * 900000).toString(),
+    emailVerificationTokenExpiry: new Date(Date.now() + 30 * 60 * 1000),
   });
 
   if (user) {
@@ -203,6 +204,7 @@ const googleLogin = asyncHandler(async (req, res) => {
         phone: "Not Provided",
         activeRole: "donor",
         points: 10,
+        isEmailVerified: true,
         location: { type: "Point", coordinates: [0, 0] },
       });
     } else {
@@ -547,6 +549,11 @@ const verifyEmail = asyncHandler(async (req, res) => {
     return res.json({ message: "Email already verified. You can log in." });
   }
 
+  if (user.emailVerificationTokenExpiry && user.emailVerificationTokenExpiry < new Date()) {
+    res.status(400);
+    throw new Error("Verification code has expired. Please request a new one.");
+  }
+
   if (user.emailVerificationToken !== token) {
     res.status(400);
     throw new Error("Invalid verification code");
@@ -566,6 +573,7 @@ const resendVerification = asyncHandler(async (req, res) => {
   if (user.isEmailVerified) return res.json({ message: "Email is already verified." });
 
   user.emailVerificationToken = Math.floor(100000 + Math.random() * 900000).toString();
+  user.emailVerificationTokenExpiry = new Date(Date.now() + 30 * 60 * 1000);
   await user.save();
 
   const { sendVerificationEmail } = require("../utils/sendEmail");

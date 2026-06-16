@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema(
     // Trust & Safety
     isEmailVerified: { type: Boolean, default: false },
     emailVerificationToken: { type: String },
+    emailVerificationTokenExpiry: { type: Date },
     kycStatus: {
       documentVerified: { type: Boolean, default: false },
       documentType: { type: String, enum: ["aadhaar", "passport", "driving_license", "none"], default: "none" },

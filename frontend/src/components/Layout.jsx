@@ -50,8 +50,13 @@ const Layout = ({ children }) => {
   }, [location.pathname]);
 
   useEffect(() => {
-    const socket = io(import.meta.env.VITE_BACKEND_URL || "https://sahayam-api.onrender.com", {
+    if (!user?.token) return;
+    const base = import.meta.env.VITE_BACKEND_URL
+      ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
+      : "https://sahayam-api.onrender.com";
+    const socket = io(base, {
       transports: ["websocket", "polling"],
+      auth: { token: user.token },
     });
     socket.on("global_alert", (data) => {
       toast.custom(

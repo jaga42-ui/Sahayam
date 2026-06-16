@@ -34,7 +34,8 @@ export const AuthProvider = ({ children }) => {
       .catch(console.error);
 
     const newSocket = io(BACKEND_URL, {
-      transports: ["websocket", "polling"], 
+      transports: ["websocket", "polling"],
+      auth: { token: user.token },
     });
 
     setSocket(newSocket);

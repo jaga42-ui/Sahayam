@@ -80,6 +80,19 @@ const corsOptions = {
 const io = new Server(server, { cors: corsOptions });
 app.set("io", io);
 
+const jwt = require("jsonwebtoken");
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+  if (!token) return next(new Error("Authentication required"));
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    socket.userId = decoded.id.toString();
+    next();
+  } catch {
+    next(new Error("Invalid socket token"));
+  }
+});
+
 app.use((req, res, next) => {
   res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
   res.setHeader("Cross-Origin-Embedder-Policy", "unsafe-none");
@@ -194,6 +207,7 @@ app.get("/api/admin/feedback", protect, async (req, res) => {
 
 io.on("connection", (socket) => {
   socket.on("setup", (userId) => {
+    if (socket.userId && socket.userId !== userId.toString()) return;
     socket.join(userId);
   });
 
