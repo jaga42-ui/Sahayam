@@ -37,7 +37,13 @@ const userSchema = new mongoose.Schema(
     rating: { type: Number, default: 5.0 },
     totalRatings: { type: Number, default: 0 },
 
-    phone: { type: String },
+    phone: {
+      type: String,
+      validate: {
+        validator: (v) => !v || v === "Not Provided" || /^\+91[6-9]\d{9}$/.test(v),
+        message: "Phone must be stored in +91XXXXXXXXXX format",
+      },
+    },
     bloodGroup: { type: String },
     addressText: { type: String },
     isAvailable: { type: Boolean, default: true },

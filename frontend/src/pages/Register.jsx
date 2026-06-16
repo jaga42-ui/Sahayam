@@ -51,6 +51,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!agreedToPolicy) return toast.error("Please agree to the Terms & Privacy first.");
+    if (!/^[6-9]\d{9}$/.test(formData.phone)) return toast.error("Enter a valid 10-digit Indian mobile number (starts with 6–9).");
     if (activeRole === "donor" && !formData.bloodGroup) return toast.error("Blood group is required for donors.");
     setIsLoading(true);
     try {
@@ -161,11 +162,30 @@ const Register = () => {
               <label className="mb-1.5 block text-[10px] font-bold uppercase tracking-widest text-dusty-lavender">Phone number</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-pine-teal/40 select-none pointer-events-none">+91</span>
-                <input required type="tel" placeholder="98765 43210"
+                <input required type="tel" inputMode="numeric" placeholder="98765 43210" maxLength={10}
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  className={inputBase + " pl-12"} />
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })}
+                  className={`${inputBase} pl-12 pr-14 ${
+                    formData.phone.length > 0
+                      ? /^[6-9]\d{9}$/.test(formData.phone)
+                        ? "border-pine-teal ring-2 ring-pine-teal/10"
+                        : "border-dark-raspberry/50 ring-2 ring-dark-raspberry/10"
+                      : ""
+                  }`} />
+                <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-bold tabular-nums ${
+                  formData.phone.length === 10 ? "text-pine-teal" : "text-pine-teal/30"
+                }`}>
+                  {formData.phone.length}/10
+                </span>
               </div>
+              {formData.phone.length > 0 && formData.phone.length < 10 && (
+                <p className="mt-1 text-[10px] font-medium text-dark-raspberry/70">
+                  {10 - formData.phone.length} more digit{10 - formData.phone.length !== 1 ? "s" : ""} needed
+                </p>
+              )}
+              {formData.phone.length === 10 && !/^[6-9]/.test(formData.phone) && (
+                <p className="mt-1 text-[10px] font-medium text-dark-raspberry/70">Must start with 6, 7, 8, or 9</p>
+              )}
             </div>
 
             {/* Password */}

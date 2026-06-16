@@ -57,9 +57,16 @@ const Profile = () => {
   const [loading,            setLoading]            = useState(true);
   const [isEditing,          setIsEditing]          = useState(false);
   const [isFetchingLocation, setFetchingLocation]   = useState(false);
+  const formatPhoneDisplay = (stored) => {
+    if (!stored || stored === "Not Provided") return stored || "";
+    const digits = stored.replace(/\D/g, "");
+    const ten = digits.length === 12 ? digits.slice(2) : digits;
+    return ten.length === 10 ? `+91 ${ten.slice(0, 5)} ${ten.slice(5)}` : stored;
+  };
+
   const [formData,           setFormData]           = useState({
     name: user?.name || "", bloodGroup: user?.bloodGroup || "",
-    phone: user?.phone || "", addressText: user?.addressText || "",
+    phone: (user?.phone || "").replace(/^\+91/, ""), addressText: user?.addressText || "",
   });
 
   // New feature state
@@ -78,7 +85,7 @@ const Profile = () => {
   useEffect(() => {
     setFormData({
       name: user?.name || "", bloodGroup: user?.bloodGroup || "",
-      phone: user?.phone || "", addressText: user?.addressText || "",
+      phone: (user?.phone || "").replace(/^\+91/, ""), addressText: user?.addressText || "",
     });
 
     const fetchAll = async () => {
@@ -617,7 +624,7 @@ const Profile = () => {
                   className="p-4 space-y-2">
                   {[
                     { icon: FaEnvelope,    value: user.email,                   label: "Email" },
-                    { icon: FaPhone,       value: user.phone || "Not set",       label: "Phone" },
+                    { icon: FaPhone,       value: formatPhoneDisplay(user.phone) || "Not set", label: "Phone" },
                     { icon: FaTint,        value: user.bloodGroup || "Unknown",  label: "Blood" },
                     { icon: FaMapMarkerAlt,value: user.addressText || "Not set", label: "Area" },
                   ].map(({ icon: Icon, value, label }) => (
@@ -634,17 +641,36 @@ const Profile = () => {
                 <motion.form key="edit" onSubmit={handleUpdateProfile}
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                   className="p-4 space-y-3 bg-[#0a1f1a]">
-                  {[
-                    { key: "name",  label: "Full Name", type: "text", placeholder: "Your name" },
-                    { key: "phone", label: "Phone",     type: "tel",  placeholder: "+91 9XXXXXXXX" },
-                  ].map(({ key, label, type, placeholder }) => (
-                    <div key={key}>
-                      <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">{label}</label>
-                      <input type={type} value={formData[key]} placeholder={placeholder} required={key === "name"}
-                        onChange={(e) => setFormData((p) => ({ ...p, [key]: e.target.value }))}
-                        className={inputCls} />
+                  {/* Name */}
+                  <div>
+                    <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Full Name</label>
+                    <input type="text" value={formData.name} placeholder="Your name" required
+                      onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
+                      className={inputCls} />
+                  </div>
+                  {/* Phone */}
+                  <div>
+                    <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Phone</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-white/30 select-none pointer-events-none">+91</span>
+                      <input type="tel" inputMode="numeric" placeholder="9XXXXXXXXX" maxLength={10}
+                        value={formData.phone}
+                        onChange={(e) => setFormData((p) => ({ ...p, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }))}
+                        className={`${inputCls} pl-10 pr-12 ${
+                          formData.phone.length > 0
+                            ? /^[6-9]\d{9}$/.test(formData.phone) ? "border-pine-teal/50" : "border-dark-raspberry/40"
+                            : ""
+                        }`} />
+                      <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold tabular-nums ${
+                        formData.phone.length === 10 ? "text-pine-teal/60" : "text-white/20"
+                      }`}>{formData.phone.length}/10</span>
                     </div>
-                  ))}
+                    {formData.phone.length > 0 && !/^[6-9]\d{9}$/.test(formData.phone) && (
+                      <p className="mt-1 text-[10px] text-dark-raspberry/70 font-medium">
+                        {formData.phone.length < 10 ? `${10 - formData.phone.length} more digit${10 - formData.phone.length !== 1 ? "s" : ""} needed` : "Must start with 6, 7, 8, or 9"}
+                      </p>
+                    )}
+                  </div>
                   <div>
                     <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-white/40">Blood Group</label>
                     <select value={formData.bloodGroup}

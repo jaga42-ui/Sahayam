@@ -39,6 +39,18 @@ const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
 
+const normalizePhone = (raw) => {
+  if (!raw || raw === "Not Provided") return raw;
+  const digits = raw.replace(/\D/g, "");
+  const ten = digits.length === 12 && digits.startsWith("91")
+    ? digits.slice(2)
+    : digits.length === 10
+    ? digits
+    : null;
+  if (!ten || !/^[6-9]\d{9}$/.test(ten)) return null;
+  return `+91${ten}`;
+};
+
 const registerUser = asyncHandler(async (req, res) => {
   const { name, password, phone, activeRole, bloodGroup, organizationName, refCode } = req.body;
   // 👉 THE FIX: Normalize email to prevent duplicate accounts
@@ -47,6 +59,12 @@ const registerUser = asyncHandler(async (req, res) => {
   if (!name || !email || !password || !phone) {
     res.status(400);
     throw new Error("Please add all required fields");
+  }
+
+  const normalizedPhone = normalizePhone(phone);
+  if (!normalizedPhone) {
+    res.status(400);
+    throw new Error("Enter a valid 10-digit Indian mobile number starting with 6–9");
   }
 
   const userExists = await User.findOne({ email });
@@ -61,7 +79,7 @@ const registerUser = asyncHandler(async (req, res) => {
     name,
     email,
     password,
-    phone,
+    phone: normalizedPhone,
     bloodGroup: bloodGroup || undefined,
     activeRole: activeRole || "donor",
     isAdmin: false,
@@ -240,7 +258,11 @@ const updateProfile = asyncHandler(async (req, res) => {
   if (user) {
     user.name = req.body.name || user.name;
     user.bloodGroup = req.body.bloodGroup || user.bloodGroup;
-    user.phone = req.body.phone || user.phone;
+    if (req.body.phone) {
+      const normalized = normalizePhone(req.body.phone);
+      if (!normalized) { res.status(400); throw new Error("Invalid phone number"); }
+      user.phone = normalized;
+    }
     user.addressText = req.body.addressText || user.addressText;
 
     const updatedUser = await user.save();

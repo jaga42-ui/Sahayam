@@ -9,7 +9,10 @@ const registerSchema = Joi.object({
     .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)'))
     .message('Password must contain at least 8 characters, one uppercase letter, one lowercase letter, and one number')
     .required(),
-  phone: Joi.string().required(),
+  phone: Joi.string()
+    .pattern(/^(\+91)?[6-9]\d{9}$/)
+    .required()
+    .messages({ "string.pattern.base": "Phone must be a valid 10-digit Indian mobile number starting with 6–9" }),
   activeRole: Joi.string().valid('donor', 'receiver', 'admin', 'ngo').default('donor'),
   organizationName: Joi.string().when('activeRole', { is: 'ngo', then: Joi.required(), otherwise: Joi.optional() }),
   bloodGroup: Joi.string().allow('').optional(),
