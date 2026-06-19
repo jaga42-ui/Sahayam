@@ -1,135 +1,135 @@
-# Sahayam — find a blood donor, closer than you think
+<div align="center">
 
-> A real-time network that connects blood emergencies with verified, compatible donors nearby. Raise an SOS and reach the right donors in seconds.
+<img src="frontend/public/logo.png" alt="Sahayam" width="110" />
 
-**🩸 Live demo:** [sahayam-beta.vercel.app](https://sahayam-beta.vercel.app)
+# Sahayam
 
-> ⏳ **Heads up:** the API runs on a free tier and sleeps when idle — the first request after a quiet spell can take ~30–50s to wake. Give it a moment on the first load.
+### Find a blood donor, closer than you think.
 
-**Stack:** React 19 · Vite · Tailwind v4 · Node/Express · MongoDB · Socket.io · Leaflet · Gemini
+A real-time network that connects blood emergencies with **verified, compatible donors nearby** — raise an SOS and reach the right people in seconds.
 
----
+<br/>
 
-## Screenshots
+[![Live Demo](https://img.shields.io/badge/Live_Demo-sahayam--beta-E11D48?style=for-the-badge&logo=vercel&logoColor=white)](https://sahayam-beta.vercel.app)
+&nbsp;
+[![Made with](https://img.shields.io/badge/built_for-blood_emergencies-7C3AED?style=for-the-badge&logo=heart&logoColor=white)](#-the-routing-engine)
 
-> _Add 2–4 screenshots/GIFs here — the Blood Radar map, an SOS in flight, and the dashboard make the strongest first impression._
->
-> ```
-> ![Blood Radar](docs/screenshots/radar.png)
-> ![SOS escalation](docs/screenshots/sos.gif)
-> ```
+<br/>
 
----
+![React](https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
+![Tailwind](https://img.shields.io/badge/Tailwind_v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![Node](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)
+![Socket.io](https://img.shields.io/badge/Socket.io-010101?style=flat-square&logo=socketdotio&logoColor=white)
+![Leaflet](https://img.shields.io/badge/Leaflet-199900?style=flat-square&logo=leaflet&logoColor=white)
+![Gemini](https://img.shields.io/badge/Gemini_AI-8E75B2?style=flat-square&logo=googlegemini&logoColor=white)
 
-## 1. Project Overview
+</div>
 
-**Sahayam** is a full-stack, real-time blood-donor matching platform. It solves the critical problem of delayed blood emergencies by instantly connecting a requester with verified, compatible, eligible donors nearby — and automatically widening the search until enough donors confirm.
-
-**Who it is for:**
-- **Requesters:** Patients and families facing a time-critical blood need.
-- **Donors:** Verified community members who can be alerted the moment a compatible request appears near them.
-
----
-
-## 2. Key Features
-
-- **Blood Radar (smart emergency routing):** Location-based SOS that pings only compatible, eligible donors nearby. If nobody responds at a level, a cron-driven escalation engine widens the radius and pings a *fresh* ring of donors — never re-pinging anyone.
-- **Medically-correct matching:** A single matching path enforces blood-group compatibility (O− universal donor, AB+ universal recipient) and a 90-day donor cooldown everywhere it's used.
-- **Real-Time Communication:** Private, direct messaging between requester and donor over Socket.io — no phone number exposed in a public forward.
-- **Smart Assistant:** Google Gemini turns a natural-language description of the emergency into a structured SOS (blood group, location, urgency).
-- **Correctness guarantees:** Atomic donor claim (exactly one hero wins a race, the rest get a clean 409) and at-least-once delivery over push *and* email.
-- **Admin Command Center:** Dashboard for activity heatmaps, engine metrics (fill rate, time-to-first-response), moderation, and system-wide broadcasts.
+> [!NOTE]
+> The API runs on a free tier and **sleeps when idle** — the first request after a quiet spell can take ~30–50s to wake. Give it a moment on the first load.
 
 ---
 
-## 3. Tech Stack
+## 📸 Screenshots
 
-**Frontend**
-- **Framework:** React 19 + Vite
-- **Styling:** Tailwind CSS v4, Framer Motion (for animations)
-- **Maps:** Leaflet & React-Leaflet
-- **State/Routing:** React Router DOM
-- **Other:** Firebase (Auth/Push notifications), Socket.io-client, Recharts
+<div align="center">
 
-**Backend**
-- **Framework:** Node.js, Express.js
-- **Database:** MongoDB (Mongoose ODM)
-- **Real-Time:** Socket.io
-- **Security:** Helmet, Express Rate Limit, Mongo Sanitize, XSS Clean
-- **AI/External APIs:** Google Generative AI (Gemini), Cloudinary (Image storage), Nodemailer, Web-push
-- **Background Jobs:** Node-cron
+<!-- Drop your images in docs/screenshots/ and uncomment:
+<img src="docs/screenshots/radar.png" alt="Blood Radar" width="80%" />
+<img src="docs/screenshots/sos.gif" alt="SOS escalation in flight" width="80%" />
+-->
 
-**Deployment Platforms**
-- **Frontend:** Vercel (configured via `vercel.json`)
-- **Backend:** Render (or any Node.js hosting, proxy trusted)
+_The **Blood Radar** map, an **SOS in flight**, and the **admin dashboard** make the strongest first impression — add 2–4 shots here._
+
+</div>
 
 ---
 
-## 4. Architecture Overview
+## ✨ Why Sahayam
 
-Sahayam operates on a decoupled client-server architecture:
-- **Frontend (SPA):** Built with Vite and React, it handles complex UI states (maps, real-time chat, dashboards) and communicates with the backend via RESTful APIs and WebSocket connections.
-- **Backend (API):** A monolithic Express server that handles business logic, MongoDB database interactions, JWT-based authentication, and AI integrations.
-- **Background Processes:** Scheduled cron jobs run independently on the server to expire stale SOS requests and drive the automated radius expansion for unanswered blasts (guarded by a distributed `CronLock` so it stays correct across instances).
-- **Media Storage:** Images (user avatars, donation photos) are offloaded directly to Cloudinary via Multer.
+When a family needs blood, every minute counts. A WhatsApp forward is slow, untargeted, and exposes private numbers. Sahayam replaces it with a **medically-correct, location-aware matching engine** that alerts only the donors who can actually help — and keeps widening the search until enough confirm.
+
+| | Feature | What it does |
+|---|---|---|
+| 🩸 | **Blood Radar** | Location-based SOS that pings only **compatible, eligible** donors nearby. No response? The engine widens the radius and pings a **fresh** ring — never re-pinging anyone. |
+| 🧬 | **Medically-correct matching** | One matching path enforces blood-group compatibility (O− universal donor, AB+ universal recipient) and a **90-day donor cooldown** everywhere it's used. |
+| ⚡ | **Atomic claim** | Two heroes accept the same slot at once → exactly **one wins**, the rest get a clean `409`. No double-booking a donor. |
+| 📡 | **At-least-once delivery** | Alerts fan out over **push *and* email** — for a life-critical message, receiving both is the safe failure mode. |
+| 💬 | **Private real-time chat** | Requester and donor coordinate over Socket.io — **no phone number** exposed in a public forward. |
+| 🤖 | **Smart Assistant** | Google Gemini turns a natural-language description of the emergency into a structured SOS (blood group, location, urgency). |
+| 📊 | **Admin Command Center** | Activity heatmaps, live engine metrics (fill rate, time-to-first-response), moderation, and system-wide broadcasts. |
 
 ---
 
-## 4a. The Routing Engine (core technical highlight)
+## 🧠 The Routing Engine
 
-The heart of Sahayam is a **real-time emergency blood-donor routing engine**. A single, unified matching path serves every caller — the radar map, the emergency blast, the escalation cron, and emergency listings — so matching is consistent and medically correct everywhere.
+> The heart of Sahayam. A **single, unified matching path** serves every caller — the radar map, the emergency blast, and the escalation cron — so matching is consistent and medically correct everywhere.
 
-**Donor matching** (`services/donorMatching.js`) runs a `$geoNear` aggregation that returns donors already sorted by distance (with a real `distance` field for the map). A candidate must be a compatible blood group, **eligible** (whole-blood donors are locked out for 90 days after donating), available, within radius, and not already pinged.
+An SOS is **not** a fixed broadcast. It's a timeout-driven **state machine** that escalates until the need is met:
 
-**Blood compatibility** (`utils/bloodCompat.js`) is the single source of truth — the recipient/donor matrix (O− universal donor, AB+ universal recipient). Unit-tested in `tests/bloodCompat.test.js`.
+<div align="center">
+  <img src="docs/escalation-engine.svg" alt="SOS escalation state machine" width="85%" />
+</div>
 
-**Escalation state machine** (`services/escalationEngine.js`) — an SOS is a timeout-driven state machine, not a fixed broadcast:
+**How it works under the hood**
 
-![SOS escalation state machine](docs/escalation-engine.svg)
+- **Donor matching** — `services/donorMatching.js` runs a `$geoNear` aggregation that returns donors pre-sorted by distance (with a real `distance` field for the map). A candidate must be a compatible blood group, **eligible**, available, within radius, and not already pinged.
+- **Compatibility source of truth** — `utils/bloodCompat.js` holds the recipient/donor matrix, unit-tested in `tests/bloodCompat.test.js`.
+- **Escalation** — if nobody responds at a level, a cron tick widens the radius and pings a **fresh** ring of donors. Guarded by a distributed **`CronLock`** so it stays correct across horizontally-scaled instances.
+- **Observability** — `GET /api/admin/engine-metrics` reports fill rate, median time-to-first-response, and escalation-depth distribution.
 
-If nobody responds at a level, a cron tick widens the radius and pings a **fresh** ring of donors (never re-pinging anyone — this is the idempotency guarantee). The cron is guarded by a distributed `CronLock` so it stays correct across horizontally-scaled instances.
+```bash
+# See the radar & escalation end-to-end with 200 synthetic donors:
+node scripts/seedDonors.js      # ~20% on cooldown, varied blood groups
+node scripts/seedDonors.js --clear
+```
 
-**Correctness guarantees**
-- **Atomic claim** — when two heroes accept the same SOS simultaneously, a conditional `findOneAndUpdate` lets exactly one win; the loser gets a clean `409`.
-- **At-least-once delivery** — `utils/notify.js` fans out over push *and* email; for a life-critical alert, receiving both is the safe failure mode.
+---
 
-**Observability** — `GET /api/admin/engine-metrics` reports fill rate, median time-to-first-response, and escalation-depth distribution.
+## 🏗️ Architecture
 
-**Demo** — `node scripts/seedDonors.js` scatters 200 synthetic donors (varied blood groups, ~20% on cooldown) around a city so the radar and escalation are visible end-to-end. Wipe with `--clear`.
+```
+┌──────────────────────┐        REST + WebSocket        ┌──────────────────────┐
+│   React SPA (Vite)    │  ───────────────────────────▶ │   Express API         │
+│   maps · chat · dash  │ ◀───────────────────────────  │   JWT · business logic │
+└──────────────────────┘                                └───────────┬──────────┘
+                                                                     │
+                  ┌──────────────────────────────────────┬──────────┼───────────────┐
+                  ▼                                        ▼          ▼               ▼
+            ┌───────────┐                          ┌────────────┐ ┌────────┐  ┌──────────────┐
+            │  MongoDB  │                          │  node-cron │ │ Gemini │  │ Cloudinary    │
+            │ (geo + ttl)│                         │ escalation │ │  AI    │  │ media uploads │
+            └───────────┘                          └────────────┘ └────────┘  └──────────────┘
+```
 
-## 5. Setup Instructions (Developer Guide)
+- **Frontend (SPA)** — Vite + React, handling maps, real-time chat, and dashboards over REST + WebSocket.
+- **Backend (API)** — a monolithic Express server: business logic, MongoDB, JWT auth, AI integrations.
+- **Background jobs** — cron expires stale SOS requests and drives radius expansion (distributed `CronLock`).
+- **Media** — avatars and photos offloaded to Cloudinary via Multer.
 
-### Prerequisites
-- Node.js (v18+)
-- MongoDB connection URI (e.g., MongoDB Atlas)
-- Cloudinary Account (for image uploads)
-- Firebase Project setup (for push notifications)
-- Google Gemini API Key
+---
 
-### Installation Steps
+## 🚀 Quick Start
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd Sahayam
-   ```
+**Prerequisites:** Node.js 18+, a MongoDB URI, and (optional) Cloudinary / Firebase / Gemini keys.
 
-2. **Install Backend Dependencies**
-   ```bash
-   cd backend
-   npm install
-   ```
+```bash
+git clone <repository-url> && cd Sahayam
 
-3. **Install Frontend Dependencies**
-   ```bash
-   cd ../frontend
-   npm install
-   ```
+# Backend
+cd backend && npm install && npm run dev      # → http://localhost:5000
 
-### Environment Variables
+# Frontend (in a second terminal)
+cd frontend && npm install && npm run dev      # → http://localhost:5173
+```
 
-**Backend (`backend/.env`)**
-Create a `.env` file in the `backend` directory:
+<details>
+<summary><b>Environment variables</b></summary>
+
+**`backend/.env`**
 ```env
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
@@ -139,127 +139,105 @@ CLOUDINARY_CLOUD_NAME=your_cloudinary_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 GEMINI_API_KEY=your_google_gemini_api_key
-# VAPID keys for Web-Push
 VAPID_PUBLIC_KEY=your_vapid_public
 VAPID_PRIVATE_KEY=your_vapid_private
 VAPID_EMAIL=mailto:admin@example.com
 ```
 
-**Frontend (`frontend/.env`)**
-Create a `.env` file in the `frontend` directory (see `frontend/.env.example`):
+**`frontend/.env`** (see `frontend/.env.example`)
 ```env
 # Backend API base URL — MUST include the /api suffix
 VITE_BACKEND_URL=http://localhost:5000/api
 VITE_GOOGLE_CLIENT_ID=your_google_client_id
 VITE_VAPID_PUBLIC_KEY=your_vapid_public_key
-# Optional — only used to label your city on the radar
-VITE_MAPBOX_TOKEN=your_mapbox_token
+VITE_MAPBOX_TOKEN=your_mapbox_token   # optional — labels your city on the radar
 ```
-
-### Running Locally
-
-Open two terminal windows:
-
-**Terminal 1 (Backend):**
-```bash
-cd backend
-npm run dev
-```
-
-**Terminal 2 (Frontend):**
-```bash
-cd frontend
-npm run dev
-```
-
-The frontend will be available at `http://localhost:5173` and the backend API at `http://localhost:5000`.
+</details>
 
 ---
 
-## 6. API Documentation
+## 📡 API Reference
 
-### Authentication (`/api/auth`)
-- `POST /register` - Register a new user
-- `POST /login` - Authenticate user & get JWT token
-- `POST /google` - Google OAuth login
-- `POST /emergency-blast` - Trigger a location-based SOS alert
+<details>
+<summary><b>Endpoints</b></summary>
 
-### Donations & Requests (`/api/donations`)
-- `GET /` - Fetch all active community donations
-- `POST /` - Create a new donation/request (supports image upload)
-- `GET /feed` - Get personalized, proximity-based feed
-- `PATCH /:id/sos-accept` - Accept an emergency SOS request
-- `POST /triage` - AI-powered triage analysis
+**Auth** &nbsp;`/api/auth`
+| Method | Route | Description |
+|---|---|---|
+| `POST` | `/register` | Register a new user |
+| `POST` | `/login` | Authenticate & get a JWT |
+| `POST` | `/google` | Google OAuth login |
+| `POST` | `/emergency-blast` | Trigger a location-based SOS |
 
-### Real-Time Chat (`/api/chat`)
-- `GET /inbox` - Fetch user's active conversations
-- `GET /:donationId` - Fetch chat history for a specific request
-- `POST /` - Send a message
+**Donations & SOS** &nbsp;`/api/donations`
+| Method | Route | Description |
+|---|---|---|
+| `GET` | `/feed` | Personalized, proximity-based feed |
+| `POST` | `/` | Create a request (supports image upload) |
+| `PATCH` | `/:id/sos-accept` | Accept an emergency SOS (atomic claim) |
+| `POST` | `/triage` | AI-powered triage analysis |
 
-### Admin (`/api/admin`)
-- `GET /stats` - Retrieve platform metrics
-- `GET /heatmap` - Retrieve geographical incident data
-- `POST /broadcast` - Send platform-wide alerts
+**Chat** &nbsp;`/api/chat`
+| Method | Route | Description |
+|---|---|---|
+| `GET` | `/inbox` | Active conversations |
+| `GET` | `/:donationId` | Chat history for a request |
+| `POST` | `/` | Send a message |
 
----
+**Admin** &nbsp;`/api/admin`
+| Method | Route | Description |
+|---|---|---|
+| `GET` | `/stats` | Platform metrics |
+| `GET` | `/heatmap` | Geographical incident data |
+| `GET` | `/engine-metrics` | Fill rate, time-to-first-response |
+| `POST` | `/broadcast` | Platform-wide alert |
 
-## 7. Usage Guide (User Flow)
-
-1. **Sign Up:** User registers as a donor with their blood group and location.
-2. **Raise an SOS:** A requester drops a pin on the map and submits an SOS (blood group, hospital, number of donors needed).
-3. **Smart Routing:** The engine pings only compatible, eligible donors within the radius via push *and* email; if nobody responds, it widens and pings a fresh ring.
-4. **Acceptance:** A donor accepts (atomic claim — exactly one wins per slot), immediately opening a secure, real-time chat with the requester.
-5. **Fulfillment:** Donors confirm in chat, meet at the hospital, and the request is marked **Fulfilled**.
-
----
-
-## 8. Design & UX Principles
-
-- **Human-Centered & Friendly:** We've replaced complex jargon with natural, supportive language. In an emergency, every second counts, and the UI reduces friction by placing the most critical action front and center.
-- **Mobile-First Layout:** Designed entirely with responsiveness in mind, featuring optimized navigation grids ensuring people on the move can access help from their smartphones.
-- **Visual Urgency & Accessibility:** High-contrast color coding (e.g., Red for emergencies) safely guides user attention. A seamless, dynamic **Dark Mode** with smooth crossfade transitions ensures optimal viewing in any lighting condition.
-- **Dynamic Feedback:** Features premium shimmering skeleton loaders during data fetches, micro-animations (via Framer Motion), and real-time toast notifications to assure users that the system is working for them.
+</details>
 
 ---
 
-## 9. Security Considerations
+## 🔄 User Flow
 
-- **Bulletproof Headers:** Powered by Helmet.js to prevent common vulnerabilities.
-- **Rate Limiting:** Distinct limiters for generic API calls, POST requests (spam prevention), and strict limits on authentication endpoints to prevent brute-force attacks.
-- **Data Protection:** All inputs are sanitized using `express-mongo-sanitize` and `xss-clean` to prevent NoSQL injection and Cross-Site Scripting.
-- **Authentication:** Secure JWT implementation with bcrypt password hashing.
-
----
-
-## 10. Limitations (Known Issues)
-
-- **Identity Verification:** Currently relies on basic admin moderation. There is no automated KYC or medical license verification for organizations yet.
-- **Geospatial Precision:** Depends on browser/device HTML5 geolocation, which can occasionally be inaccurate in rural areas.
-- **Background Jobs:** Cron jobs run on a single instance; this will require a distributed worker model (like BullMQ + Redis) for large-scale production.
+1. **Sign up** as a donor with your blood group and location.
+2. **Raise an SOS** — drop a pin, enter blood group, hospital, and how many donors you need.
+3. **Smart routing** pings compatible, eligible donors nearby via push + email; no response → it widens.
+4. **Accept** (atomic claim — one wins per slot) opens a secure real-time chat.
+5. **Fulfill** — confirm in chat, meet at the hospital, mark the request **Fulfilled**.
 
 ---
 
-## 11. Future Improvements / Roadmap
+## 🔐 Security
 
-- **Redis Integration:** Offload Socket.io states and implement distributed rate-limiting for horizontal scaling.
-- **Automated Verification:** Integration with third-party KYC APIs to automatically verify medical professionals and NGOs.
-- **Enhanced Notifications:** SMS fallback via Twilio/Messagebird for users without reliable internet access or push-token expiration.
-- **AI Expansion:** Utilize AI for automated spam detection and content moderation before posts hit the database.
-
----
-
-## 12. Contribution Guidelines
-
-1. **Fork the repo** and clone it locally.
-2. **Create a feature branch:** `git checkout -b feature/your-feature-name`
-3. **Commit your changes:** Follow standard conventional commits.
-4. **Push to the branch:** `git push origin feature/your-feature-name`
-5. **Submit a Pull Request:** Explain the scope and purpose of your feature.
-
-*Please ensure your code passes ESLint rules and follows the existing component structure before submitting a PR.*
+- **Hardened headers** via Helmet.js.
+- **Tiered rate limiting** — separate limiters for general API, writes, auth, and OTP endpoints.
+- **Input sanitization** — `express-mongo-sanitize` + `xss-clean` against NoSQL injection and XSS.
+- **Auth** — JWT with bcrypt password hashing; Socket.io connections are token-authenticated.
 
 ---
 
-## 13. License
+## 🗺️ Roadmap
 
-This project is licensed under the **ISC License**.
+- [ ] **Redis** — offload Socket.io state + distributed rate-limiting for horizontal scale.
+- [ ] **Automated verification** — third-party KYC for medical professionals and NGOs.
+- [ ] **SMS fallback** (Twilio) for users without reliable push/internet.
+- [ ] **AI moderation** — spam/abuse detection before posts hit the database.
+
+> **Known limits today:** identity verification is admin-moderated (no automated KYC yet); geolocation depends on device HTML5 accuracy; cron runs on a single instance (a distributed worker like BullMQ + Redis is the next step).
+
+---
+
+## 🤝 Contributing
+
+1. Fork & clone, then branch: `git checkout -b feature/your-feature`
+2. Commit using conventional commits, push, and open a PR describing the scope.
+3. Ensure ESLint passes and you follow the existing component structure.
+
+---
+
+<div align="center">
+
+Built with 🩸 to make blood reach people in time.
+
+**License:** ISC
+
+</div>
