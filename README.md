@@ -1,26 +1,44 @@
-# Sahayam - Emergency Relief & Donation Network
+# Sahayam — find a blood donor, closer than you think
 
-> A hyper-local, real-time platform connecting those in need with community heroes.
+> A real-time network that connects blood emergencies with verified, compatible donors nearby. Raise an SOS and reach the right donors in seconds.
+
+**🩸 Live demo:** [sahayam-beta.vercel.app](https://sahayam-beta.vercel.app)
+
+> ⏳ **Heads up:** the API runs on a free tier and sleeps when idle — the first request after a quiet spell can take ~30–50s to wake. Give it a moment on the first load.
+
+**Stack:** React 19 · Vite · Tailwind v4 · Node/Express · MongoDB · Socket.io · Leaflet · Gemini
+
+---
+
+## Screenshots
+
+> _Add 2–4 screenshots/GIFs here — the Blood Radar map, an SOS in flight, and the dashboard make the strongest first impression._
+>
+> ```
+> ![Blood Radar](docs/screenshots/radar.png)
+> ![SOS escalation](docs/screenshots/sos.gif)
+> ```
+
+---
 
 ## 1. Project Overview
 
-**Sahayam** is a full-stack disaster relief, emergency response, and community donation platform. It solves the critical problem of delayed emergency assistance by instantly connecting people in need—whether for blood donations, food supplies, or emergency rescues—with nearby users willing to help. 
+**Sahayam** is a full-stack, real-time blood-donor matching platform. It solves the critical problem of delayed blood emergencies by instantly connecting a requester with verified, compatible, eligible donors nearby — and automatically widening the search until enough donors confirm.
 
 **Who it is for:**
-- **Requesters:** Individuals or communities facing emergencies, resource shortages, or critical medical needs.
-- **Donors/Heroes:** Community members, verified volunteers, and local organizations ready to provide assistance.
+- **Requesters:** Patients and families facing a time-critical blood need.
+- **Donors:** Verified community members who can be alerted the moment a compatible request appears near them.
 
 ---
 
 ## 2. Key Features
 
-- **Smart Emergency Routing (Blood Radar):** Location-based SOS broadcasting that pings nearby donors. If initial responders fail to answer, a background cron job dynamically expands the search radius.
-- **Real-Time Communication:** Instant, direct messaging between requesters and donors powered by Socket.io to coordinate logistics.
-- **Community Marketplace:** Users can post requests for items (e.g., food, clothing) or list available items for donation.
-- **Smart Assistant:** Integrates Google's Gemini AI to process SOS requests naturally and generate "Hero Stories" to boost community morale.
-- **Gamification & Leaderboard:** A point-based rank system that rewards users for active participation and successful fulfilled requests.
-- **Admin Command Center:** A powerful dashboard for administrators to view activity heatmaps, resolve reports, manage users, and broadcast system-wide alerts.
-- **Dual-Role System:** Users can seamlessly toggle between "Requester" and "Donor" profiles.
+- **Blood Radar (smart emergency routing):** Location-based SOS that pings only compatible, eligible donors nearby. If nobody responds at a level, a cron-driven escalation engine widens the radius and pings a *fresh* ring of donors — never re-pinging anyone.
+- **Medically-correct matching:** A single matching path enforces blood-group compatibility (O− universal donor, AB+ universal recipient) and a 90-day donor cooldown everywhere it's used.
+- **Real-Time Communication:** Private, direct messaging between requester and donor over Socket.io — no phone number exposed in a public forward.
+- **Smart Assistant:** Google Gemini turns a natural-language description of the emergency into a structured SOS (blood group, location, urgency).
+- **Correctness guarantees:** Atomic donor claim (exactly one hero wins a race, the rest get a clean 409) and at-least-once delivery over push *and* email.
+- **Admin Command Center:** Dashboard for activity heatmaps, engine metrics (fill rate, time-to-first-response), moderation, and system-wide broadcasts.
 
 ---
 
@@ -52,7 +70,7 @@
 Sahayam operates on a decoupled client-server architecture:
 - **Frontend (SPA):** Built with Vite and React, it handles complex UI states (maps, real-time chat, dashboards) and communicates with the backend via RESTful APIs and WebSocket connections.
 - **Backend (API):** A monolithic Express server that handles business logic, MongoDB database interactions, JWT-based authentication, and AI integrations.
-- **Background Processes:** Scheduled cron jobs run independently on the server to clean up stale requests (e.g., expired food donations) and manage the automated radius expansion for unanswered SOS blasts.
+- **Background Processes:** Scheduled cron jobs run independently on the server to expire stale SOS requests and drive the automated radius expansion for unanswered blasts (guarded by a distributed `CronLock` so it stays correct across instances).
 - **Media Storage:** Images (user avatars, donation photos) are offloaded directly to Cloudinary via Multer.
 
 ---
@@ -128,14 +146,14 @@ VAPID_EMAIL=mailto:admin@example.com
 ```
 
 **Frontend (`frontend/.env`)**
-Create a `.env` file in the `frontend` directory:
+Create a `.env` file in the `frontend` directory (see `frontend/.env.example`):
 ```env
-VITE_API_URL=http://localhost:5000
-VITE_FIREBASE_API_KEY=your_firebase_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
-VITE_FIREBASE_PROJECT_ID=your_firebase_project_id
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
+# Backend API base URL — MUST include the /api suffix
+VITE_BACKEND_URL=http://localhost:5000/api
+VITE_GOOGLE_CLIENT_ID=your_google_client_id
+VITE_VAPID_PUBLIC_KEY=your_vapid_public_key
+# Optional — only used to label your city on the radar
+VITE_MAPBOX_TOKEN=your_mapbox_token
 ```
 
 ### Running Locally
@@ -187,11 +205,11 @@ The frontend will be available at `http://localhost:5173` and the backend API at
 
 ## 7. Usage Guide (User Flow)
 
-1. **Sign Up:** User registers and selects their primary role (Requester or Donor).
-2. **Post a Request / SOS:** A user in need drops a pin on the map and submits an SOS (e.g., Blood needed urgently).
-3. **Smart Routing:** The system calculates the radius and sends push notifications/emails to nearby available donors.
-4. **Acceptance:** A donor clicks "Accept" on the notification, immediately opening a secure, real-time chat with the requester.
-5. **Fulfillment:** Once the help is provided, the request is marked as "Fulfilled," and the donor receives leaderboard points and a generated AI "Hero Story."
+1. **Sign Up:** User registers as a donor with their blood group and location.
+2. **Raise an SOS:** A requester drops a pin on the map and submits an SOS (blood group, hospital, number of donors needed).
+3. **Smart Routing:** The engine pings only compatible, eligible donors within the radius via push *and* email; if nobody responds, it widens and pings a fresh ring.
+4. **Acceptance:** A donor accepts (atomic claim — exactly one wins per slot), immediately opening a secure, real-time chat with the requester.
+5. **Fulfillment:** Donors confirm in chat, meet at the hospital, and the request is marked **Fulfilled**.
 
 ---
 
