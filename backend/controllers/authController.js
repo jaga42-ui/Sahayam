@@ -11,6 +11,7 @@ const { evaluateText } = require("../utils/spamDetector");
 const { findEligibleDonors } = require("../services/donorMatching");
 const { notifyDonors } = require("../utils/notify");
 const { levelConfig, nextEscalationAt } = require("../services/escalationEngine");
+const { recordBlastResponse } = require("../services/blastResponse");
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -425,38 +426,38 @@ const sendEmergencyBlast = asyncHandler(async (req, res) => {
 });
 
 const respondToBlast = asyncHandler(async (req, res) => {
-  const blast = await Blast.findById(req.params.id);
-  if (!blast) {
-    res.status(404);
-    throw new Error("SOS alert no longer active");
-  }
+  const heroId = req.user._id;
 
-  if (["expired", "cancelled", "fulfilled"].includes(blast.status)) {
-    res.status(400);
-    throw new Error("This SOS is no longer accepting responders.");
-  }
+  // 👉 ATOMIC RESPONSE: record this donor in a single conditional update so
+  // concurrent responders can't over-fill a replacement-donor request or
+  // double-commit. See services/blastResponse.js for the guarantee.
+  const claimed = await recordBlastResponse(req.params.id, heroId);
 
-  const alreadyResponded = blast.responses.find(
-    (r) => r.donor.toString() === req.user._id.toString(),
-  );
-  if (alreadyResponded) return res.json(blast);
+  // The update matched nothing — figure out why so the client gets the right
+  // signal (idempotent re-tap, closed SOS, or a slot that filled up first).
+  if (!claimed) {
+    const current = await Blast.findById(req.params.id);
+    if (!current) {
+      res.status(404);
+      throw new Error("SOS alert no longer active");
+    }
+    const already = current.responses.some(
+      (r) => r.donor.toString() === heroId.toString(),
+    );
+    if (already) return res.json(current); // already on the way — no double credit
+    if (["expired", "cancelled", "fulfilled"].includes(current.status)) {
+      res.status(400);
+      throw new Error("This SOS is no longer accepting responders.");
+    }
+    res.status(409);
+    throw new Error("This SOS already has enough donors on the way.");
+  }
 
   const { calculateRank, getPointsForAction } = require("../utils/gamification");
 
-  blast.responses.push({ donor: req.user._id });
-  if (!blast.firstResponseAt) blast.firstResponseAt = new Date();
-
-  // Replacement-donor mode: only fully matched (and escalation stopped) once
-  // enough donors have committed. Otherwise the cron keeps recruiting.
-  const committed = blast.responses.length;
-  const needed = blast.unitsNeeded || 1;
+  const committed = claimed.responses.length;
+  const needed = claimed.unitsNeeded || 1;
   const covered = committed >= needed;
-  if (covered) {
-    blast.status = "matched";
-    blast.matchedAt = new Date();
-    blast.nextEscalationAt = null;
-  }
-  await blast.save();
 
   const responder = await User.findById(req.user._id);
   responder.points += getPointsForAction('RESPOND_SOS');
@@ -465,10 +466,10 @@ const respondToBlast = asyncHandler(async (req, res) => {
 
   const io = req.app.get("io");
   if (io) {
-    io.to(blast.requester.toString()).emit("donor_coming", {
+    io.to(claimed.requester.toString()).emit("donor_coming", {
       donorName: req.user.name,
       donorPic: req.user.profilePic,
-      blastId: blast._id,
+      blastId: claimed._id,
       committed,
       needed,
       covered,
@@ -739,6 +740,44 @@ const donorPassport = asyncHandler(async (req, res) => {
   });
 });
 
+const logOfflineDonation = asyncHandler(async (req, res) => {
+  const { donationDate } = req.body;
+  const date = donationDate ? new Date(donationDate) : new Date();
+
+  if (isNaN(date.getTime()) || date > new Date()) {
+    res.status(400);
+    throw new Error("Provide a valid date that is not in the future");
+  }
+
+  const { calculateRank, getPointsForAction } = require("../utils/gamification");
+  const user = await User.findById(req.user._id);
+  user.lastDonationDate = date;
+  user.donationsCount   = (user.donationsCount || 0) + 1;
+  user.points          += getPointsForAction("SUCCESSFUL_DONATION");
+  user.rank             = calculateRank(user.points);
+  await user.save();
+
+  const { generateToken: _gt, ...userData } = user.toObject();
+  delete userData.password;
+  res.json({ ...userData, token: req.user.token });
+});
+
+const updateNotificationPrefs = asyncHandler(async (req, res) => {
+  const allowed = ["emergencyNearby", "campReminders", "weeklyDigest", "requestApproved"];
+  const update  = {};
+  for (const key of allowed) {
+    if (typeof req.body[key] === "boolean") {
+      update[`notificationPrefs.${key}`] = req.body[key];
+    }
+  }
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { $set: update },
+    { new: true, select: "-password" },
+  );
+  res.json(user);
+});
+
 module.exports = {
   registerUser,
   loginUser,
@@ -761,4 +800,6 @@ module.exports = {
   updateEmergencyContacts,
   familySafetyNet,
   donorPassport,
+  logOfflineDonation,
+  updateNotificationPrefs,
 };
