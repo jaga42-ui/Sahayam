@@ -100,6 +100,9 @@ async function findEligibleDonors({
         rating: 1,
         fcmToken: 1,
         distance: 1,
+        isEmailVerified: 1,
+        isPhoneVerified: 1,
+        "kycStatus.documentVerified": 1,
       },
     },
   ]);

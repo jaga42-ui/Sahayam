@@ -16,6 +16,7 @@ const { canStartSOS } = require("../services/sosGuard");
 const { generateOtp, otpExpiry, checkOtp } = require("../services/phoneVerification");
 const sendSMS = require("../utils/sendSMS");
 const { deleteUserAccount } = require("../services/accountDeletion");
+const { getVerification } = require("../services/donorVerification");
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -349,8 +350,13 @@ const getNearbyDonors = asyncHandler(async (req, res) => {
   });
 
   // 👉 PRIVACY: the matching engine returns email + fcmToken for the
-  // notification path; never expose those to the map client.
-  const safeDonors = donors.map(({ email, fcmToken, ...donor }) => donor);
+  // notification path; never expose those to the map client. We attach a
+  // verification badge (derived from email/KYC) so requesters can see which
+  // donors are trustworthy.
+  const safeDonors = donors.map((d) => {
+    const { email, fcmToken, ...donor } = d;
+    return { ...donor, verification: getVerification(d) };
+  });
 
   res.json(safeDonors);
 });
