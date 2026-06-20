@@ -9,7 +9,7 @@ import Layout from "../components/Layout";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
   FaHeartbeat, FaSpinner, FaBullhorn, FaExclamationTriangle,
-  FaRunning, FaTimes, FaMapMarkerAlt
+  FaRunning, FaTimes, FaMapMarkerAlt, FaCheckCircle
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -324,6 +324,14 @@ const BloodRadar = () => {
                       <div className="text-center w-48 text-pine-teal font-sans p-2">
                         <img src={donor.profilePic || `https://ui-avatars.com/api/?name=${donor.name}&background=1a3630&color=ffffff`} className="w-14 h-14 rounded-2xl mx-auto mb-3 object-cover shadow-sm" />
                         <h3 className="font-black truncate text-base leading-tight mb-1">{donor.name}</h3>
+                        {donor.verification?.verified && (
+                          <div className="inline-flex items-center gap-1 mb-1.5 px-2 py-0.5 rounded-full bg-pine-teal/10 border border-pine-teal/20" title="This donor has confirmed their identity">
+                            <FaCheckCircle className="text-pine-teal text-[10px]" />
+                            <span className="text-pine-teal font-black text-[8px] uppercase tracking-widest">
+                              {donor.verification.level === 'id_verified' ? 'ID Verified' : 'Verified'}
+                            </span>
+                          </div>
+                        )}
                         <p className="text-[9px] text-dusty-lavender uppercase tracking-widest font-bold mb-3">{donor.distance ? `${(donor.distance / 1000).toFixed(1)} km away` : 'Nearby'}</p>
                         
                         <div className="flex justify-center items-center gap-1.5 mb-4 bg-dark-raspberry/10 py-1.5 rounded-lg border border-dark-raspberry/20">
