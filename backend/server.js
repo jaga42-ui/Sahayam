@@ -146,6 +146,8 @@ const otpLimiter = rateLimit({
 });
 app.use("/api/auth/verify-email", otpLimiter);
 app.use("/api/auth/resend-verification", otpLimiter);
+app.use("/api/auth/send-phone-otp", otpLimiter);
+app.use("/api/auth/verify-phone-otp", otpLimiter);
 
 app.use("/api/donations", (req, res, next) => {
   if (req.method === "POST") return postLimiter(req, res, next);
