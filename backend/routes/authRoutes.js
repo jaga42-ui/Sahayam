@@ -17,11 +17,15 @@ const {
   toggleAvailability,
   verifyEmail,
   resendVerification,
+  sendPhoneOTP,
+  verifyPhoneOTP,
   submitKYC,
   donorRarity,
   updateEmergencyContacts,
   familySafetyNet,
   donorPassport,
+  logOfflineDonation,
+  updateNotificationPrefs,
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 const { validateRegister, validateLogin } = require('../middleware/validateMiddleware');
@@ -70,6 +74,10 @@ router.post('/resend-verification', resendVerification);
 router.post('/forgotpassword', forgotPassword); 
 router.post('/resetpassword/:id/:token', resetPassword); 
 
+// Phone OTP verification (protected; rate-limited in server.js)
+router.post('/send-phone-otp', protect, sendPhoneOTP);
+router.post('/verify-phone-otp', protect, verifyPhoneOTP);
+
 // Profile, Role & Notifications
 router.put('/role', protect, toggleRole);
 router.put('/profile', protect, updateProfile);
@@ -93,5 +101,9 @@ router.get('/donor-rarity', protect, donorRarity);
 router.get('/donor-passport', protect, donorPassport);
 router.put('/emergency-contacts', protect, updateEmergencyContacts);
 router.get('/family-safety-net', protect, familySafetyNet);
+
+// Offline donation logging + notification preferences
+router.post('/log-offline-donation', protect, logOfflineDonation);
+router.put('/notification-prefs', protect, updateNotificationPrefs);
 
 module.exports = router;

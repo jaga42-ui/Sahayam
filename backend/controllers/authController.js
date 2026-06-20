@@ -13,6 +13,8 @@ const { notifyDonors } = require("../utils/notify");
 const { levelConfig, nextEscalationAt } = require("../services/escalationEngine");
 const { recordBlastResponse } = require("../services/blastResponse");
 const { canStartSOS } = require("../services/sosGuard");
+const { generateOtp, otpExpiry, checkOtp } = require("../services/phoneVerification");
+const sendSMS = require("../utils/sendSMS");
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -603,6 +605,51 @@ const verifyEmail = asyncHandler(async (req, res) => {
   res.json({ message: "Email successfully verified! You can now log in." });
 });
 
+// @route POST /api/auth/send-phone-otp  (protected, rate-limited)
+// Issues a fresh SMS code to the logged-in user's registered phone number.
+const sendPhoneOTP = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  if (!user.phone || user.phone === "Not Provided" || !/^\+91[6-9]\d{9}$/.test(user.phone)) {
+    res.status(400);
+    throw new Error("Add a valid mobile number to your profile before verifying it.");
+  }
+  if (user.isPhoneVerified) {
+    return res.json({ message: "Your phone number is already verified." });
+  }
+
+  const code = generateOtp();
+  user.phoneVerificationCode = code;
+  user.phoneVerificationExpiry = otpExpiry();
+  await user.save();
+
+  // sendSMS gracefully simulates (logs) when Twilio isn't configured.
+  sendSMS(user.phone, `Your Sahayam verification code is ${code}. It expires in 10 minutes.`)
+    .catch((err) => console.error("sendPhoneOTP SMS failed:", err.message));
+
+  res.json({ message: "Verification code sent to your phone." });
+});
+
+// @route POST /api/auth/verify-phone-otp  (protected, rate-limited)
+const verifyPhoneOTP = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+  const { valid, reason } = checkOtp({
+    code: req.body.code,
+    expected: user.phoneVerificationCode,
+    expiresAt: user.phoneVerificationExpiry,
+  });
+  if (!valid) {
+    res.status(400);
+    throw new Error(reason);
+  }
+
+  user.isPhoneVerified = true;
+  user.phoneVerificationCode = undefined;
+  user.phoneVerificationExpiry = undefined;
+  await user.save();
+
+  res.json({ message: "Phone number verified!", isPhoneVerified: true });
+});
+
 const resendVerification = asyncHandler(async (req, res) => {
   const email = req.body.email ? req.body.email.toLowerCase().trim() : "";
   const user = await User.findOne({ email });
@@ -809,6 +856,8 @@ module.exports = {
   toggleAvailability,
   verifyEmail,
   resendVerification,
+  sendPhoneOTP,
+  verifyPhoneOTP,
   submitKYC,
   donorRarity,
   updateEmergencyContacts,

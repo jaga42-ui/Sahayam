@@ -179,6 +179,25 @@ const toggleAdminRole = asyncHandler(async (req, res) => {
   });
 });
 
+// @route   PATCH /api/admin/users/:id/blast-block
+// Admin kill-switch: block or unblock a user from sending SOS blasts (abuse control).
+const toggleBlastBlock = asyncHandler(async (req, res) => {
+  const targetUser = await User.findById(req.params.id);
+
+  if (!targetUser) {
+    res.status(404);
+    throw new Error('User not found');
+  }
+
+  targetUser.blastBlocked = !targetUser.blastBlocked;
+  await targetUser.save();
+
+  res.json({
+    message: `${targetUser.name} ${targetUser.blastBlocked ? 'is now blocked from' : 'can again send'} SOS broadcasts`,
+    blastBlocked: targetUser.blastBlocked,
+  });
+});
+
 // @route   POST /api/admin/broadcast
 const sendBroadcast = asyncHandler(async (req, res) => {
   const { message, level } = req.body; 
@@ -255,8 +274,50 @@ const approveKYC = asyncHandler(async (req, res) => {
   res.json(user);
 });
 
+const exportCSV = asyncHandler(async (req, res) => {
+  const { type } = req.query;
+
+  const toCSV = (headers, rows) => {
+    const escape = (v) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    return [headers, ...rows].map((r) => r.map(escape).join(",")).join("\n");
+  };
+
+  if (type === "users") {
+    const users = await User.find({})
+      .select("name email phone bloodGroup activeRole donationsCount points rank isEmailVerified createdAt")
+      .lean();
+    const headers = ["Name","Email","Phone","Blood Group","Role","Donations","Points","Rank","Email Verified","Joined"];
+    const rows = users.map((u) => [
+      u.name, u.email, u.phone || "", u.bloodGroup || "", u.activeRole,
+      u.donationsCount, u.points, u.rank,
+      u.isEmailVerified ? "Yes" : "No",
+      new Date(u.createdAt).toISOString().split("T")[0],
+    ]);
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="sahayam-users-${Date.now()}.csv"`);
+    return res.send(toCSV(headers, rows));
+  }
+
+  if (type === "donations") {
+    const donations = await Donation.find({}).populate("donorId", "name email").lean();
+    const headers = ["Title","Blood Group","Donor","Donor Email","Status","Emergency","Severity","Location","Receiver Confirmed","Created"];
+    const rows = donations.map((d) => [
+      d.title, d.bloodGroup || "", d.donorId?.name || "", d.donorId?.email || "",
+      d.status, d.isEmergency ? "Yes" : "No", d.severityLevel || "",
+      d.location?.addressText || "",
+      d.receiverConfirmed ? "Yes" : "No",
+      new Date(d.createdAt).toISOString().split("T")[0],
+    ]);
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="sahayam-donations-${Date.now()}.csv"`);
+    return res.send(toCSV(headers, rows));
+  }
+
+  res.status(400).json({ message: "type must be 'users' or 'donations'" });
+});
+
 module.exports = {
   getDashboardStats, getAllUsers, getAllListings, deleteUser,
-  deleteListing, toggleAdminRole, sendBroadcast, resolveReport, getHeatmapData, generateMarketingStrategy,
-  getCampsAdmin, updateCampStatus, getKYCRequests, approveKYC,
+  deleteListing, toggleAdminRole, toggleBlastBlock, sendBroadcast, resolveReport, getHeatmapData, generateMarketingStrategy,
+  getCampsAdmin, updateCampStatus, getKYCRequests, approveKYC, exportCSV,
 };

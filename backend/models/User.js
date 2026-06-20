@@ -9,6 +9,9 @@ const userSchema = new mongoose.Schema(
     profilePic: { type: String },
     activeRole: { type: String, enum: ["donor", "receiver", "ngo"], default: "donor" },
     isAdmin: { type: Boolean, default: false },
+    // Admin kill-switch: when true, the user is blocked from sending SOS blasts
+    // (abuse control). Enforced in sendEmergencyBlast via services/sosGuard.js.
+    blastBlocked: { type: Boolean, default: false },
 
     // NGO Specific Fields
     organizationName: { type: String },
@@ -18,6 +21,10 @@ const userSchema = new mongoose.Schema(
     isEmailVerified: { type: Boolean, default: false },
     emailVerificationToken: { type: String },
     emailVerificationTokenExpiry: { type: Date },
+    // Phone OTP verification (proves the donor controls their number).
+    isPhoneVerified: { type: Boolean, default: false },
+    phoneVerificationCode: { type: String },
+    phoneVerificationExpiry: { type: Date },
     kycStatus: {
       documentVerified: { type: Boolean, default: false },
       documentType: { type: String, enum: ["aadhaar", "passport", "driving_license", "none"], default: "none" },
@@ -88,6 +95,13 @@ const userSchema = new mongoose.Schema(
     noShowCount: { type: Number, default: 0 },
 
     lastActiveAt: { type: Date, default: Date.now },
+
+    notificationPrefs: {
+      emergencyNearby: { type: Boolean, default: true },
+      campReminders:   { type: Boolean, default: true },
+      weeklyDigest:    { type: Boolean, default: true },
+      requestApproved: { type: Boolean, default: true },
+    },
   },
   { timestamps: true },
 );

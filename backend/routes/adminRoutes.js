@@ -8,6 +8,7 @@ const {
   deleteUser,
   deleteListing,
   toggleAdminRole,
+  toggleBlastBlock,
   sendBroadcast,
   resolveReport,
   getHeatmapData,
@@ -16,6 +17,7 @@ const {
   updateCampStatus,
   getKYCRequests,
   approveKYC,
+  exportCSV,
 } = require('../controllers/adminController');
 const { getEngineMetrics } = require('../controllers/metricsController');
 
@@ -38,7 +40,8 @@ router.get('/users', getAllUsers);
 router.get('/listings', getAllListings);
 router.delete('/users/:id', deleteUser);
 router.delete('/listings/:id', deleteListing);
-router.patch('/users/:id/role', toggleAdminRole); 
+router.patch('/users/:id/role', toggleAdminRole);
+router.patch('/users/:id/blast-block', toggleBlastBlock);
 
 // 👉 THE NEW MISSION CONTROL ROUTES
 router.post('/broadcast', sendBroadcast);
@@ -51,5 +54,8 @@ router.patch('/camps/:id/status', updateCampStatus);
 // KYC verification queue
 router.get('/kyc', getKYCRequests);
 router.patch('/kyc/:id', approveKYC);
+
+// CSV export
+router.get('/export', exportCSV);
 
 module.exports = router;
