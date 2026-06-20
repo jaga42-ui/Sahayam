@@ -623,6 +623,41 @@ const deleteMyAccount = asyncHandler(async (req, res) => {
   });
 });
 
+// @route POST /api/auth/test-push  (protected)
+// Diagnostic: send a push to the caller's OWN saved token and report exactly
+// what happened, so we can tell which layer of FCM is failing.
+const testPush = asyncHandler(async (req, res) => {
+  if (!admin.apps.length) {
+    res.status(503);
+    throw new Error("Server push is disabled: FIREBASE_SERVICE_ACCOUNT is not configured on the backend.");
+  }
+
+  const me = await User.findById(req.user._id).select("fcmToken name");
+  if (!me.fcmToken) {
+    res.status(400);
+    throw new Error("No FCM token is saved for your account. Open the app and enable notifications first (grant permission so a token is generated).");
+  }
+
+  try {
+    const messageId = await admin.messaging().send({
+      token: me.fcmToken,
+      notification: {
+        title: "🔔 Sahayam test push",
+        body: `It works, ${me.name || "there"}! Your device can receive alerts.`,
+      },
+    });
+    res.json({ ok: true, messageId, tokenPreview: `${me.fcmToken.slice(0, 12)}…` });
+  } catch (err) {
+    // Return (don't throw) so the real FCM error code reaches the client.
+    res.status(502).json({
+      ok: false,
+      error: err.errorInfo?.code || err.code || "unknown",
+      message: err.message,
+      hint: "registration-token-not-registered → the saved token is stale; re-enable notifications. mismatched-credential / sender-id-mismatch → the web VAPID key and the server service account belong to different Firebase projects.",
+    });
+  }
+});
+
 // @route POST /api/auth/send-phone-otp  (protected, rate-limited)
 // Issues a fresh SMS code to the logged-in user's registered phone number.
 const sendPhoneOTP = asyncHandler(async (req, res) => {
@@ -877,6 +912,7 @@ module.exports = {
   sendPhoneOTP,
   verifyPhoneOTP,
   deleteMyAccount,
+  testPush,
   submitKYC,
   donorRarity,
   updateEmergencyContacts,

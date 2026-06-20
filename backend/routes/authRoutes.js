@@ -20,6 +20,7 @@ const {
   sendPhoneOTP,
   verifyPhoneOTP,
   deleteMyAccount,
+  testPush,
   submitKYC,
   donorRarity,
   updateEmergencyContacts,
@@ -81,6 +82,9 @@ router.post('/verify-phone-otp', protect, verifyPhoneOTP);
 
 // Right to erasure: delete own account + all associated data (protected)
 router.delete('/me', protect, deleteMyAccount);
+
+// Diagnostic: send a push to your own device to verify FCM end-to-end (protected)
+router.post('/test-push', protect, testPush);
 
 // Profile, Role & Notifications
 router.put('/role', protect, toggleRole);
