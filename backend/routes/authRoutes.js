@@ -19,6 +19,7 @@ const {
   resendVerification,
   sendPhoneOTP,
   verifyPhoneOTP,
+  deleteMyAccount,
   submitKYC,
   donorRarity,
   updateEmergencyContacts,
@@ -77,6 +78,9 @@ router.post('/resetpassword/:id/:token', resetPassword);
 // Phone OTP verification (protected; rate-limited in server.js)
 router.post('/send-phone-otp', protect, sendPhoneOTP);
 router.post('/verify-phone-otp', protect, verifyPhoneOTP);
+
+// Right to erasure: delete own account + all associated data (protected)
+router.delete('/me', protect, deleteMyAccount);
 
 // Profile, Role & Notifications
 router.put('/role', protect, toggleRole);

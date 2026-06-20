@@ -15,6 +15,7 @@ const { recordBlastResponse } = require("../services/blastResponse");
 const { canStartSOS } = require("../services/sosGuard");
 const { generateOtp, otpExpiry, checkOtp } = require("../services/phoneVerification");
 const sendSMS = require("../utils/sendSMS");
+const { deleteUserAccount } = require("../services/accountDeletion");
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -605,6 +606,17 @@ const verifyEmail = asyncHandler(async (req, res) => {
   res.json({ message: "Email successfully verified! You can now log in." });
 });
 
+// @route DELETE /api/auth/me  (protected)
+// Right to erasure: permanently delete the user and all their data, and scrub
+// references to them from other people's content.
+const deleteMyAccount = asyncHandler(async (req, res) => {
+  const summary = await deleteUserAccount(req.user._id);
+  res.json({
+    message: "Your account and all associated data have been permanently deleted.",
+    summary,
+  });
+});
+
 // @route POST /api/auth/send-phone-otp  (protected, rate-limited)
 // Issues a fresh SMS code to the logged-in user's registered phone number.
 const sendPhoneOTP = asyncHandler(async (req, res) => {
@@ -858,6 +870,7 @@ module.exports = {
   resendVerification,
   sendPhoneOTP,
   verifyPhoneOTP,
+  deleteMyAccount,
   submitKYC,
   donorRarity,
   updateEmergencyContacts,
