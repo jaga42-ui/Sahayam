@@ -12,6 +12,7 @@ const { findEligibleDonors } = require("../services/donorMatching");
 const { notifyDonors } = require("../utils/notify");
 const { levelConfig, nextEscalationAt } = require("../services/escalationEngine");
 const { recordBlastResponse } = require("../services/blastResponse");
+const { canStartSOS } = require("../services/sosGuard");
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -357,6 +358,19 @@ const sendEmergencyBlast = asyncHandler(async (req, res) => {
   if (!lat || !lng || !message) {
     res.status(400);
     throw new Error("Location and message are required for a blast");
+  }
+
+  // 👉 ABUSE GUARD: stop a user from flooding donors — no broadcasting if their
+  // account is blocked, an SOS is already in flight, or they're inside the
+  // cooldown window. (See services/sosGuard.js.)
+  const latestBlast = await Blast.findOne({ requester: req.user._id })
+    .sort({ createdAt: -1 })
+    .select("status createdAt")
+    .lean();
+  const gate = canStartSOS({ blastBlocked: req.user.blastBlocked, latestBlast });
+  if (!gate.allowed) {
+    res.status(gate.code);
+    throw new Error(gate.reason);
   }
 
   // Replacement-donor mode: how many donors the family needs to bring (1–20).
