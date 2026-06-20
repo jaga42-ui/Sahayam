@@ -59,7 +59,11 @@ const Privacy = () => {
                   },
                   {
                     label: "Medical Data (Sensitive Personal Data)",
-                    items: ["Blood group", "Last donation date (for eligibility cooldown)", "Medical dossier if optionally provided"],
+                    items: ["Blood group", "Last donation date (for eligibility cooldown)"],
+                  },
+                  {
+                    label: "Identity Verification (optional)",
+                    items: ["A government ID image (Aadhaar / passport / driving licence) — only if you choose to submit KYC, stored on Cloudinary for admin review"],
                   },
                   {
                     label: "Location Data",
@@ -120,7 +124,7 @@ const Privacy = () => {
               <p>We do not sell your personal data. We share data only in these limited cases:</p>
               <ul className="list-disc pl-5 mt-2 space-y-1.5">
                 <li><span className="font-semibold">With other users</span> — Your name, blood group, and approximate location are visible to other registered users when you are in an active donation or request flow.</li>
-                <li><span className="font-semibold">Service providers</span> — We use Cloudinary (image storage), Firebase (push notifications), MongoDB Atlas (database), and Render (hosting). Each is bound by contractual data processing agreements.</li>
+                <li><span className="font-semibold">Service providers</span> — We use Cloudinary (image storage), Firebase (push notifications), MongoDB Atlas (database), Render (hosting), and Google Gemini (which processes the text of an SOS to structure the request). If SMS phone verification is enabled, an SMS provider receives your number and the one-time code. Each is bound by their respective data processing terms.</li>
                 <li><span className="font-semibold">Legal obligation</span> — If required by a court order or valid legal process under Indian law.</li>
               </ul>
             </Section>
@@ -152,7 +156,7 @@ const Privacy = () => {
               <ul className="list-disc pl-5 mt-2 space-y-1.5">
                 <li><span className="font-semibold">Access</span> — Request a copy of personal data we hold about you.</li>
                 <li><span className="font-semibold">Correction</span> — Update inaccurate or incomplete data.</li>
-                <li><span className="font-semibold">Erasure</span> — Request deletion of your account and associated personal data.</li>
+                <li><span className="font-semibold">Erasure</span> — Delete your account and all associated personal data yourself, instantly, from <span className="font-semibold">Profile → Delete My Account</span>. We also scrub references to you from other users' records.</li>
                 <li><span className="font-semibold">Grievance redressal</span> — Lodge a complaint with our Grievance Officer (see below) or with the Data Protection Board of India.</li>
                 <li><span className="font-semibold">Withdraw consent</span> — Withdraw your consent for data processing at any time (which will result in account termination).</li>
               </ul>
