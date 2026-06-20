@@ -26,38 +26,45 @@ const FEATURES = [
   {
     icon: FaBolt,
     title: "Matched in seconds",
-    desc: "Raise one SOS and the nearest donors are alerted instantly — faster than any WhatsApp forward.",
+    desc: "Post one SOS and the nearest matching donors are alerted at once — no chasing numbers, no forwarding the same message ten times.",
   },
   {
     icon: FaShieldAlt,
     title: "Only the right donors",
-    desc: "We ping donors whose blood group is compatible and who are actually eligible to donate right now.",
+    desc: "We reach only donors whose group is compatible and who are eligible to give today. No false hope, no wasted calls.",
   },
   {
     icon: FaTint,
-    title: "Widens until covered",
-    desc: "Need several replacement donors? The search keeps expanding until enough people confirm.",
+    title: "We don't stop until you're covered",
+    desc: "Hospital asking for 3 replacement donors? The search keeps widening, ring by ring, until enough people confirm.",
   },
   {
     icon: FaLock,
     title: "Private by default",
-    desc: "Coordinate in a secure chat. Your phone number is never exposed in a public forward.",
+    desc: "Coordinate in a secure in-app chat. Your number stays yours — never dropped into a public group.",
   },
 ];
 
 const STEPS = [
-  { icon: FaMapMarkerAlt, n: "01", title: "Raise an SOS", desc: "Enter the blood group, hospital and how many donors you need. We pin your location." },
-  { icon: FaHeartbeat, n: "02", title: "Donors are alerted", desc: "Compatible, eligible donors near you get notified the moment you post." },
-  { icon: FaComments, n: "03", title: "Coordinate & donate", desc: "Confirm donors in a private chat, meet at the hospital, and help in time." },
+  { icon: FaMapMarkerAlt, n: "01", title: "Raise an SOS", desc: "Drop your location, blood group, hospital and how many donors you need." },
+  { icon: FaHeartbeat, n: "02", title: "Donors are alerted", desc: "Compatible, eligible donors nearby get pinged the instant you post." },
+  { icon: FaComments, n: "03", title: "Coordinate & donate", desc: "Confirm donors privately, meet at the hospital, and help in time." },
 ];
 
 // Donor pins scattered around the radar (percent positions + animation delays).
 const PINS = [
-  { top: "18%", left: "28%", d: 0.2 },
-  { top: "30%", left: "72%", d: 0.6 },
-  { top: "66%", left: "22%", d: 1.0 },
-  { top: "72%", left: "64%", d: 0.4 },
-  { top: "48%", left: "84%", d: 0.8 },
+  { top: "20%", left: "30%", d: 0.2 },
+  { top: "32%", left: "70%", d: 0.6 },
+  { top: "64%", left: "24%", d: 1.0 },
+  { top: "70%", left: "62%", d: 0.4 },
+  { top: "50%", left: "82%", d: 0.8 },
+];
+
+// Rings carry the real escalation radii from the engine (5 / 15 / 50 km).
+const RINGS = [
+  { s: 0.84, label: "50 km", top: "8%" },
+  { s: 0.56, label: "15 km", top: "22%" },
+  { s: 0.3, label: "5 km", top: "35%" },
 ];
 
 /* ── Live-radar hero visual: previews the actual product ── */
@@ -68,16 +75,30 @@ const RadarPreview = () => (
 
     {/* radar dish */}
     <div className="absolute inset-3 rounded-full border border-pine-teal/12 bg-gradient-to-br from-surface to-pearl-beige shadow-[0_30px_80px_-20px_rgba(26,54,48,0.35)] overflow-hidden">
-      {/* concentric rings */}
-      {[0.78, 0.54, 0.3].map((s, i) => (
-        <div key={i}
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-pine-teal/12"
-          style={{ width: `${s * 100}%`, height: `${s * 100}%` }} />
+      {/* crosshair */}
+      <div className="absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-pine-teal/8" />
+      <div className="absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 bg-pine-teal/8" />
+
+      {/* concentric rings + radius labels */}
+      {RINGS.map((r) => (
+        <div key={r.label}>
+          <div
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-pine-teal/12"
+            style={{ width: `${r.s * 100}%`, height: `${r.s * 100}%` }} />
+          <span
+            className="absolute left-1/2 -translate-x-1/2 rounded-full bg-pearl-beige/80 px-1.5 text-[8px] font-bold uppercase tracking-wider text-pine-teal/45"
+            style={{ top: r.top }}>
+            {r.label}
+          </span>
+        </div>
       ))}
 
-      {/* expanding pulse */}
-      <span className="absolute left-1/2 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full bg-dark-raspberry/30 animate-ping" style={{ animationDuration: "2.6s" }} />
-      <span className="absolute left-1/2 top-1/2 h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full border border-dark-raspberry/20 animate-ping" style={{ animationDuration: "3.4s" }} />
+      {/* rotating radar sweep */}
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ repeat: Infinity, duration: 5, ease: "linear" }}
+        className="absolute inset-0 rounded-full opacity-25"
+        style={{ background: "conic-gradient(from 0deg, var(--color-dark-raspberry) 0deg, transparent 80deg)" }} />
 
       {/* center — the requester */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex h-12 w-12 items-center justify-center rounded-2xl bg-pine-teal text-white shadow-lg">
@@ -99,21 +120,6 @@ const RadarPreview = () => (
         </motion.div>
       ))}
     </div>
-
-    {/* floating "donor accepted" card */}
-    <motion.div
-      initial={{ opacity: 0, y: 14, scale: 0.9 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ delay: 1.5, type: "spring", stiffness: 260, damping: 20 }}
-      className="absolute -bottom-3 -left-2 sm:left-2 flex items-center gap-2.5 rounded-2xl border border-pine-teal/10 bg-surface/95 backdrop-blur px-3.5 py-2.5 shadow-xl">
-      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-pine-teal/10 text-pine-teal">
-        <FaCheck className="text-xs" />
-      </span>
-      <div className="text-left leading-tight">
-        <p className="text-[12px] font-bold text-pine-teal">A donor is on the way</p>
-        <p className="text-[10px] text-pine-teal/50">O− · 2.3 km away · accepted</p>
-      </div>
-    </motion.div>
   </div>
 );
 
@@ -132,7 +138,7 @@ const Landing = () => {
     <div className="min-h-screen bg-pearl-beige text-pine-teal font-sans overflow-x-hidden antialiased">
       <Helmet>
         <title>Sahayam — find a blood donor, closer than you think</title>
-        <meta name="description" content="A real-time network that connects blood emergencies with verified, compatible donors nearby. Raise an SOS and reach the right donors in seconds." />
+        <meta name="description" content="A real-time network that connects blood emergencies with verified, compatible donors nearby. Raise an SOS and reach the right donors in seconds — not in frantic group chats." />
       </Helmet>
 
       {/* ── NAV ── */}
@@ -170,21 +176,22 @@ const Landing = () => {
                 <span className="absolute inline-flex h-full w-full rounded-full bg-dark-raspberry opacity-60 animate-ping" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-dark-raspberry" />
               </span>
-              Blood, when minutes matter
+              When minutes decide everything
             </motion.div>
 
             <motion.h1 {...fadeUp(0.08)}
               className="mt-6 font-display text-[clamp(2.6rem,6.5vw,4.25rem)] font-semibold leading-[1.03] tracking-tight text-pine-teal">
-              Find a blood donor,<br />
-              <span className="bg-gradient-to-r from-dark-raspberry to-[#7c4fa0] bg-clip-text text-transparent">
-                closer than you think.
+              Blood, found in minutes.<br />
+              <span className="bg-gradient-to-r from-dark-raspberry to-[#9a7bc8] bg-clip-text text-transparent">
+                Not in frantic group chats.
               </span>
             </motion.h1>
 
             <motion.p {...fadeUp(0.16)}
               className="mx-auto lg:mx-0 mt-6 max-w-xl text-[17px] leading-relaxed text-pine-teal/60">
-              When a family needs blood, every minute counts. Sahayam alerts verified,
-              compatible donors nearby in seconds — and keeps widening the search until enough confirm.
+              When someone you love needs blood, every minute counts. Sahayam instantly alerts
+              verified, compatible donors right around you — and keeps reaching farther until
+              enough say yes. No forwards, no dead ends, no waiting.
             </motion.p>
 
             <motion.div {...fadeUp(0.24)} className="mt-9 flex flex-col sm:flex-row items-center lg:justify-start justify-center gap-3">
@@ -199,7 +206,7 @@ const Landing = () => {
             </motion.div>
 
             <motion.div {...fadeUp(0.3)} className="mt-8 flex flex-wrap items-center lg:justify-start justify-center gap-x-6 gap-y-2 text-[13px] text-pine-teal/50">
-              {["Compatible-only alerts", "Eligibility-aware", "Free forever"].map((t) => (
+              {["Verified donors", "Compatible-only", "100% free"].map((t) => (
                 <span key={t} className="inline-flex items-center gap-1.5">
                   <FaCheck className="text-[10px] text-dark-raspberry" /> {t}
                 </span>
@@ -224,7 +231,7 @@ const Landing = () => {
           <motion.div {...fadeUp()} className="mx-auto max-w-xl text-center">
             <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-dark-raspberry/80">Why Sahayam</p>
             <h2 className="mt-2 font-display text-3xl sm:text-4xl font-semibold tracking-tight text-pine-teal">
-              Built for the moments that matter most.
+              The fastest way to reach the right donor.
             </h2>
           </motion.div>
 
@@ -234,7 +241,7 @@ const Landing = () => {
               return (
                 <motion.div key={f.title} {...fadeUp(i * 0.06)}
                   className="group rounded-3xl border border-pine-teal/10 bg-surface p-6 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-pine-teal/5">
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-dark-raspberry to-[#7c4fa0] text-white shadow-md shadow-dark-raspberry/20 transition-transform group-hover:scale-110">
+                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-dark-raspberry to-[#9a7bc8] text-white shadow-md shadow-dark-raspberry/20 transition-transform group-hover:scale-110">
                     <Icon className="text-lg" />
                   </div>
                   <h3 className="font-display text-lg font-semibold text-pine-teal">{f.title}</h3>
@@ -286,11 +293,11 @@ const Landing = () => {
           <div className="pointer-events-none absolute -top-20 -right-10 h-64 w-64 rounded-full bg-dark-raspberry/25 blur-3xl" />
           <div className="relative">
             <h2 className="font-display text-3xl sm:text-[2.75rem] font-semibold tracking-tight text-white leading-tight">
-              Someone nearby needs blood today.
+              Somewhere near you, a family is waiting.
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-[15px] leading-relaxed text-white/70">
-              Register as a donor in a minute. When a matching request comes up near you,
-              we'll let you know — and you could save a life.
+              It takes a minute to register. The next time a matching request appears nearby,
+              we'll let you know — and you could be the reason a family gets to breathe again.
             </p>
             <Link to={registerLink}
               className="mt-9 inline-flex items-center gap-2 rounded-xl bg-white px-8 py-4 text-sm font-semibold text-pine-teal shadow-lg transition-transform hover:-translate-y-0.5">
