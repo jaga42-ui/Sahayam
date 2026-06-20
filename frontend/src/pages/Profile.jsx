@@ -235,6 +235,20 @@ const Profile = () => {
     }
   };
 
+  const handleTestPush = async () => {
+    const tid = toast.loading("Sending a test notification…");
+    try {
+      const { data } = await api.post("/auth/test-push");
+      toast.success(
+        data.ok ? "Sent! Watch for the notification on this device." : "Sent.",
+        { id: tid },
+      );
+    } catch (err) {
+      const d = err.response?.data;
+      toast.error(d?.error ? `FCM: ${d.error}` : (d?.message || "Test push failed."), { id: tid });
+    }
+  };
+
   const handleRelist = async (donationId) => {
     setRelistingId(donationId);
     try {
@@ -884,10 +898,16 @@ const Profile = () => {
           <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
             <div className="px-5 py-4 border-b border-pine-teal/8 flex items-center justify-between">
               <h3 className="text-sm font-black text-pine-teal uppercase tracking-widest">Notification Preferences</h3>
-              <motion.button whileTap={{ scale: 0.9 }} onClick={enableNotifications}
-                className="shrink-0 flex items-center gap-1.5 rounded-xl border border-pine-teal/20 bg-pine-teal/8 px-3 py-2 text-[11px] font-black text-pine-teal uppercase tracking-wide">
-                <FaBell className="text-[10px]" /> Enable Push
-              </motion.button>
+              <div className="flex items-center gap-2">
+                <motion.button whileTap={{ scale: 0.9 }} onClick={handleTestPush}
+                  className="shrink-0 rounded-xl border border-pine-teal/15 px-3 py-2 text-[11px] font-black text-pine-teal/70 uppercase tracking-wide hover:bg-pine-teal/5 transition-colors">
+                  Send Test
+                </motion.button>
+                <motion.button whileTap={{ scale: 0.9 }} onClick={enableNotifications}
+                  className="shrink-0 flex items-center gap-1.5 rounded-xl border border-pine-teal/20 bg-pine-teal/8 px-3 py-2 text-[11px] font-black text-pine-teal uppercase tracking-wide">
+                  <FaBell className="text-[10px]" /> Enable Push
+                </motion.button>
+              </div>
             </div>
             <div className="p-4 space-y-2.5">
               {[
