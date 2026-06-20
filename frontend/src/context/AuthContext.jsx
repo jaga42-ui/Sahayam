@@ -9,7 +9,7 @@ const AuthContext = createContext();
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL 
   ? import.meta.env.VITE_BACKEND_URL.replace('/api', '') 
-  : "https://sahayam-api.onrender.com";
+  : "https://hopelink-api.onrender.com";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
@@ -113,6 +113,13 @@ export const AuthProvider = ({ children }) => {
       });
     });
 
+    newSocket.on("receiver_confirmed", (data) => {
+      toast.success(`${data.receiverName} confirmed they're on their way for "${data.donationTitle}"`, {
+        duration: 7000,
+        style: { background: "#fff", color: "#3b6b54", border: "1px solid rgba(59,107,84,0.25)", fontWeight: 700 },
+      });
+    });
+
     return () => {
       newSocket.off("role_updated", handleRoleUpdate);
       newSocket.off("new_message_notification");
@@ -120,6 +127,7 @@ export const AuthProvider = ({ children }) => {
       newSocket.off("donation_fulfilled_prompt");
       newSocket.off("milestone_reached");
       newSocket.off("request_reset");
+      newSocket.off("receiver_confirmed");
       newSocket.disconnect();
     };
   }, [user]);

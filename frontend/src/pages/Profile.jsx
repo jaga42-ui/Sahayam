@@ -17,7 +17,7 @@ import api from "../utils/api";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
   ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
-  : "https://sahayam-api.onrender.com";
+  : "https://hopelink-api.onrender.com";
 
 const springIn = { type: "spring", stiffness: 300, damping: 26 };
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -73,6 +73,14 @@ const Profile = () => {
   const [rarity,           setRarity]           = useState(null);   // { count, bloodGroup }
   const [passport,         setPassport]         = useState(null);
   const [passportOpen,     setPassportOpen]     = useState(false);
+  const [offlineDonating,  setOfflineDonating]  = useState(false);
+  const [offlineDate,      setOfflineDate]      = useState("");
+  const [savingNotifPrefs, setSavingNotifPrefs] = useState(false);
+  const [notifPrefs,       setNotifPrefs]       = useState({
+    emergencyNearby: true, campReminders: true, weeklyDigest: true, requestApproved: true,
+  });
+  const [myHistory,        setMyHistory]        = useState([]);
+  const [relistingId,      setRelistingId]      = useState(null);
   const [contacts,         setContacts]         = useState([]);
   const [safetyNet,        setSafetyNet]        = useState([]);
   const [contactsLoading,  setContactsLoading]  = useState(false);
@@ -87,6 +95,9 @@ const Profile = () => {
       name: user?.name || "", bloodGroup: user?.bloodGroup || "",
       phone: (user?.phone || "").replace(/^\+91/, ""), addressText: user?.addressText || "",
     });
+    if (user?.notificationPrefs) {
+      setNotifPrefs((p) => ({ ...p, ...user.notificationPrefs }));
+    }
 
     const fetchAll = async () => {
       if (!user?.token) return;
@@ -103,6 +114,10 @@ const Profile = () => {
         const active = data.filter((d) => d.status === "available" || d.status === "pending").length;
         const blood  = data.filter((d) => d.category === "blood").length;
         setStats({ totalDonations: data.length, activeListings: active, bloodDonations: blood });
+        setMyHistory(data.filter((d) => {
+          const dId = d.donorId?._id || d.donorId;
+          return String(dId) === String(user?._id);
+        }).slice(0, 10));
 
         if (rarityRes?.data) setRarity(rarityRes.data);
         if (passportRes?.data) {
@@ -183,6 +198,65 @@ const Profile = () => {
       toast.error(err.response?.data?.message || "Upload failed.");
     } finally {
       setKycUploading(false);
+    }
+  };
+
+  const handleLogOfflineDonation = async () => {
+    setOfflineDonating(true);
+    try {
+      const body = offlineDate ? { donationDate: offlineDate } : {};
+      const { data } = await api.post("/auth/log-offline-donation", body);
+      login(data);
+      setOfflineDate("");
+      toast.success("Offline donation logged! Cooldown started.");
+      // Refresh passport
+      const passRes = await api.get("/auth/donor-passport").catch(() => null);
+      if (passRes?.data) setPassport(passRes.data);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to log donation.");
+    } finally {
+      setOfflineDonating(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm(
+      "Delete your account permanently?\n\nThis erases your profile, donations, SOS requests, chats and history. It cannot be undone.",
+    );
+    if (!confirmed) return;
+    const tid = toast.loading("Deleting your account…");
+    try {
+      await api.delete("/auth/me");
+      toast.success("Your account and data have been deleted.", { id: tid });
+      logout();
+      navigate("/");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Could not delete account.", { id: tid });
+    }
+  };
+
+  const handleRelist = async (donationId) => {
+    setRelistingId(donationId);
+    try {
+      await api.post(`/donations/${donationId}/relist`);
+      toast.success("Re-listed! It's live again.");
+      setMyHistory((p) => p.map((d) => d._id === donationId ? { ...d, _relisted: true } : d));
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Re-list failed.");
+    } finally {
+      setRelistingId(null);
+    }
+  };
+
+  const handleSaveNotifPrefs = async (updated) => {
+    setSavingNotifPrefs(true);
+    try {
+      await api.put("/auth/notification-prefs", updated);
+      toast.success("Preferences saved.");
+    } catch {
+      toast.error("Failed to save preferences.");
+    } finally {
+      setSavingNotifPrefs(false);
     }
   };
 
@@ -376,6 +450,30 @@ const Profile = () => {
             </div>
             <div className="pointer-events-none absolute -bottom-8 -right-8 text-white/4">
               <FaTint className="text-[120px]" />
+            </div>
+          </div>
+
+          {/* ── LOG OFFLINE DONATION ── */}
+          <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
+            <SectionHeader title="Log Offline Donation" />
+            <div className="p-4 space-y-3">
+              <p className="text-[12px] text-pine-teal/50 leading-relaxed">
+                Donated blood outside the app? Log it here to update your 90-day cooldown.
+              </p>
+              <div>
+                <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-dusty-lavender">
+                  Donation date (leave blank for today)
+                </label>
+                <input type="date" value={offlineDate}
+                  max={new Date().toISOString().split("T")[0]}
+                  onChange={(e) => setOfflineDate(e.target.value)}
+                  className="w-full rounded-xl border border-pine-teal/15 bg-surface-2 px-4 py-3 text-sm text-pine-teal outline-none focus:border-pine-teal/40" />
+              </div>
+              <motion.button whileTap={{ scale: 0.97 }} onClick={handleLogOfflineDonation}
+                disabled={offlineDonating}
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-dark-raspberry py-3.5 text-[11px] font-black uppercase tracking-widest text-white shadow-sm disabled:opacity-50">
+                {offlineDonating ? <FaSpinner className="animate-spin" /> : <><FaTint className="text-[10px]" /> I Donated Blood</>}
+              </motion.button>
             </div>
           </div>
 
@@ -782,17 +880,86 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* ── NOTIFICATIONS ── */}
-          <div className="rounded-3xl border border-pine-teal/10 bg-surface p-5 flex items-center justify-between gap-4 shadow-sm">
-            <div className="min-w-0">
-              <p className="text-[10px] font-black uppercase tracking-widest text-dusty-lavender mb-0.5">Push Alerts</p>
-              <p className="text-sm font-bold text-pine-teal">Get notified when blood is needed nearby</p>
+          {/* ── NOTIFICATION PREFERENCES ── */}
+          <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
+            <div className="px-5 py-4 border-b border-pine-teal/8 flex items-center justify-between">
+              <h3 className="text-sm font-black text-pine-teal uppercase tracking-widest">Notification Preferences</h3>
+              <motion.button whileTap={{ scale: 0.9 }} onClick={enableNotifications}
+                className="shrink-0 flex items-center gap-1.5 rounded-xl border border-pine-teal/20 bg-pine-teal/8 px-3 py-2 text-[11px] font-black text-pine-teal uppercase tracking-wide">
+                <FaBell className="text-[10px]" /> Enable Push
+              </motion.button>
             </div>
-            <motion.button whileTap={{ scale: 0.9 }} onClick={enableNotifications}
-              className="shrink-0 flex items-center gap-1.5 rounded-2xl bg-dark-raspberry px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-white shadow-sm">
-              <FaBell className="text-xs" /> Enable
-            </motion.button>
+            <div className="p-4 space-y-2.5">
+              {[
+                { key: "emergencyNearby", label: "Emergency nearby",   desc: "Alerts when someone near you needs blood" },
+                { key: "requestApproved", label: "Request approved",   desc: "When a donor matches your request" },
+                { key: "campReminders",   label: "Camp reminders",      desc: "Upcoming blood camps in your area" },
+                { key: "weeklyDigest",    label: "Weekly digest",       desc: "Community stats every Sunday" },
+              ].map(({ key, label, desc }) => {
+                const on = notifPrefs[key] ?? true;
+                return (
+                  <div key={key} className="flex items-center justify-between gap-3 rounded-2xl border border-pine-teal/8 bg-surface-2 px-4 py-3.5">
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-bold text-pine-teal">{label}</p>
+                      <p className="text-[11px] text-pine-teal/40 mt-0.5">{desc}</p>
+                    </div>
+                    <motion.button whileTap={{ scale: 0.85 }} disabled={savingNotifPrefs}
+                      onClick={() => {
+                        const updated = { ...notifPrefs, [key]: !on };
+                        setNotifPrefs(updated);
+                        handleSaveNotifPrefs(updated);
+                      }}
+                      className={`shrink-0 transition-colors disabled:opacity-50 ${on ? "text-pine-teal" : "text-pine-teal/25"}`}>
+                      {on ? <FaToggleOn className="text-2xl" /> : <FaToggleOff className="text-2xl" />}
+                    </motion.button>
+                  </div>
+                );
+              })}
+            </div>
           </div>
+
+          {/* ── MY POSTS (with re-list) ── */}
+          {myHistory.length > 0 && (
+            <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
+              <SectionHeader title="My Posts" />
+              <div className="p-4 space-y-2.5">
+                {myHistory.map((d) => {
+                  const canRelist = (d.status === "expired" || d.status === "fulfilled") && !d._relisted;
+                  const statusColor = {
+                    active: "text-pine-teal bg-pine-teal/10 border-pine-teal/20",
+                    pending: "text-amber-600 bg-amber-50 border-amber-300/40",
+                    fulfilled: "text-pine-teal/50 bg-pine-teal/5 border-pine-teal/10",
+                    expired: "text-dusty-lavender bg-dusty-lavender/8 border-dusty-lavender/20",
+                  }[d.status] || "text-pine-teal/50 bg-surface-2 border-pine-teal/10";
+                  return (
+                    <div key={d._id} className="flex items-center gap-3 rounded-2xl border border-pine-teal/8 bg-surface-2 px-4 py-3">
+                      <div className="shrink-0 h-9 w-9 rounded-xl bg-dark-raspberry/10 border border-dark-raspberry/15 flex items-center justify-center">
+                        <span className="text-[11px] font-black text-dark-raspberry">{d.bloodGroup || "—"}</span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-semibold text-pine-teal truncate">{d.title}</p>
+                        <span className={`inline-block mt-0.5 text-[9px] font-black uppercase tracking-widest rounded-full border px-2 py-0.5 ${statusColor}`}>
+                          {d.status}
+                        </span>
+                      </div>
+                      {canRelist && (
+                        <motion.button whileTap={{ scale: 0.9 }} disabled={relistingId === d._id}
+                          onClick={() => handleRelist(d._id)}
+                          className="shrink-0 flex items-center gap-1 rounded-xl border border-dark-raspberry/25 bg-dark-raspberry/8 px-3 py-2 text-[11px] font-black text-dark-raspberry disabled:opacity-50">
+                          {relistingId === d._id ? <FaSpinner className="animate-spin text-[10px]" /> : <><FaPlus className="text-[9px]" /> Re-list</>}
+                        </motion.button>
+                      )}
+                      {d._relisted && (
+                        <span className="shrink-0 text-[10px] font-bold text-pine-teal flex items-center gap-1">
+                          <FaCheckCircle className="text-[9px]" /> Live
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* ── REFERRAL ── */}
           <div className="rounded-3xl border border-pine-teal/10 bg-surface p-5 flex items-center justify-between gap-4 shadow-sm">
@@ -816,6 +983,13 @@ const Profile = () => {
             className="md:hidden w-full flex items-center justify-center gap-2 rounded-2xl border border-blazing-flame/25 bg-blazing-flame/8 py-4 text-sm font-black uppercase tracking-widest text-blazing-flame">
             <FaSignOutAlt /> Log Out
           </motion.button>
+
+          {/* ── DANGER ZONE: delete account (right to erasure) ── */}
+          <button
+            onClick={handleDeleteAccount}
+            className="w-full flex items-center justify-center gap-2 rounded-2xl border border-blazing-flame/30 py-3.5 text-[11px] font-black uppercase tracking-widest text-blazing-flame/80 hover:bg-blazing-flame/8 transition-colors">
+            <FaTrash className="text-xs" /> Delete My Account
+          </button>
 
           <p className="text-center text-[10px] italic font-medium text-dusty-lavender/50 pb-4">
             "A community is only as strong as its willingness to protect one another."

@@ -219,6 +219,27 @@ const Admin = () => {
     } catch { toast.error("Failed to update KYC."); }
   };
 
+  const handleExportCSV = async (type) => {
+    try {
+      const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "https://hopelink-api.onrender.com";
+      const token = JSON.parse(localStorage.getItem("user") || "{}")?.token;
+      const res = await fetch(`${BACKEND_URL}/admin/export?type=${type}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement("a");
+      a.href     = url;
+      a.download = `sahayam-${type}-${Date.now()}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success(`${type} CSV downloaded.`);
+    } catch {
+      toast.error("Export failed.");
+    }
+  };
+
   if (!user || !user.isAdmin) return null;
 
   const COLORS = ["#3b6b54", "#8a6fb0", "#6e4fa0"];
@@ -838,6 +859,12 @@ const Admin = () => {
             {/* USERS TAB */}
             {activeTab === "users" && (
               <>
+                <div className="flex justify-end mb-3">
+                  <button onClick={() => handleExportCSV("users")}
+                    className="flex items-center gap-2 rounded-xl border border-pine-teal/25 bg-pine-teal/8 px-4 py-2 text-[12px] font-bold text-pine-teal hover:bg-pine-teal/15 transition-colors">
+                    ↓ Export CSV
+                  </button>
+                </div>
                 <div className="hidden md:block bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] overflow-hidden shadow-[0_20px_40px_rgba(59,107,84,0.08)]">
                   <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead className="bg-white/50 text-dusty-lavender text-[10px] uppercase tracking-widest border-b border-dusty-lavender/30">
@@ -996,6 +1023,12 @@ const Admin = () => {
             {/* LISTINGS TAB */}
             {activeTab === "listings" && (
               <>
+                <div className="flex justify-end mb-3">
+                  <button onClick={() => handleExportCSV("donations")}
+                    className="flex items-center gap-2 rounded-xl border border-pine-teal/25 bg-pine-teal/8 px-4 py-2 text-[12px] font-bold text-pine-teal hover:bg-pine-teal/15 transition-colors">
+                    ↓ Export CSV
+                  </button>
+                </div>
                 <div className="hidden md:block bg-white/70 backdrop-blur-lg border border-white rounded-[2rem] overflow-hidden shadow-[0_20px_40px_rgba(59,107,84,0.08)]">
                   <table className="w-full text-left text-sm whitespace-nowrap">
                     <thead className="bg-white/50 text-dusty-lavender text-[10px] uppercase tracking-widest border-b border-dusty-lavender/30">

@@ -53,7 +53,7 @@ const Layout = ({ children }) => {
     if (!user?.token) return;
     const base = import.meta.env.VITE_BACKEND_URL
       ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
-      : "https://sahayam-api.onrender.com";
+      : "https://hopelink-api.onrender.com";
     const socket = io(base, {
       transports: ["websocket", "polling"],
       auth: { token: user.token },

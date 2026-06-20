@@ -37,7 +37,7 @@ import api from "../utils/api";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
   ? import.meta.env.VITE_BACKEND_URL.replace("/api", "")
-  : "https://sahayam-api.onrender.com";
+  : "https://hopelink-api.onrender.com";
 
 const FILTER_OPTIONS = [
   { label: "All" },
@@ -127,8 +127,6 @@ const Dashboard = () => {
   const [thankYouMsg,    setThankYouMsg]    = useState("");
   const [sendingThanks,  setSendingThanks]  = useState(false);
   const [donorRarity,    setDonorRarity]    = useState(null); // { count, bloodGroup }
-  const [camps,          setCamps]          = useState([]);
-  const [campLoading,    setCampLoading]    = useState(false);
 
   const isDonor = localRole === "donor";
 
@@ -147,16 +145,14 @@ const Dashboard = () => {
       setLoading(true);
       try {
         if (localStorage.getItem("__mockfeed") === "1") { setFeed(MOCK_FEED); setHasMore(false); setLoading(false); return; }
-        const [feedRes, rarityRes, campsRes] = await Promise.all([
+        const [feedRes, rarityRes] = await Promise.all([
           api.get("/donations/feed?page=1&limit=12"),
           api.get("/auth/donor-rarity").catch(() => null),
-          api.get("/camps").catch(() => null),
         ]);
         setFeed(feedRes.data.donations || (Array.isArray(feedRes.data) ? feedRes.data : []));
         setHasMore(feedRes.data.hasMore || false);
         setPage(1);
         if (rarityRes?.data) setDonorRarity(rarityRes.data);
-        if (campsRes?.data?.length) setCamps(campsRes.data);
       } catch {
         toast.error("Failed to load feed");
       } finally {
@@ -382,17 +378,6 @@ const Dashboard = () => {
     }
   };
 
-  const handleCampRegister = async (campId) => {
-    try {
-      const { data } = await api.post(`/camps/${campId}/register`);
-      setCamps((p) => p.map((c) => c._id === campId
-        ? { ...c, _registered: data.registered, registrations: Array(data.count).fill(null) }
-        : c
-      ));
-      toast.success(data.registered ? "Registered for camp!" : "Registration cancelled.");
-    } catch { toast.error("Could not register."); }
-  };
-
   if (!user) return null;
 
   const sosField = "w-full rounded-xl border border-white/10 bg-white/6 px-4 py-3.5 text-sm font-medium text-white placeholder-white/30 outline-none focus:border-blazing-flame/60 transition-all";
@@ -487,63 +472,6 @@ const Dashboard = () => {
               </motion.div>
             )}
           </header>
-
-          {/* ── BLOOD CAMPS SCROLL ── */}
-          <AnimatePresence>
-            {camps.length > 0 && (
-              <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-                className="px-5 pt-2 pb-0">
-                <div className="flex items-center justify-between mb-2.5">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-pine-teal/50">Blood Camps Nearby</p>
-                  <span className="text-[10px] font-semibold text-pine-teal/30">{camps.length} this week</span>
-                </div>
-                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1">
-                  {camps.map((camp) => {
-                    const campDate = new Date(camp.date);
-                    const dateStr = campDate.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
-                    const timeStr = campDate.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
-                    const isReg = camp._registered;
-                    return (
-                      <div key={camp._id}
-                        className="shrink-0 w-[220px] rounded-2xl border border-pine-teal/12 bg-surface overflow-hidden shadow-sm">
-                        <div className="bg-gradient-to-r from-pine-teal to-[#2d5343] px-3.5 pt-3 pb-2.5">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-white/50 mb-0.5">{dateStr} · {timeStr}</p>
-                          <p className="text-[13px] font-black text-white leading-snug line-clamp-2">{camp.title}</p>
-                        </div>
-                        <div className="p-3">
-                          <p className="text-[11px] text-pine-teal/55 truncate mb-2">
-                            <FaMapMarkerAlt className="inline text-[9px] mr-1 text-dark-raspberry/50" />
-                            {camp.venue}
-                          </p>
-                          {camp.bloodGroupsNeeded?.length > 0 && (
-                            <div className="flex gap-1 flex-wrap mb-2.5">
-                              {camp.bloodGroupsNeeded.slice(0, 4).map((bg) => (
-                                <span key={bg} className="text-[10px] font-black text-dark-raspberry bg-dark-raspberry/8 border border-dark-raspberry/15 rounded-md px-1.5 py-0.5">{bg}</span>
-                              ))}
-                            </div>
-                          )}
-                          <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-pine-teal/35 font-semibold">
-                              {camp.registrations?.length || 0} registered
-                            </span>
-                            <motion.button whileTap={{ scale: 0.9 }}
-                              onClick={() => handleCampRegister(camp._id)}
-                              className={`text-[11px] font-black px-3 py-1.5 rounded-xl transition-all ${
-                                isReg
-                                  ? "bg-pine-teal/15 text-pine-teal border border-pine-teal/25"
-                                  : "bg-dark-raspberry text-white shadow-sm"
-                              }`}>
-                              {isReg ? "Registered" : "Join"}
-                            </motion.button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
 
           {/* ── FILTER + COUNT ── */}
           <div className="sticky top-0 z-30 bg-pearl-beige/90 backdrop-blur-xl border-b border-pine-teal/8 px-5 pt-3 pb-2 space-y-2.5">
