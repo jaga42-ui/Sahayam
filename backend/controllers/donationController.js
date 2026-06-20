@@ -45,6 +45,7 @@ const createDonation = asyncHandler(async (req, res) => {
     lat,
     lng,
     severityLevel,
+    donationWindow,
   } = req.body;
 
   // Sahayam is a blood-emergency network: every listing is a blood request.
@@ -109,6 +110,7 @@ const createDonation = asyncHandler(async (req, res) => {
     image: imageUrl,
     isEmergency: isCriticalEmergency,
     bloodGroup,
+    donationWindow: donationWindow || undefined,
     location: {
       type: "Point",
       coordinates: [parsedLng, parsedLat],
@@ -621,6 +623,86 @@ const sendThankYou = asyncHandler(async (req, res) => {
   res.json({ message: "Thank you sent!" });
 });
 
+const relistDonation = asyncHandler(async (req, res) => {
+  const original = await Donation.findById(req.params.id);
+
+  if (!original || original.donorId.toString() !== req.user._id.toString()) {
+    res.status(401);
+    throw new Error("Not authorized");
+  }
+
+  if (original.status === "hidden") {
+    res.status(403);
+    throw new Error("This listing was removed by moderation and cannot be re-listed");
+  }
+
+  if (!["expired", "fulfilled"].includes(original.status)) {
+    res.status(400);
+    throw new Error("Only expired or fulfilled listings can be re-listed");
+  }
+
+  const pickupPIN = Math.floor(1000 + Math.random() * 9000).toString();
+
+  const relisted = await Donation.create({
+    donorId:          original.donorId,
+    listingType:      original.listingType,
+    category:         original.category,
+    title:            original.title,
+    description:      original.description,
+    quantity:         original.quantity,
+    bloodGroup:       original.bloodGroup,
+    isEmergency:      original.isEmergency,
+    patientDetails:   original.patientDetails,
+    hospitalRoomNumber: original.hospitalRoomNumber,
+    donationWindow:   original.donationWindow,
+    pickupPIN,
+    location:         original.location,
+    severityLevel:    original.severityLevel,
+    status:           "active",
+  });
+
+  const populated = await Donation.findById(relisted._id)
+    .populate("donorId", "name profilePic addressText phone");
+
+  const io = req.app.get("io");
+  if (io) io.emit("new_listing", populated);
+
+  res.status(201).json(populated);
+});
+
+const receiverConfirm = asyncHandler(async (req, res) => {
+  const donation = await Donation.findById(req.params.id);
+
+  if (!donation) {
+    res.status(404);
+    throw new Error("Not found");
+  }
+
+  if (donation.receiverId?.toString() !== req.user._id.toString()) {
+    res.status(403);
+    throw new Error("Only the matched receiver can confirm");
+  }
+
+  if (donation.status !== "pending") {
+    res.status(400);
+    throw new Error("Not in a confirmable state");
+  }
+
+  donation.receiverConfirmed = true;
+  await donation.save();
+
+  const io = req.app.get("io");
+  if (io) {
+    io.to(donation.donorId.toString()).emit("receiver_confirmed", {
+      donationId:    donation._id,
+      donationTitle: donation.title,
+      receiverName:  req.user.name,
+    });
+  }
+
+  res.json({ message: "Confirmed! The donor has been notified." });
+});
+
 module.exports = {
   createDonation,
   getDonations,
@@ -634,4 +716,6 @@ module.exports = {
   reportDonation,
   triageSOS,
   sendThankYou,
+  relistDonation,
+  receiverConfirm,
 };

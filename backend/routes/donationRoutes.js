@@ -17,6 +17,8 @@ const {
   reportDonation,
   triageSOS,
   sendThankYou,
+  relistDonation,
+  receiverConfirm,
 } = require('../controllers/donationController');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -46,5 +48,11 @@ router.post('/triage', protect, triageSOS);
 
 // Thank You after fulfillment
 router.post('/:id/thank', protect, sendThankYou);
+
+// Re-list an expired/fulfilled donation
+router.post('/:id/relist', protect, relistDonation);
+
+// Receiver confirms they are coming
+router.patch('/:id/receiver-confirm', protect, receiverConfirm);
 
 module.exports = router;

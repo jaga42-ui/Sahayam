@@ -95,6 +95,9 @@ const donationSchema = new mongoose.Schema(
       sentAt: { type: Date },
       fromName: { type: String },
     },
+
+    receiverConfirmed: { type: Boolean, default: false },
+    donationWindow: { type: String },
   },
   { timestamps: true },
 );
