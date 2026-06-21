@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 import toast from "react-hot-toast";
 import { FaHeart } from "react-icons/fa";
 import api from "../utils/api";
-import { requestFirebaseToken } from "../firebase";
+import { requestFirebaseToken, initForegroundMessages } from "../firebase";
 
 const AuthContext = createContext();
 
@@ -23,6 +23,9 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (!user) return;
+
+    // Show pushes that arrive while the app is open (foreground).
+    initForegroundMessages();
 
     api.get("/chat/inbox")
       .then((res) => {

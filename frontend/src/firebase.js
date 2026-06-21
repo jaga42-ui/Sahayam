@@ -50,3 +50,31 @@ export const onMessageListener = () =>
       resolve(payload);
     });
   });
+
+// When a push arrives while the app is OPEN (foreground), Firebase does not
+// auto-display it — we have to. This shows it as a real system notification so
+// it lands in the notification center just like a background push.
+let foregroundBound = false;
+export const initForegroundMessages = () => {
+  if (foregroundBound) return;
+  foregroundBound = true;
+  onMessage(messaging, async (payload) => {
+    const title = payload?.notification?.title || "Sahayam";
+    const body = payload?.notification?.body || "";
+    try {
+      if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (reg) {
+          reg.showNotification(title, {
+            body,
+            icon: "/logo.png",
+            badge: "/logo.png",
+            vibrate: [200, 100, 200],
+          });
+        }
+      }
+    } catch (e) {
+      console.error("Foreground notification failed:", e);
+    }
+  });
+};
