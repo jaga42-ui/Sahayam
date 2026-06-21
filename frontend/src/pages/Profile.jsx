@@ -42,7 +42,7 @@ const StatChip = ({ icon: Icon, label, value, color, delay = 0 }) => (
 
 const SectionHeader = ({ title }) => (
   <div className="px-5 py-4 border-b border-pine-teal/8">
-    <h3 className="text-sm font-black text-pine-teal uppercase tracking-widest">{title}</h3>
+    <h3 className="font-display text-[15px] font-semibold text-pine-teal">{title}</h3>
   </div>
 );
 
@@ -562,7 +562,7 @@ const Profile = () => {
             return (
               <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
                 <div className="px-5 py-4 border-b border-pine-teal/8">
-                  <h3 className="text-sm font-black text-pine-teal uppercase tracking-widest">Points Ladder</h3>
+                  <h3 className="font-display text-[15px] font-semibold text-pine-teal">Points Ladder</h3>
                   <p className="text-[11px] text-pine-teal/40 mt-0.5">You have <span className="font-black text-pine-teal">{pts}</span> points</p>
                 </div>
                 <div className="p-4 space-y-2.5">
@@ -630,7 +630,7 @@ const Profile = () => {
           <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
             <div className="px-5 py-4 border-b border-pine-teal/8 flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-black text-pine-teal uppercase tracking-widest">Family Safety Net</h3>
+                <h3 className="font-display text-[15px] font-semibold text-pine-teal">Family Safety Net</h3>
                 <p className="text-[11px] text-pine-teal/40 mt-0.5">Know how many donors are nearby for each family member</p>
               </div>
               {!editingContacts && (
@@ -725,7 +725,7 @@ const Profile = () => {
           {/* ── INFO / EDIT CARD ── */}
           <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
             <div className="px-5 py-4 border-b border-pine-teal/8 flex items-center justify-between">
-              <h3 className="text-sm font-black text-pine-teal uppercase tracking-widest">Details</h3>
+              <h3 className="font-display text-[15px] font-semibold text-pine-teal">Details</h3>
               {isEditing && (
                 <button onClick={() => setIsEditing(false)} className="text-dusty-lavender hover:text-blazing-flame transition-colors">
                   <FaTimes className="text-sm" />
@@ -827,7 +827,7 @@ const Profile = () => {
           <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
             <div className="px-5 py-4 border-b border-pine-teal/8 flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-black text-pine-teal uppercase tracking-widest">Identity Verification</h3>
+                <h3 className="font-display text-[15px] font-semibold text-pine-teal">Identity Verification</h3>
                 <p className="text-[11px] text-pine-teal/40 mt-0.5">Verified donors get priority matching in SOS alerts</p>
               </div>
               {user.kycStatus?.documentVerified && (
@@ -900,7 +900,7 @@ const Profile = () => {
           {/* ── NOTIFICATION PREFERENCES ── */}
           <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
             <div className="px-5 py-4 border-b border-pine-teal/8 flex items-center justify-between">
-              <h3 className="text-sm font-black text-pine-teal uppercase tracking-widest">Notification Preferences</h3>
+              <h3 className="font-display text-[15px] font-semibold text-pine-teal">Notification Preferences</h3>
               <div className="flex items-center gap-2">
                 <motion.button whileTap={{ scale: 0.9 }} onClick={handleTestPush}
                   className="shrink-0 rounded-xl border border-pine-teal/15 px-3 py-2 text-[11px] font-black text-pine-teal/70 uppercase tracking-wide hover:bg-pine-teal/5 transition-colors">

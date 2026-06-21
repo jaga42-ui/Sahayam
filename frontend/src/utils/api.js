@@ -19,7 +19,7 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401 && localStorage.getItem('__noredir') !== '1') {
+    if (error.response && error.response.status === 401) {
       console.warn("Session expired or unauthorized. Logging out...");
       // Clear storage and redirect to login to prevent ghost sessions
       localStorage.removeItem('user');

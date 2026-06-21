@@ -56,13 +56,6 @@ const CATEGORY_META = {
 
 const getCategoryMeta = (c) => CATEGORY_META[c?.toLowerCase()] || CATEGORY_META.general;
 
-// TEMP-PREVIEW
-const MOCK_FEED = [
-  { _id:"m1", category:"blood", isEmergency:true, severityLevel:"Code Red", bloodGroup:"O-", title:"O- needed urgently for surgery", quantity:"3 Units", addressText:"Fortis Hospital, Whitefield", patientDetails:{name:"Ravi Kumar", age:42}, criticalDeadline:new Date(Date.now()+4*3600000).toISOString(), requestedBy:[{_id:"a",name:"Asha"},{_id:"b",name:"Vikram"}], donorId:{_id:"d1", name:"Priya Nair"}, status:"active", createdAt:new Date().toISOString() },
-  { _id:"m2", category:"blood", isEmergency:false, bloodGroup:"B+", title:"B+ donors needed this week", quantity:"2 Units", addressText:"Manipal Hospital, HAL", donorId:{_id:"d2", name:"Karthik Reddy"}, requestedBy:[], status:"active", createdAt:new Date(Date.now()-3600000).toISOString() },
-  { _id:"m4", category:"blood", isEmergency:false, bloodGroup:"AB+", title:"AB+ requirement at city hospital", quantity:"2 Units", addressText:"Narayana Health City", donorId:{_id:"x", name:"You"}, requestedBy:[{_id:"r1",name:"Deepa"}], status:"active", createdAt:new Date(Date.now()-86400000).toISOString() },
-];
-
 const optimizeImageUrl = (url) => {
   if (!url) return "";
   if (!url.includes("cloudinary.com"))
@@ -144,7 +137,6 @@ const Dashboard = () => {
     const load = async () => {
       setLoading(true);
       try {
-        if (localStorage.getItem("__mockfeed") === "1") { setFeed(MOCK_FEED); setHasMore(false); setLoading(false); return; }
         const [feedRes, rarityRes] = await Promise.all([
           api.get("/donations/feed?page=1&limit=12"),
           api.get("/auth/donor-rarity").catch(() => null),
