@@ -17,6 +17,7 @@ const { generateOtp, otpExpiry, checkOtp } = require("../services/phoneVerificat
 const sendSMS = require("../utils/sendSMS");
 const { deleteUserAccount } = require("../services/accountDeletion");
 const { getVerification } = require("../services/donorVerification");
+const { multicastPush } = require("../utils/fcm");
 
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
@@ -650,12 +651,9 @@ const testPush = asyncHandler(async (req, res) => {
     throw new Error("No device is registered for push. Open the app and tap Enable Push first.");
   }
 
-  const resp = await admin.messaging().sendEachForMulticast({
-    tokens,
-    notification: {
-      title: "🔔 Sahayam test push",
-      body: `It works, ${me.name || "there"}! Your device can receive alerts.`,
-    },
+  const resp = await multicastPush(tokens, {
+    title: "🔔 Sahayam test push",
+    body: `It works, ${me.name || "there"}! Your device can receive alerts.`,
   });
 
   // Drop tokens FCM reports as permanently dead so they stop wasting sends.

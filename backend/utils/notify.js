@@ -11,6 +11,7 @@
 
 const admin = require("firebase-admin");
 const { sendPostAlertEmail } = require("./sendEmail");
+const { multicastPush } = require("./fcm");
 
 /**
  * @param {Array}  donors            donor docs (need fcmToken / email)
@@ -38,10 +39,7 @@ async function notifyDonors(donors = [], payload = {}) {
   ];
   if (tokens.length > 0 && admin.apps.length > 0) {
     try {
-      const response = await admin.messaging().sendEachForMulticast({
-        notification: { title, body },
-        tokens,
-      });
+      const response = await multicastPush(tokens, { title, body });
       result.push = response.successCount;
     } catch (err) {
       console.error("notifyDonors: push failed", err.message);
