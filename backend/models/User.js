@@ -34,7 +34,8 @@ const userSchema = new mongoose.Schema(
 
     // Web Push Subscription
     pushSubscription: { type: Object, default: null },
-    fcmToken: { type: String },
+    fcmToken: { type: String }, // legacy: latest device (kept for back-compat)
+    fcmTokens: { type: [String], default: [] }, // all of a user's devices
 
     // Gamification & Trust
     points: { type: Number, default: 0 },

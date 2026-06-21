@@ -296,11 +296,12 @@ const saveFCMToken = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("fcmToken is required");
   }
-  // Update only this field — a full document save() would re-run every
+  // Update only these fields — a full document save() would re-run every
   // validator (e.g. the strict phone format) and 500 on legacy accounts.
+  // $addToSet keeps every device's token so multiple devices all get pushes.
   const user = await User.findByIdAndUpdate(
     req.user._id,
-    { $set: { fcmToken } },
+    { $set: { fcmToken }, $addToSet: { fcmTokens: fcmToken } },
     { new: true },
   );
   if (!user) {
@@ -363,7 +364,7 @@ const getNearbyDonors = asyncHandler(async (req, res) => {
   // verification badge (derived from email/KYC) so requesters can see which
   // donors are trustworthy.
   const safeDonors = donors.map((d) => {
-    const { email, fcmToken, ...donor } = d;
+    const { email, fcmToken, fcmTokens, ...donor } = d;
     return { ...donor, verification: getVerification(d) };
   });
 
@@ -641,30 +642,49 @@ const testPush = asyncHandler(async (req, res) => {
     throw new Error("Server push is disabled: FIREBASE_SERVICE_ACCOUNT is not configured on the backend.");
   }
 
-  const me = await User.findById(req.user._id).select("fcmToken name");
-  if (!me.fcmToken) {
+  const me = await User.findById(req.user._id).select("fcmToken fcmTokens name");
+  // Send to every registered device, deduped (legacy fcmToken + the array).
+  const tokens = [...new Set([...(me.fcmTokens || []), me.fcmToken].filter(Boolean))];
+  if (tokens.length === 0) {
     res.status(400);
-    throw new Error("No FCM token is saved for your account. Open the app and enable notifications first (grant permission so a token is generated).");
+    throw new Error("No device is registered for push. Open the app and tap Enable Push first.");
   }
 
-  try {
-    const messageId = await admin.messaging().send({
-      token: me.fcmToken,
-      notification: {
-        title: "🔔 Sahayam test push",
-        body: `It works, ${me.name || "there"}! Your device can receive alerts.`,
-      },
-    });
-    res.json({ ok: true, messageId, tokenPreview: `${me.fcmToken.slice(0, 12)}…` });
-  } catch (err) {
-    // Return (don't throw) so the real FCM error code reaches the client.
-    res.status(502).json({
-      ok: false,
-      error: err.errorInfo?.code || err.code || "unknown",
-      message: err.message,
-      hint: "registration-token-not-registered → the saved token is stale; re-enable notifications. mismatched-credential / sender-id-mismatch → the web VAPID key and the server service account belong to different Firebase projects.",
-    });
+  const resp = await admin.messaging().sendEachForMulticast({
+    tokens,
+    notification: {
+      title: "🔔 Sahayam test push",
+      body: `It works, ${me.name || "there"}! Your device can receive alerts.`,
+    },
+  });
+
+  // Drop tokens FCM reports as permanently dead so they stop wasting sends.
+  const dead = [];
+  const errors = [];
+  resp.responses.forEach((r, i) => {
+    if (!r.success) {
+      const code = r.error?.code || "unknown";
+      errors.push(code);
+      if (
+        code === "messaging/registration-token-not-registered" ||
+        code === "messaging/invalid-registration-token"
+      ) {
+        dead.push(tokens[i]);
+      }
+    }
+  });
+  if (dead.length) {
+    await User.findByIdAndUpdate(req.user._id, { $pull: { fcmTokens: { $in: dead } } });
   }
+
+  res.json({
+    ok: resp.successCount > 0,
+    devices: tokens.length,
+    delivered: resp.successCount,
+    failed: resp.failureCount,
+    removedDeadTokens: dead.length,
+    errors,
+  });
 });
 
 // @route POST /api/auth/send-phone-otp  (protected, rate-limited)

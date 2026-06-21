@@ -99,6 +99,7 @@ async function findEligibleDonors({
         rank: 1,
         rating: 1,
         fcmToken: 1,
+        fcmTokens: 1,
         distance: 1,
         isEmailVerified: 1,
         isPhoneVerified: 1,

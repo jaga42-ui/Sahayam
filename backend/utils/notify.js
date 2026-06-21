@@ -28,7 +28,14 @@ async function notifyDonors(donors = [], payload = {}) {
   if (!Array.isArray(donors) || donors.length === 0) return result;
 
   // --- Channel 1: Firebase push to locked screens -----------------------
-  const tokens = donors.map((d) => d.fcmToken).filter(Boolean);
+  // A donor may have several devices; fan out to all of them (deduped).
+  const tokens = [
+    ...new Set(
+      donors.flatMap((d) =>
+        (d.fcmTokens && d.fcmTokens.length ? d.fcmTokens : [d.fcmToken]).filter(Boolean),
+      ),
+    ),
+  ];
   if (tokens.length > 0 && admin.apps.length > 0) {
     try {
       const response = await admin.messaging().sendEachForMulticast({
