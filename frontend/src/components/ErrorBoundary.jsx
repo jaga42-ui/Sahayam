@@ -4,7 +4,7 @@ import { FaExclamationTriangle, FaRedo, FaHome } from 'react-icons/fa';
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, errorMessage: '', componentStack: '' };
+    this.state = { hasError: false, errorMessage: '' };
   }
 
   static getDerivedStateFromError(error) {
@@ -13,7 +13,6 @@ class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error("System Crash Detected:", error, errorInfo);
-    this.setState({ componentStack: errorInfo?.componentStack || '' });
   }
 
   resetSystem = () => {
@@ -40,13 +39,7 @@ class ErrorBoundary extends React.Component {
                 A critical error occurred while rendering this interface. The Sahayam transmission has been interrupted.
               </p>
 
-              {/* Temporary debug output — shows the real error so we can fix it */}
-              {this.state.errorMessage && (
-                <pre className="mb-6 max-h-48 overflow-auto rounded-2xl bg-blazing-flame/5 border border-blazing-flame/20 p-3 text-left text-[11px] leading-snug text-blazing-flame whitespace-pre-wrap break-words">
-                  {this.state.errorMessage}
-                  {this.state.componentStack ? `\n${this.state.componentStack.split("\n").slice(0, 6).join("\n")}` : ""}
-                </pre>
-              )}
+              {/* Developer Error Output has been disabled for production safety and clean UI */}
 
               <div className="flex flex-col gap-3">
                 <button
