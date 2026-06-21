@@ -14,7 +14,13 @@ const registerSchema = Joi.object({
     .required()
     .messages({ "string.pattern.base": "Phone must be a valid 10-digit Indian mobile number starting with 6–9" }),
   activeRole: Joi.string().valid('donor', 'receiver', 'ngo').default('donor'),
-  organizationName: Joi.string().when('activeRole', { is: 'ngo', then: Joi.required(), otherwise: Joi.optional() }),
+  // NGOs must supply a non-empty name; donor/receiver send "" — which a bare
+  // Joi.string() rejects ("not allowed to be empty"), so allow it for them.
+  organizationName: Joi.when('activeRole', {
+    is: 'ngo',
+    then: Joi.string().trim().required(),
+    otherwise: Joi.string().allow('').optional(),
+  }),
   bloodGroup: Joi.string().allow('').optional(),
   address: Joi.string().allow('').optional(),
   refCode: Joi.string().allow('').optional()
