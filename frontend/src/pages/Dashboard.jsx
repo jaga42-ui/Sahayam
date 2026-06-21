@@ -414,12 +414,14 @@ const Dashboard = () => {
                   </span>
                 </div>
               </div>
-              <button onClick={enableNotifications} className={iconBtn} aria-label="Enable notifications">
-                <FaBell className="text-sm" />
-              </button>
-              <button onClick={toggleDarkMode} className={iconBtn} aria-label="Toggle dark mode">
-                {isDarkMode ? <FaSun className="text-sm text-yellow-500" /> : <FaMoon className="text-sm" />}
-              </button>
+              <div className="flex items-center gap-0.5 shrink-0">
+                <button onClick={enableNotifications} className={iconBtn} aria-label="Enable notifications">
+                  <FaBell className="text-sm" />
+                </button>
+                <button onClick={toggleDarkMode} className={iconBtn} aria-label="Toggle dark mode">
+                  {isDarkMode ? <FaSun className="text-sm text-yellow-500" /> : <FaMoon className="text-sm" />}
+                </button>
+              </div>
             </div>
 
             {/* Live pulse strip */}

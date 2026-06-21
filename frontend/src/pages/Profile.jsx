@@ -344,6 +344,7 @@ const Profile = () => {
   return (
     <Layout>
       <div className="min-h-screen bg-pearl-beige font-sans pb-32 md:pb-16">
+        <div className="mx-auto w-full max-w-2xl">
 
         {/* ── COVER HEADER ── */}
         <div className="relative px-4 pt-8 pb-20 bg-surface border-b border-pine-teal/8">
@@ -395,7 +396,7 @@ const Profile = () => {
         </div>
 
         {/* ── STAT CHIPS ── */}
-        <div className="-mt-10 px-4 mb-6">
+        <div className="relative z-20 -mt-10 px-4 mb-6">
           <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-0.5">
             {statData.map((s, i) => <StatChip key={s.label} {...s} delay={i * 0.06} />)}
           </div>
@@ -1017,6 +1018,7 @@ const Profile = () => {
           <p className="text-center text-[10px] italic font-medium text-dusty-lavender/50 pb-4">
             "A community is only as strong as its willingness to protect one another."
           </p>
+        </div>
         </div>
       </div>
 
