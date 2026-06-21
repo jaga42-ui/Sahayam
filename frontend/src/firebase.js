@@ -19,9 +19,12 @@ export const requestFirebaseToken = async () => {
     const permission = await Notification.requestPermission();
     if (permission === 'granted') {
       
-      // 👉 THE FIX: Force the browser to register your background worker manually
+      // Register the FCM worker at its OWN dedicated scope, not "/". The PWA's
+      // workbox service worker owns "/", and a scope can hold only one worker —
+      // registering FCM at "/" let workbox clobber it on every load, silently
+      // killing push delivery. A separate scope lets both coexist.
       const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js', {
-        scope: '/'
+        scope: '/firebase-cloud-messaging-push-scope'
       });
 
       // 👉 Hand the registered worker directly to Firebase
