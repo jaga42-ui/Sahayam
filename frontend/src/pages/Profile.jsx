@@ -110,7 +110,7 @@ const Profile = () => {
           api.get("/auth/family-safety-net").catch(() => null),
         ]);
 
-        const data = histRes.data;
+        const data = Array.isArray(histRes?.data) ? histRes.data : [];
         const active = data.filter((d) => d.status === "available" || d.status === "pending").length;
         const blood  = data.filter((d) => d.category === "blood").length;
         setStats({ totalDonations: data.length, activeListings: active, bloodDonations: blood });
@@ -121,12 +121,16 @@ const Profile = () => {
 
         if (rarityRes?.data) setRarity(rarityRes.data);
         if (passportRes?.data) {
-          setPassport(passportRes.data);
-          setThanksReceived(passportRes.data.thanksReceived || []);
+          const p = passportRes.data;
+          if (!Array.isArray(p.recentDonations)) p.recentDonations = [];
+          if (!Array.isArray(p.thanksReceived)) p.thanksReceived = [];
+          setPassport(p);
+          setThanksReceived(p.thanksReceived);
         }
         if (netRes?.data) {
-          setSafetyNet(netRes.data);
-          setContacts(netRes.data);
+          const net = Array.isArray(netRes.data) ? netRes.data : [];
+          setSafetyNet(net);
+          setContacts(net);
         }
       } catch { /* silently */ }
       finally { setLoading(false); }
