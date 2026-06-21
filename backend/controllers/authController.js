@@ -762,10 +762,11 @@ const donorRarity = asyncHandler(async (req, res) => {
       bloodGroup: me.bloodGroup,
       isAvailable: true,
       _id: { $ne: me._id },
+      // $near is NOT allowed in count queries; $geoWithin/$centerSphere is.
+      // radius (radians) = metres / Earth radius (≈6,378,137 m).
       location: {
-        $near: {
-          $geometry: { type: "Point", coordinates: me.location.coordinates },
-          $maxDistance: 5000,
+        $geoWithin: {
+          $centerSphere: [me.location.coordinates, 5000 / 6378137],
         },
       },
     });
