@@ -291,13 +291,22 @@ const updateProfile = asyncHandler(async (req, res) => {
 });
 
 const saveFCMToken = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
+  const { fcmToken } = req.body;
+  if (!fcmToken) {
+    res.status(400);
+    throw new Error("fcmToken is required");
+  }
+  // Update only this field — a full document save() would re-run every
+  // validator (e.g. the strict phone format) and 500 on legacy accounts.
+  const user = await User.findByIdAndUpdate(
+    req.user._id,
+    { $set: { fcmToken } },
+    { new: true },
+  );
   if (!user) {
     res.status(404);
     throw new Error("User not found");
   }
-  user.fcmToken = req.body.fcmToken;
-  await user.save();
   res.status(200).json({ message: "Device securely registered for lock-screen alerts." });
 });
 
