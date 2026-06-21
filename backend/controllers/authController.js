@@ -651,38 +651,47 @@ const testPush = asyncHandler(async (req, res) => {
     throw new Error("No device is registered for push. Open the app and tap Enable Push first.");
   }
 
-  const resp = await multicastPush(tokens, {
-    title: "🔔 Sahayam test push",
-    body: `It works, ${me.name || "there"}! Your device can receive alerts.`,
-  });
+  try {
+    const resp = await multicastPush(tokens, {
+      title: "🔔 Sahayam test push",
+      body: `It works, ${me.name || "there"}! Your device can receive alerts.`,
+    });
 
-  // Drop tokens FCM reports as permanently dead so they stop wasting sends.
-  const dead = [];
-  const errors = [];
-  resp.responses.forEach((r, i) => {
-    if (!r.success) {
-      const code = r.error?.code || "unknown";
-      errors.push(code);
-      if (
-        code === "messaging/registration-token-not-registered" ||
-        code === "messaging/invalid-registration-token"
-      ) {
-        dead.push(tokens[i]);
+    // Drop tokens FCM reports as permanently dead so they stop wasting sends.
+    const dead = [];
+    const errors = [];
+    (resp.responses || []).forEach((r, i) => {
+      if (!r.success) {
+        const code = r.error?.code || "unknown";
+        errors.push(code);
+        if (
+          code === "messaging/registration-token-not-registered" ||
+          code === "messaging/invalid-registration-token"
+        ) {
+          dead.push(tokens[i]);
+        }
       }
+    });
+    if (dead.length) {
+      await User.findByIdAndUpdate(req.user._id, { $pull: { fcmTokens: { $in: dead } } });
     }
-  });
-  if (dead.length) {
-    await User.findByIdAndUpdate(req.user._id, { $pull: { fcmTokens: { $in: dead } } });
-  }
 
-  res.json({
-    ok: resp.successCount > 0,
-    devices: tokens.length,
-    delivered: resp.successCount,
-    failed: resp.failureCount,
-    removedDeadTokens: dead.length,
-    errors,
-  });
+    res.json({
+      ok: resp.successCount > 0,
+      devices: tokens.length,
+      delivered: resp.successCount,
+      failed: resp.failureCount,
+      removedDeadTokens: dead.length,
+      errors,
+    });
+  } catch (err) {
+    // Surface the real reason instead of an opaque 500.
+    res.status(502).json({
+      ok: false,
+      error: err.errorInfo?.code || err.code || err.name || "unknown",
+      message: err.message,
+    });
+  }
 });
 
 // @route POST /api/auth/send-phone-otp  (protected, rate-limited)
