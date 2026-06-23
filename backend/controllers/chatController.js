@@ -22,6 +22,21 @@ if (!admin.apps.length) {
   }
 }
 
+/**
+ * Only a donation's participants may post into its chat: the donor, the approved
+ * receiver, or anyone who requested it. Pure + exported so it's unit-tested.
+ */
+function isChatParticipant(donation, userId) {
+  if (!donation || !userId) return false;
+  const me = userId.toString();
+  const participants = [
+    donation.donorId?.toString(),
+    donation.receiverId?.toString(),
+    ...(donation.requestedBy || []).map((id) => id.toString()),
+  ].filter(Boolean);
+  return participants.includes(me);
+}
+
 // @desc    Get user's inbox
 // @route   GET /api/chat/inbox
 const getInbox = asyncHandler(async (req, res) => {
@@ -149,24 +164,46 @@ const sendMessage = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Missing required fields");
   }
+  if (typeof content !== "string" || !content.trim() || content.length > 2000) {
+    res.status(400);
+    throw new Error("Message must be between 1 and 2000 characters.");
+  }
+  if (receiverId.toString() === req.user._id.toString()) {
+    res.status(400);
+    throw new Error("You can't message yourself.");
+  }
 
   const actualDonationId = donationId.includes("_")
     ? donationId.split("_")[0]
     : donationId;
 
-  // 👉 THE FIX: Trust & Safety - Prevent arbitrary spam by validating the target
+  // Clean error instead of a CastError/500 on a malformed id.
+  if (!mongoose.isValidObjectId(actualDonationId)) {
+    res.status(400);
+    throw new Error("Invalid conversation reference.");
+  }
+
+  // 👉 AUTHORIZATION: the donation must exist AND the sender must be a
+  // participant (its donor, its approved receiver, or someone who requested it).
+  // Without this, any logged-in user could spam/harass anyone by guessing ids.
   const Donation = require("../models/Donation");
-  const donationExists = await Donation.findById(actualDonationId);
-  if (!donationExists) {
+  const donation = await Donation.findById(actualDonationId).select(
+    "donorId receiverId requestedBy",
+  );
+  if (!donation) {
     res.status(404);
-    throw new Error("SECURITY BLOCK: Target donation does not exist.");
+    throw new Error("This conversation is no longer available.");
+  }
+  if (!isChatParticipant(donation, req.user._id)) {
+    res.status(403);
+    throw new Error("You're not part of this conversation.");
   }
 
   const message = await Message.create({
     sender: req.user._id,
     receiver: receiverId,
     donationId: actualDonationId,
-    content,
+    content: content.trim(),
   });
 
   const io = req.app.get("io");
@@ -272,4 +309,5 @@ module.exports = {
   deleteMessage,
   editMessage,
   markMessagesAsRead,
+  isChatParticipant,
 };

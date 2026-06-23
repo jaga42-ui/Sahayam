@@ -159,6 +159,18 @@ app.use("/api/events", (req, res, next) => {
   next();
 });
 
+// 👉 Chat flood protection — stops a user spamming/harassing via the open
+// messaging endpoint (30 messages/min).
+const messageLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 30,
+  message: { message: "You're sending messages too fast. Please slow down." },
+});
+app.use("/api/chat", (req, res, next) => {
+  if (req.method === "POST") return messageLimiter(req, res, next);
+  next();
+});
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // Standard Routes
@@ -227,9 +239,12 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_message", (data) => {
-    // 👉 THE FIX: Emit securely to the receiver's private channel. Prevents eavesdropping and fixes asymmetric room bug.
-    socket.to(data.receiver).emit("receive_message", data);
-    socket.to(data.receiver).emit("new_message_notification", data);
+    if (!socket.userId || !data?.receiver) return;
+    // Authoritative sender — a client cannot spoof who a real-time message is
+    // from. Relayed only to the receiver's private channel (no eavesdropping).
+    const safe = { ...data, sender: socket.userId };
+    socket.to(data.receiver).emit("receive_message", safe);
+    socket.to(data.receiver).emit("new_message_notification", safe);
   });
 
   socket.on("mark_as_read", ({ receiverId, readerId }) => {
