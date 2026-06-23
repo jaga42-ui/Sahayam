@@ -3,12 +3,13 @@ import axios from "axios";
 import AuthContext from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
+import Switch from "../components/Switch";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FaUser, FaEnvelope, FaMapMarkerAlt, FaTint, FaBoxOpen,
   FaHistory, FaEdit, FaSave, FaTimes, FaPhone,
   FaLocationArrow, FaSpinner, FaStar, FaShieldAlt, FaSignOutAlt,
-  FaShareAlt, FaCheckCircle, FaBell, FaToggleOn, FaToggleOff,
+  FaShareAlt, FaCheckCircle, FaBell,
   FaTrophy, FaHeart, FaUsers, FaPlus, FaTrash, FaPassport,
   FaHeartbeat, FaCertificate, FaCalendarAlt, FaUserShield,
 } from "react-icons/fa";
@@ -932,15 +933,17 @@ const Profile = () => {
                       <p className="text-[13px] font-bold text-pine-teal">{label}</p>
                       <p className="text-[11px] text-pine-teal/40 mt-0.5">{desc}</p>
                     </div>
-                    <motion.button whileTap={{ scale: 0.85 }} disabled={savingNotifPrefs}
+                    <Switch
+                      on={on}
+                      disabled={savingNotifPrefs}
+                      aria-label={label}
+                      size="md"
                       onClick={() => {
                         const updated = { ...notifPrefs, [key]: !on };
                         setNotifPrefs(updated);
                         handleSaveNotifPrefs(updated);
                       }}
-                      className={`shrink-0 transition-colors disabled:opacity-50 ${on ? "text-pine-teal" : "text-pine-teal/25"}`}>
-                      {on ? <FaToggleOn className="text-2xl" /> : <FaToggleOff className="text-2xl" />}
-                    </motion.button>
+                    />
                   </div>
                 );
               })}
