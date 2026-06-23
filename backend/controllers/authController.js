@@ -360,12 +360,14 @@ const getNearbyDonors = asyncHandler(async (req, res) => {
     limit: 200,
   });
 
-  // 👉 PRIVACY: the matching engine returns email + fcmToken for the
-  // notification path; never expose those to the map client. We attach a
-  // verification badge (derived from email/KYC) so requesters can see which
-  // donors are trustworthy.
+  // 👉 PRIVACY: the matching engine returns contact + token fields for the
+  // notification path; NONE of them may reach the map client. Phone especially —
+  // the product promise is "your number stays private until you choose to share
+  // it", so it must never appear on the radar (donors connect via chat first).
+  // A verification badge (derived from email/KYC) tells requesters who's trusted
+  // without exposing the underlying contact details.
   const safeDonors = donors.map((d) => {
-    const { email, fcmToken, fcmTokens, ...donor } = d;
+    const { email, fcmToken, fcmTokens, phone, ...donor } = d;
     return { ...donor, verification: getVerification(d) };
   });
 
