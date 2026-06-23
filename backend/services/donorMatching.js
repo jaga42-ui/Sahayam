@@ -111,7 +111,39 @@ async function findEligibleDonors({
   return donors;
 }
 
+/**
+ * Geo-free compatible-donor lookup — the email safety net.
+ *
+ * A donor who has not shared GPS is still at the default [0,0], so `$geoNear`
+ * never returns them. On a young user base that means an SOS can reach nobody.
+ * Email needs no location, so we fall back to every compatible, eligible,
+ * available donor that has an email — letting them judge distance from the map
+ * link in the alert. Snoozed donors are respected (isAvailable only).
+ */
+async function findCompatibleDonors({ category, bloodGroup, excludeIds = [], limit = 150 }) {
+  const match = {
+    activeRole: "donor",
+    isAvailable: true,
+    email: { $exists: true, $ne: "" },
+    _id: { $nin: toObjectIds(excludeIds) },
+  };
+
+  if (category === "blood") {
+    const compatible = getCompatibleDonorGroups(bloodGroup);
+    if (compatible.length > 0) match.bloodGroup = { $in: compatible };
+    const cooldownCutoff = new Date(Date.now() - DONATION_COOLDOWN_DAYS * 24 * 60 * 60 * 1000);
+    match.$or = [
+      { lastDonationDate: { $exists: false } },
+      { lastDonationDate: null },
+      { lastDonationDate: { $lte: cooldownCutoff } },
+    ];
+  }
+
+  return User.find(match).select("name email bloodGroup").limit(limit).lean();
+}
+
 module.exports = {
   DONATION_COOLDOWN_DAYS,
   findEligibleDonors,
+  findCompatibleDonors,
 };

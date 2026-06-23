@@ -27,7 +27,8 @@ const sendPostAlertEmail = async (bccEmails, postDetails) => {
 
   const mailOptions = {
     from: `"${process.env.FROM_NAME}" <${process.env.FROM_EMAIL}>`,
-    bcc: bccEmails, 
+    to: process.env.FROM_EMAIL, // a primary recipient (strict SMTP rejects bcc-only); donors stay private in bcc
+    bcc: bccEmails,
     subject: theme.subject,
     html: `
       <div style="font-family: ui-sans-serif, system-ui, sans-serif; max-width: 600px; margin: 0 auto; background-color: #fdfbf7; padding: 40px; border-radius: 24px; color: #29524a; border: 1px solid rgba(132, 107, 138, 0.3); box-shadow: 0 20px 40px rgba(41, 82, 74, 0.08);">

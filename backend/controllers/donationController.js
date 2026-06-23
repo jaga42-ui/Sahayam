@@ -5,7 +5,7 @@ const admin = require("firebase-admin");
 
 const { sendPostAlertEmail } = require("../utils/sendEmail");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { findEligibleDonors } = require("../services/donorMatching");
+const { findEligibleDonors, findCompatibleDonors } = require("../services/donorMatching");
 const { notifyDonors } = require("../utils/notify");
 
 if (!admin.apps.length) {
@@ -144,17 +144,38 @@ const createDonation = asyncHandler(async (req, res) => {
         limit: 200,
       });
 
-      const delivery = await notifyDonors(donors, {
+      const alert = {
         title: `🚨 CRITICAL EMERGENCY: ${bloodGroup || "Help"} Needed!`,
         body: `${title} near ${addressText}. Open Sahayam to respond now!`,
         bloodGroup,
         isEmergency: isCriticalEmergency,
         meta: { title },
-      });
+      };
 
+      const delivery = await notifyDonors(donors, alert);
       console.log(
-        `🔥 SOS listing ${newDonation._id}: reached ${delivery.push} devices + ${delivery.email} emails across ${donors.length} donors.`,
+        `🔥 SOS listing ${newDonation._id}: reached ${delivery.push} devices + ${delivery.email} emails across ${donors.length} nearby donors.`,
       );
+
+      // 👉 EMAIL SAFETY NET: donors who haven't shared GPS sit at the default
+      // [0,0] and are invisible to $geoNear — so on a young user base an SOS can
+      // reach nobody. When the nearby pool is thin, email the broader compatible
+      // pool (excluding everyone already alerted) so the alert never goes nowhere.
+      const GEO_HEALTHY = 5;
+      if (donors.length < GEO_HEALTHY) {
+        const net = await findCompatibleDonors({
+          category,
+          bloodGroup,
+          excludeIds: [req.user._id, ...donors.map((d) => d._id)],
+          limit: 150,
+        });
+        if (net.length > 0) {
+          const r = await notifyDonors(net, alert);
+          console.log(
+            `📧 SOS listing ${newDonation._id}: email safety-net reached ${r.email} additional donor(s).`,
+          );
+        }
+      }
     } catch (dispatchError) {
       console.error("Failed to dispatch SOS notifications:", dispatchError);
     }
