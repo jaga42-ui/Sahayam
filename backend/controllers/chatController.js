@@ -37,6 +37,17 @@ function isChatParticipant(donation, userId) {
   return participants.includes(me);
 }
 
+/**
+ * Two users may not message if EITHER has blocked the other. Pure + exported so
+ * it's unit-tested. Accepts docs shaped like { _id, blockedUsers }.
+ */
+function isBlockedBetween(a, b) {
+  if (!a || !b) return false;
+  const has = (u, otherId) =>
+    (u.blockedUsers || []).some((id) => id.toString() === otherId.toString());
+  return has(a, b._id) || has(b, a._id);
+}
+
 // @desc    Get user's inbox
 // @route   GET /api/chat/inbox
 const getInbox = asyncHandler(async (req, res) => {
@@ -213,6 +224,17 @@ const sendMessage = asyncHandler(async (req, res) => {
     storedDonationId = actualDonationId;
   }
 
+  // 👉 BLOCK: neither party may message if either has blocked the other.
+  const receiverUser = await User.findById(receiverId).select("blockedUsers");
+  if (!receiverUser) {
+    res.status(404);
+    throw new Error("Recipient not found.");
+  }
+  if (isBlockedBetween(req.user, receiverUser)) {
+    res.status(403);
+    throw new Error("You can no longer message this person.");
+  }
+
   const message = await Message.create({
     sender: req.user._id,
     receiver: receiverId,
@@ -320,6 +342,56 @@ const markMessagesAsRead = asyncHandler(async (req, res) => {
   res.json({ success: true });
 });
 
+// @route   POST /api/chat/block/:userId
+const blockUser = asyncHandler(async (req, res) => {
+  const targetId = req.params.userId;
+  if (!mongoose.isValidObjectId(targetId)) {
+    res.status(400);
+    throw new Error("Invalid user.");
+  }
+  if (targetId === req.user._id.toString()) {
+    res.status(400);
+    throw new Error("You can't block yourself.");
+  }
+  await User.findByIdAndUpdate(req.user._id, { $addToSet: { blockedUsers: targetId } });
+  res.json({ success: true, blocked: targetId });
+});
+
+// @route   DELETE /api/chat/block/:userId
+const unblockUser = asyncHandler(async (req, res) => {
+  await User.findByIdAndUpdate(req.user._id, { $pull: { blockedUsers: req.params.userId } });
+  res.json({ success: true });
+});
+
+// @route   POST /api/chat/report
+const reportUser = asyncHandler(async (req, res) => {
+  const { reportedUserId, reason, note, donationId } = req.body;
+  if (!reportedUserId || !mongoose.isValidObjectId(reportedUserId)) {
+    res.status(400);
+    throw new Error("Invalid report target.");
+  }
+  if (reportedUserId === req.user._id.toString()) {
+    res.status(400);
+    throw new Error("You can't report yourself.");
+  }
+
+  const Report = require("../models/Report");
+  await Report.create({
+    reporter: req.user._id,
+    reportedUser: reportedUserId,
+    reason: ["spam", "harassment", "scam", "fake", "other"].includes(reason) ? reason : "other",
+    note: typeof note === "string" ? note.slice(0, 500) : undefined,
+    donationId: donationId && mongoose.isValidObjectId(String(donationId).split("_")[0])
+      ? String(donationId).split("_")[0]
+      : null,
+  });
+
+  // Reporting someone means "get them away from me" — auto-block.
+  await User.findByIdAndUpdate(req.user._id, { $addToSet: { blockedUsers: reportedUserId } });
+
+  res.status(201).json({ success: true });
+});
+
 module.exports = {
   getInbox,
   getChatHistory,
@@ -327,5 +399,9 @@ module.exports = {
   deleteMessage,
   editMessage,
   markMessagesAsRead,
+  blockUser,
+  unblockUser,
+  reportUser,
   isChatParticipant,
+  isBlockedBetween,
 };

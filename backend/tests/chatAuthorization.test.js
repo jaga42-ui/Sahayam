@@ -2,7 +2,7 @@
  * Chat authorization — only a donation's participants may post into its chat.
  * Closes the "any logged-in user can DM anyone by guessing ids" gap.
  */
-const { isChatParticipant } = require("../controllers/chatController");
+const { isChatParticipant, isBlockedBetween } = require("../controllers/chatController");
 
 const donor = "aaaaaaaaaaaaaaaaaaaaaaaa";
 const receiver = "bbbbbbbbbbbbbbbbbbbbbbbb";
@@ -41,5 +41,24 @@ describe("isChatParticipant", () => {
     const open = { donorId: donor, receiverId: null, requestedBy: [requester] };
     expect(isChatParticipant(open, requester)).toBe(true);
     expect(isChatParticipant(open, stranger)).toBe(false);
+  });
+});
+
+describe("isBlockedBetween", () => {
+  const A = { _id: donor, blockedUsers: [] };
+  const B = { _id: receiver, blockedUsers: [] };
+
+  test("blocked in either direction stops messaging", () => {
+    expect(isBlockedBetween({ ...A, blockedUsers: [receiver] }, B)).toBe(true); // A blocked B
+    expect(isBlockedBetween(A, { ...B, blockedUsers: [donor] })).toBe(true);    // B blocked A
+  });
+
+  test("no block → messaging allowed", () => {
+    expect(isBlockedBetween(A, B)).toBe(false);
+  });
+
+  test("missing user is safe (no crash, not blocked)", () => {
+    expect(isBlockedBetween(null, B)).toBe(false);
+    expect(isBlockedBetween(A, null)).toBe(false);
   });
 });

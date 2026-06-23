@@ -95,6 +95,9 @@ const userSchema = new mongoose.Schema(
 
     noShowCount: { type: Number, default: 0 },
 
+    // Users this person has blocked — neither side can message the other.
+    blockedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+
     lastActiveAt: { type: Date, default: Date.now },
 
     notificationPrefs: {

@@ -1,8 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const { getInbox, getChatHistory, sendMessage, deleteMessage, editMessage } = require('../controllers/chatController');
+const {
+  getInbox, getChatHistory, sendMessage, deleteMessage, editMessage,
+  markMessagesAsRead, blockUser, unblockUser, reportUser,
+} = require('../controllers/chatController');
 const { protect } = require('../middleware/authMiddleware');
-const { markMessagesAsRead } = require('../controllers/chatController'); // 👉 Import it
+
+// Block & report — declared before the param routes so "/block" and "/report"
+// aren't captured as a :donationId / :id.
+router.post('/block/:userId', protect, blockUser);
+router.delete('/block/:userId', protect, unblockUser);
+router.post('/report', protect, reportUser);
 
 router.get('/inbox', protect, getInbox);
 router.get('/:donationId', protect, getChatHistory);

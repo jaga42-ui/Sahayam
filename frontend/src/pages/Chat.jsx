@@ -17,6 +17,9 @@ import {
   FaShieldAlt,
   FaMapMarkerAlt,
   FaQrcode,
+  FaEllipsisV,
+  FaBan,
+  FaFlag,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -42,6 +45,9 @@ const Chat = () => {
   const [showETA, setShowETA] = useState(false);
   const [showQRModal, setShowQRModal] = useState(false);
   const [qrScanning, setQrScanning] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const [showReport, setShowReport] = useState(false);
+  const [reporting, setReporting] = useState(false);
 
   const messagesEndRef = useRef(null);
 
@@ -246,6 +252,32 @@ const Chat = () => {
     }
   };
 
+  const handleBlock = async () => {
+    setShowMenu(false);
+    if (!window.confirm(`Block ${otherUserName}? They won't be able to message you, and you won't see their messages.`)) return;
+    try {
+      await api.post(`/chat/block/${otherUserId}`);
+      toast.success(`${otherUserName} blocked.`);
+      navigate("/chat/inbox");
+    } catch {
+      toast.error("Couldn't block this user.");
+    }
+  };
+
+  const handleReport = async (reason) => {
+    setReporting(true);
+    try {
+      await api.post("/chat/report", { reportedUserId: otherUserId, reason, donationId });
+      setShowReport(false);
+      toast.success("Reported — we'll review it. They've also been blocked.");
+      navigate("/chat/inbox");
+    } catch {
+      toast.error("Couldn't submit the report.");
+    } finally {
+      setReporting(false);
+    }
+  };
+
   if (!user) return null;
 
   const activeConversation = Array.isArray(messages)
@@ -305,6 +337,34 @@ const Chat = () => {
             >
               <FaQrcode /> Handshake
             </button>
+            <div className="relative">
+              <button
+                onClick={() => setShowMenu((v) => !v)}
+                aria-label="More options"
+                className="h-[30px] w-[30px] flex items-center justify-center rounded-xl border border-white/15 bg-white/8 text-white/70 hover:bg-white/15 transition-all"
+              >
+                <FaEllipsisV className="text-xs" />
+              </button>
+              {showMenu && (
+                <>
+                  <div className="fixed inset-0 z-30" onClick={() => setShowMenu(false)} />
+                  <div className="absolute right-0 top-10 z-40 w-40 rounded-2xl bg-surface border border-dusty-lavender/30 shadow-xl overflow-hidden py-1">
+                    <button
+                      onClick={() => { setShowMenu(false); setShowReport(true); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-pine-teal hover:bg-pearl-beige transition-colors"
+                    >
+                      <FaFlag className="text-dark-raspberry" /> Report
+                    </button>
+                    <button
+                      onClick={handleBlock}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-[#c0392b] hover:bg-[#d6453f]/8 transition-colors border-t border-dusty-lavender/20"
+                    >
+                      <FaBan /> Block
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </header>
 
@@ -602,6 +662,59 @@ const Chat = () => {
                   >
                     {qrScanning ? "Verifying Keys..." : "Simulate Scan"}
                   </button>
+                )}
+              </motion.div>
+            </div>
+          )}
+        </AnimatePresence>
+
+        {/* ── REPORT MODAL ── */}
+        <AnimatePresence>
+          {showReport && (
+            <div className="fixed inset-0 z-[4000] flex items-center justify-center p-4">
+              <motion.div
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-[#0a0a0a]/80 backdrop-blur-md"
+                onClick={() => !reporting && setShowReport(false)}
+              />
+              <motion.div
+                initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+                className="relative w-full max-w-sm rounded-[2rem] bg-surface p-6 shadow-2xl"
+              >
+                <div className="flex items-start justify-between gap-3 mb-1">
+                  <h2 className="font-display text-xl font-semibold text-pine-teal leading-tight">
+                    Report {otherUserName}
+                  </h2>
+                  <button
+                    onClick={() => !reporting && setShowReport(false)}
+                    className="shrink-0 h-8 w-8 flex items-center justify-center rounded-full border border-dusty-lavender/30 text-dusty-lavender hover:text-pine-teal transition-colors"
+                  >
+                    <FaTimes className="text-xs" />
+                  </button>
+                </div>
+                <p className="text-[13px] text-pine-teal/55 mb-4">
+                  They'll be blocked and our team will review this.
+                </p>
+                <div className="space-y-2">
+                  {[
+                    ["harassment", "Harassment or abuse"],
+                    ["spam", "Spam"],
+                    ["scam", "Scam or fraud"],
+                    ["fake", "Fake / impersonation"],
+                    ["other", "Something else"],
+                  ].map(([val, label]) => (
+                    <button
+                      key={val}
+                      disabled={reporting}
+                      onClick={() => handleReport(val)}
+                      className="w-full text-left rounded-xl border border-pine-teal/12 bg-surface-2 px-4 py-3 text-[14px] font-medium text-pine-teal hover:border-dark-raspberry/40 hover:bg-dark-raspberry/5 transition-colors disabled:opacity-50"
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {reporting && (
+                  <p className="mt-3 text-center text-[12px] text-pine-teal/50">Submitting…</p>
                 )}
               </motion.div>
             </div>
