@@ -137,17 +137,30 @@ export const AuthProvider = ({ children }) => {
 
   const toggleAvailability = async () => {
     if (!user) return;
+
+    // Optimistic flip so the toggle feels instant and smooth.
+    const previous = user;
+    const optimistic = { ...user, isAvailable: !user.isAvailable };
+    setUser(optimistic);
+    localStorage.setItem("user", JSON.stringify(optimistic));
+
     try {
       const { data } = await api.put("/auth/toggle-availability");
-      setUser(data);
-      localStorage.setItem("user", JSON.stringify(data));
-      if (data.isAvailable) {
-        toast.success("Snooze Disabled: You are now On-Duty for SOS alerts.");
-      } else {
-        toast.success("Snooze Enabled: You will not receive SOS alerts.");
-      }
+      // The endpoint doesn't echo the JWT — MERGE the response and keep the
+      // existing token, or the next request 401s and logs the user out.
+      const updated = { ...previous, ...data, token: previous.token };
+      setUser(updated);
+      localStorage.setItem("user", JSON.stringify(updated));
+      toast.success(
+        updated.isAvailable
+          ? "You're on-duty — you'll get SOS alerts nearby."
+          : "Snoozed — you won't receive SOS alerts.",
+      );
     } catch (error) {
-      toast.error("Failed to toggle availability status.");
+      // Revert the optimistic flip on failure.
+      setUser(previous);
+      localStorage.setItem("user", JSON.stringify(previous));
+      toast.error("Couldn't update your status. Please try again.");
     }
   };
 
