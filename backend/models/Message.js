@@ -3,7 +3,9 @@ const mongoose = require('mongoose');
 const messageSchema = new mongoose.Schema({
   sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   receiver: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  donationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Donation', required: true },
+  // Null for a direct donor-to-donor chat (radar "message a donor"); set for a
+  // donation/SOS-based conversation.
+  donationId: { type: mongoose.Schema.Types.ObjectId, ref: 'Donation', default: null },
   content: { type: String, required: true },
   
   // Advanced Features

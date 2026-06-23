@@ -91,7 +91,8 @@ const getInbox = asyncHandler(async (req, res) => {
         as: "donation" 
       } 
     },
-    { $unwind: "$donation" },
+    // preserveNullAndEmptyArrays so direct chats (donationId: null) aren't dropped.
+    { $unwind: { path: "$donation", preserveNullAndEmptyArrays: true } },
     // Join with User details
     { 
       $lookup: { 
@@ -106,19 +107,25 @@ const getInbox = asyncHandler(async (req, res) => {
   ]);
 
   // Format the output exactly as the React frontend expects it
-  const formattedConversations = inboxData.map((convo) => ({
-    chatRoomId: `${convo.donation._id.toString()}_${convo.otherUserDetails._id.toString()}`,
-    donationId: convo.donation._id,
-    donationTitle: convo.donation.title,
-    otherUserId: convo.otherUserDetails._id,
-    otherUserName: convo.otherUserDetails.name,
-    otherUserProfilePic: convo.otherUserDetails.profilePic,
-    latestMessage: convo.latestMessage?.startsWith("[AUDIO]")
-      ? "🎤 Voice message"
-      : convo.latestMessage ?? "",
-    updatedAt: convo.updatedAt,
-    unreadCount: convo.unreadCount,
-  }));
+  const formattedConversations = inboxData.map((convo) => {
+    const otherId = convo.otherUserDetails._id.toString();
+    const isDirect = !convo.donation;
+    return {
+      chatRoomId: isDirect
+        ? `direct_${otherId}`
+        : `${convo.donation._id.toString()}_${otherId}`,
+      donationId: convo.donation?._id || null,
+      donationTitle: isDirect ? "Direct message" : convo.donation.title,
+      otherUserId: convo.otherUserDetails._id,
+      otherUserName: convo.otherUserDetails.name,
+      otherUserProfilePic: convo.otherUserDetails.profilePic,
+      latestMessage: convo.latestMessage?.startsWith("[AUDIO]")
+        ? "🎤 Voice message"
+        : convo.latestMessage ?? "",
+      updatedAt: convo.updatedAt,
+      unreadCount: convo.unreadCount,
+    };
+  });
 
   res.json(formattedConversations);
 });
@@ -128,27 +135,25 @@ const getInbox = asyncHandler(async (req, res) => {
 const getChatHistory = asyncHandler(async (req, res) => {
   const rawId = req.params.donationId;
   const parts = rawId.split("_");
-  const actualDonationId = parts[0];
+  const myId = req.user._id;
+  const isDirect = parts[0] === "direct";
   const chatReceiverId = parts[1];
 
-  const myId = req.user._id;
+  // Direct chats carry donationId: null; donation chats carry a real ObjectId.
+  if (!isDirect && !mongoose.isValidObjectId(parts[0])) {
+    return res.json([]);
+  }
 
-  let query = { donationId: actualDonationId };
+  const query = { donationId: isDirect ? null : parts[0] };
 
-  if (chatReceiverId) {
-    const otherUserId = myId.toString() === chatReceiverId ? null : chatReceiverId;
-
-    if (otherUserId) {
-      query.$or = [
+  const otherUserId =
+    chatReceiverId && myId.toString() !== chatReceiverId ? chatReceiverId : null;
+  query.$or = otherUserId
+    ? [
         { sender: myId, receiver: otherUserId },
         { sender: otherUserId, receiver: myId },
-      ];
-    } else {
-      query.$or = [{ sender: myId }, { receiver: myId }];
-    }
-  } else {
-    query.$or = [{ sender: myId }, { receiver: myId }];
-  }
+      ]
+    : [{ sender: myId }, { receiver: myId }];
 
   const messages = await Message.find(query).sort({ createdAt: 1 });
 
@@ -173,36 +178,45 @@ const sendMessage = asyncHandler(async (req, res) => {
     throw new Error("You can't message yourself.");
   }
 
-  const actualDonationId = donationId.includes("_")
-    ? donationId.split("_")[0]
-    : donationId;
+  // A "direct_<userId>" room is the radar "message a donor" feature — there's no
+  // donation behind it. It's allowed for any user (that IS the feature) and
+  // gated by the chat rate limiter; donation chats below are participant-checked.
+  const isDirect = String(donationId).startsWith("direct");
+  let storedDonationId = null;
 
-  // Clean error instead of a CastError/500 on a malformed id.
-  if (!mongoose.isValidObjectId(actualDonationId)) {
-    res.status(400);
-    throw new Error("Invalid conversation reference.");
-  }
+  if (!isDirect) {
+    const actualDonationId = donationId.includes("_")
+      ? donationId.split("_")[0]
+      : donationId;
 
-  // 👉 AUTHORIZATION: the donation must exist AND the sender must be a
-  // participant (its donor, its approved receiver, or someone who requested it).
-  // Without this, any logged-in user could spam/harass anyone by guessing ids.
-  const Donation = require("../models/Donation");
-  const donation = await Donation.findById(actualDonationId).select(
-    "donorId receiverId requestedBy",
-  );
-  if (!donation) {
-    res.status(404);
-    throw new Error("This conversation is no longer available.");
-  }
-  if (!isChatParticipant(donation, req.user._id)) {
-    res.status(403);
-    throw new Error("You're not part of this conversation.");
+    // Clean error instead of a CastError/500 on a malformed id.
+    if (!mongoose.isValidObjectId(actualDonationId)) {
+      res.status(400);
+      throw new Error("Invalid conversation reference.");
+    }
+
+    // 👉 AUTHORIZATION: the donation must exist AND the sender must be a
+    // participant (donor, approved receiver, or a requester). Without this, any
+    // logged-in user could spam/harass anyone by guessing ids.
+    const Donation = require("../models/Donation");
+    const donation = await Donation.findById(actualDonationId).select(
+      "donorId receiverId requestedBy",
+    );
+    if (!donation) {
+      res.status(404);
+      throw new Error("This conversation is no longer available.");
+    }
+    if (!isChatParticipant(donation, req.user._id)) {
+      res.status(403);
+      throw new Error("You're not part of this conversation.");
+    }
+    storedDonationId = actualDonationId;
   }
 
   const message = await Message.create({
     sender: req.user._id,
     receiver: receiverId,
-    donationId: actualDonationId,
+    donationId: storedDonationId,
     content: content.trim(),
   });
 
@@ -284,11 +298,15 @@ const editMessage = asyncHandler(async (req, res) => {
 const markMessagesAsRead = asyncHandler(async (req, res) => {
   const rawId = req.params.donationId;
   const parts = rawId.split("_");
-  const actualDonationId = parts[0];
+  const isDirect = parts[0] === "direct";
   const chatReceiverId = parts[1];
 
+  if (!isDirect && !mongoose.isValidObjectId(parts[0])) {
+    return res.json({ success: true });
+  }
+
   let query = {
-    donationId: actualDonationId,
+    donationId: isDirect ? null : parts[0],
     receiver: req.user._id,
     read: false,
   };
