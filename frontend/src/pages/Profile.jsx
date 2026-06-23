@@ -450,15 +450,20 @@ const Profile = () => {
                 )}
               </div>
               <div className="text-right space-y-2">
-                <motion.button whileTap={{ scale: 0.9 }} onClick={toggleAvailability}
-                  className={`flex items-center gap-2 rounded-2xl border px-4 py-2.5 text-[11px] font-black uppercase tracking-widest transition-all ${
+                <motion.button whileTap={{ scale: 0.96 }} onClick={toggleAvailability}
+                  aria-pressed={user.isAvailable}
+                  className={`flex items-center gap-2.5 rounded-2xl border px-3.5 py-2.5 text-[11px] font-black uppercase tracking-widest transition-colors duration-300 ${
                     user.isAvailable
                       ? "border-pine-teal/40 bg-pine-teal/15 text-pine-teal"
                       : "border-pine-teal/15 bg-pine-teal/5 text-pine-teal/50"
                   }`}>
-                  {user.isAvailable
-                    ? <><FaToggleOn className="text-base text-pine-teal" /> On-duty</>
-                    : <><FaToggleOff className="text-base" /> Snoozed</>}
+                  <span className={`flex h-[18px] w-8 shrink-0 items-center rounded-full px-0.5 transition-colors duration-300 ${
+                    user.isAvailable ? "justify-end bg-pine-teal" : "justify-start bg-pine-teal/25"
+                  }`}>
+                    <motion.span layout transition={{ type: "spring", stiffness: 600, damping: 34 }}
+                      className="h-3.5 w-3.5 rounded-full bg-white shadow-sm" />
+                  </span>
+                  {user.isAvailable ? "On-duty" : "Snoozed"}
                 </motion.button>
                 <motion.button whileTap={{ scale: 0.9 }} onClick={() => setPassportOpen(true)}
                   className="flex items-center gap-2 rounded-2xl border border-pine-teal/15 bg-pine-teal/5 px-4 py-2.5 text-[11px] font-black uppercase tracking-widest text-pine-teal/70">
