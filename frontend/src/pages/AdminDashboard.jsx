@@ -41,6 +41,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import api from "../utils/api";
 import EngineMetrics from "../components/EngineMetrics";
+import AdminReports from "../components/AdminReports";
 import { FaBolt } from "react-icons/fa";
 
 const Admin = () => {
@@ -258,6 +259,7 @@ const Admin = () => {
     { id: "listings",   label: "Content",    icon: <FaBoxOpen /> },
     { id: "events",     label: "Events",     icon: <FaCalendarAlt /> },
     { id: "moderation", label: "Moderation", icon: <FaFlag /> },
+    { id: "reports",    label: "Safety",     icon: <FaBan /> },
     { id: "camps",      label: "Camps",      icon: <FaCalendarAlt /> },
     { id: "kyc",        label: "KYC",        icon: <FaShieldAlt /> },
     { id: "feedback",   label: "Feedback",   icon: <FaCommentAlt /> },
@@ -532,6 +534,8 @@ const Admin = () => {
 
             {/* ROUTING ENGINE METRICS TAB */}
             {activeTab === "engine" && <EngineMetrics />}
+
+            {activeTab === "reports" && <AdminReports />}
 
             {/* MODERATION QUEUE TAB */}
             {activeTab === "moderation" && (

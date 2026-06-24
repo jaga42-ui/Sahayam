@@ -20,6 +20,7 @@ const {
   exportCSV,
 } = require('../controllers/adminController');
 const { getEngineMetrics } = require('../controllers/metricsController');
+const { listReports, updateReportStatus } = require('../controllers/reportController');
 
 const adminGuard = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
@@ -54,6 +55,10 @@ router.patch('/camps/:id/status', updateCampStatus);
 // KYC verification queue
 router.get('/kyc', getKYCRequests);
 router.patch('/kyc/:id', approveKYC);
+
+// User reports (harassment/spam/scam) from chat
+router.get('/reports', listReports);
+router.patch('/reports/:id', updateReportStatus);
 
 // CSV export
 router.get('/export', exportCSV);
