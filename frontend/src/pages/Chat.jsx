@@ -42,9 +42,15 @@ const Chat = () => {
 
   const [editingMessage, setEditingMessage] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(null);
-  const [showETA, setShowETA] = useState(false);
-  const [showQRModal, setShowQRModal] = useState(false);
-  const [qrScanning, setQrScanning] = useState(false);
+  const [showHandshake, setShowHandshake] = useState(false);
+  const [handshake, setHandshake] = useState(null); // { role, code, status }
+  const [pinInput, setPinInput] = useState("");
+  const [completing, setCompleting] = useState(false);
+
+  const isDirectChat = String(donationId || "").startsWith("direct");
+  const realDonationId = String(donationId || "").includes("_")
+    ? String(donationId).split("_")[0]
+    : donationId;
   const [showMenu, setShowMenu] = useState(false);
   const [showReport, setShowReport] = useState(false);
   const [reporting, setReporting] = useState(false);
@@ -278,6 +284,36 @@ const Chat = () => {
     }
   };
 
+  const openHandshake = async () => {
+    if (isDirectChat) return;
+    setShowHandshake(true);
+    setHandshake(null);
+    setPinInput("");
+    try {
+      const { data } = await api.get(`/donations/${realDonationId}/handshake`);
+      setHandshake(data);
+    } catch {
+      toast.error("Couldn't open the confirmation.");
+      setShowHandshake(false);
+    }
+  };
+
+  const completeHandoff = async () => {
+    if (!pinInput.trim()) return;
+    setCompleting(true);
+    try {
+      await api.patch(`/donations/${realDonationId}/fulfill`, { pin: pinInput.trim() });
+      toast.success("Donation confirmed — thank you for helping. 🤝");
+      setShowHandshake(false);
+      navigate("/chat/inbox");
+    } catch (err) {
+      const m = err.response?.data?.message;
+      toast.error(m === "Incorrect OTP" ? "That code didn't match. Check it with the requester." : "Couldn't confirm. Please try again.");
+    } finally {
+      setCompleting(false);
+    }
+  };
+
   if (!user) return null;
 
   const activeConversation = Array.isArray(messages)
@@ -325,18 +361,14 @@ const Chat = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <button
-              onClick={() => setShowETA(!showETA)}
-              className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 rounded-xl border text-[9px] font-black uppercase tracking-widest transition-all ${showETA ? "bg-pine-teal text-white border-pine-teal shadow-[0_0_15px_rgba(59,107,84,0.6)]" : "bg-white/8 text-white/70 border-white/15 hover:bg-pine-teal hover:text-white hover:border-pine-teal"}`}
-            >
-              <FaMapMarkerAlt /> {showETA ? "Tracking" : "ETA"}
-            </button>
-            <button
-              onClick={() => setShowQRModal(true)}
-              className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 rounded-xl border border-pine-teal bg-pine-teal text-white text-[9px] font-black uppercase tracking-widest transition-all shadow-md hover:bg-[#1a3630]"
-            >
-              <FaQrcode /> Handshake
-            </button>
+            {!isDirectChat && (
+              <button
+                onClick={openHandshake}
+                className="flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 rounded-xl border border-pine-teal bg-pine-teal text-white text-[9px] font-black uppercase tracking-widest transition-all shadow-md hover:bg-[#1a3630]"
+              >
+                <FaQrcode /> Confirm
+              </button>
+            )}
             <div className="relative">
               <button
                 onClick={() => setShowMenu((v) => !v)}
@@ -368,31 +400,6 @@ const Chat = () => {
           </div>
         </header>
 
-        <AnimatePresence>
-          {showETA && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              className="bg-gradient-to-r from-[#1a3630] to-[#0a0a0a] border-b border-pine-teal/30 overflow-hidden relative shrink-0 shadow-inner"
-            >
-              <div className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none">
-                <div className="w-[300px] h-[300px] rounded-full border border-pine-teal/20 animate-ping" style={{ animationDuration: '3s' }} />
-              </div>
-              <div className="p-4 flex items-center justify-between relative z-10">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-pine-teal/10 border border-pine-teal/50 flex items-center justify-center text-pine-teal shadow-[0_0_15px_rgba(59,107,84,0.3)]">
-                    <FaMapMarkerAlt className="animate-bounce" />
-                  </div>
-                  <div>
-                    <h3 className="text-white font-black text-sm uppercase tracking-wider">Live ETA Tracking</h3>
-                    <p className="text-pine-teal text-[10px] font-bold uppercase tracking-[0.2em] animate-pulse">Community member is 2.4 miles away (Est. 8 mins)</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         <section
           className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 z-10 no-scrollbar relative bg-pearl-beige/30"
@@ -589,79 +596,66 @@ const Chat = () => {
           </form>
         </div>
 
+        {/* ── COMPLETION HANDSHAKE (real) ── */}
         <AnimatePresence>
-          {showQRModal && (
+          {showHandshake && (
             <div className="fixed inset-0 z-[4000] flex items-center justify-center p-4">
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-[#0a0a0a]/90 backdrop-blur-md"
-                onClick={() => setShowQRModal(false)}
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-[#0a0a0a]/85 backdrop-blur-md"
+                onClick={() => !completing && setShowHandshake(false)}
               />
               <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="relative w-full max-w-sm rounded-[2.5rem] bg-surface p-8 shadow-2xl flex flex-col items-center border-4 border-pine-teal"
+                initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }}
+                className="relative w-full max-w-sm rounded-[2rem] bg-surface p-6 shadow-2xl"
               >
-                <div className="absolute top-4 right-4">
-                   <button onClick={() => setShowQRModal(false)} className="p-2 text-dusty-lavender hover:text-pine-teal bg-pearl-beige rounded-full transition-colors"><FaTimes /></button>
-                </div>
-                <div className="mb-5 flex flex-col items-center mt-2">
-                  <div className="w-16 h-16 rounded-3xl bg-pine-teal/10 flex items-center justify-center text-pine-teal mb-3 shadow-inner">
-                    <FaQrcode className="text-3xl" />
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-10 w-10 rounded-xl bg-pine-teal/10 flex items-center justify-center text-pine-teal"><FaShieldAlt /></div>
+                    <h2 className="font-display text-xl font-semibold text-pine-teal">Confirm donation</h2>
                   </div>
-                  <h2 className="text-2xl font-black uppercase tracking-tight text-pine-teal">Secure Handoff</h2>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-dusty-lavender text-center mt-1">
-                    {!isDonor ? "Present this to complete transfer" : "Scan to verify transfer"}
-                  </p>
+                  <button onClick={() => !completing && setShowHandshake(false)} className="h-8 w-8 flex items-center justify-center rounded-full border border-dusty-lavender/30 text-dusty-lavender hover:text-pine-teal transition-colors"><FaTimes className="text-xs" /></button>
                 </div>
 
-                <div className="relative w-56 h-56 bg-pearl-beige rounded-3xl flex items-center justify-center overflow-hidden border-2 border-dashed border-pine-teal/40 p-3">
-                  {!isDonor ? (
-                    <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=Sahayam-Handshake-${donationId}_${user._id}&color=29524a&bgcolor=f5f2eb`} 
-                      alt="Handoff QR" 
-                      className="w-full h-full rounded-2xl object-cover" 
+                {!handshake ? (
+                  <div className="py-10 flex justify-center"><FaSpinner className="animate-spin text-2xl text-pine-teal" /></div>
+                ) : handshake.status === "fulfilled" ? (
+                  <div className="py-8 text-center">
+                    <FaCheckDouble className="text-4xl text-pine-teal mx-auto mb-3" />
+                    <p className="text-[15px] font-semibold text-pine-teal">Already completed</p>
+                    <p className="text-[13px] text-pine-teal/55 mt-1">This request has been fulfilled. Thank you.</p>
+                  </div>
+                ) : handshake.role === "owner" ? (
+                  <>
+                    <p className="text-[14px] text-pine-teal/60 leading-relaxed mb-4">
+                      Share this code with your donor <span className="font-semibold text-pine-teal">after they've helped</span> — they enter it to confirm the donation.
+                    </p>
+                    <div className="rounded-2xl border border-pine-teal/15 bg-pearl-beige/60 py-5 text-center">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-pine-teal/45 mb-1">Completion code</p>
+                      <p className="font-display text-4xl font-bold tracking-[0.18em] text-pine-teal">{handshake.code}</p>
+                    </div>
+                    <p className="mt-3 text-[12px] text-pine-teal/45 text-center">Only share it once the donation has actually happened.</p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-[14px] text-pine-teal/60 leading-relaxed mb-4">
+                      After you've donated, ask the requester for their <span className="font-semibold text-pine-teal">completion code</span> and enter it here.
+                    </p>
+                    <input
+                      value={pinInput}
+                      onChange={(e) => setPinInput(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                      inputMode="numeric"
+                      placeholder="------"
+                      className="w-full rounded-xl border border-pine-teal/20 bg-pearl-beige px-4 py-4 text-center font-display text-2xl tracking-[0.3em] text-pine-teal outline-none focus:border-pine-teal/50 placeholder-pine-teal/25"
                     />
-                  ) : (
-                    <>
-                      <div className="w-44 h-44 grid grid-cols-5 grid-rows-5 gap-1.5 opacity-80">
-                         {Array.from({length: 25}).map((_, i) => (
-                           <div key={i} className={`bg-pine-teal ${Math.random() > 0.4 ? 'rounded-md' : 'rounded-full scale-75'}`} style={{ opacity: Math.random() > 0.2 ? 1 : 0 }} />
-                         ))}
-                      </div>
-                      {qrScanning && (
-                        <motion.div 
-                          initial={{ y: 0 }}
-                          animate={{ y: 224 }}
-                          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                          className="absolute top-0 left-0 w-full h-1.5 bg-pine-teal shadow-[0_0_25px_rgba(59,107,84,1)] z-10" 
-                        />
-                      )}
-                    </>
-                  )}
-                </div>
-
-                {isDonor && (
-                  <button
-                    onClick={() => {
-                      setQrScanning(true);
-                      setTimeout(() => {
-                        setQrScanning(false);
-                        setShowQRModal(false);
-                        toast.success("Handshake Verified! Transfer Complete.", { 
-                          icon: "🤝",
-                          style: { background: "#ffffff", color: "#3b6b54", border: "1px solid #3b6b54", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.1em" }
-                        });
-                      }, 2500);
-                    }}
-                    className={`mt-6 w-full rounded-2xl py-4 text-xs font-black uppercase tracking-widest text-white shadow-[0_10px_25px_rgba(59,107,84,0.3)] transition-all ${qrScanning ? 'bg-[#1a3630]' : 'bg-pine-teal hover:scale-[1.02] hover:bg-[#1a3630] active:scale-95'}`}
-                    disabled={qrScanning}
-                  >
-                    {qrScanning ? "Verifying Keys..." : "Simulate Scan"}
-                  </button>
+                    <button
+                      onClick={completeHandoff}
+                      disabled={completing || pinInput.length < 4}
+                      className="mt-4 w-full rounded-xl bg-pine-teal py-3.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#2f5a47] disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      {completing ? <FaSpinner className="animate-spin" /> : "Confirm donation"}
+                    </button>
+                  </>
                 )}
               </motion.div>
             </div>

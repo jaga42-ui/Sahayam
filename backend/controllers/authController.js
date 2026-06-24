@@ -368,6 +368,14 @@ const getNearbyDonors = asyncHandler(async (req, res) => {
   // without exposing the underlying contact details.
   const safeDonors = donors.map((d) => {
     const { email, fcmToken, fcmTokens, phone, ...donor } = d;
+    // 👉 SAFETY: coarsen the displayed pin to ~100m so a donor's exact home is
+    // never revealed — the map only needs an approximate area.
+    if (donor.location?.coordinates?.length === 2) {
+      donor.location = {
+        ...donor.location,
+        coordinates: donor.location.coordinates.map((c) => Math.round(c * 1000) / 1000),
+      };
+    }
     return { ...donor, verification: getVerification(d) };
   });
 

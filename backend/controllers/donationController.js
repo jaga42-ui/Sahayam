@@ -73,7 +73,7 @@ const createDonation = asyncHandler(async (req, res) => {
     }
   }
 
-  const pickupPIN = Math.floor(1000 + Math.random() * 9000).toString();
+  const pickupPIN = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit completion code
 
   const parsedLat = parseFloat(lat) || 0;
   const parsedLng = parseFloat(lng) || 0;
@@ -485,7 +485,7 @@ const markFulfilled = asyncHandler(async (req, res) => {
     io.emit("listing_deleted", donation._id);
     const chatRoomId = `${donationId}_${donation.receiverId}`;
     io.to(chatRoomId).emit("chat_terminated", {
-      message: "Mission AccomplISHED. Secure channel closed.",
+      message: "Thank you — this request is complete.",
     });
     // Prompt the recipient to send a thank-you to the donor
     if (donation.receiverId) {
@@ -498,6 +498,36 @@ const markFulfilled = asyncHandler(async (req, res) => {
   }
 
   res.json({ message: "Handshake Successful", pointsEarned: 50 });
+});
+
+// @route GET /api/donations/:id/handshake
+// Real completion handshake: the requester (poster) sees the code; the donor
+// enters it to confirm the donation actually happened. Replaces the old
+// simulated QR. Only participants may access it.
+const getHandshake = asyncHandler(async (req, res) => {
+  const donation = await Donation.findById(req.params.id).select(
+    "donorId receiverId requestedBy pickupPIN status title",
+  );
+  if (!donation) {
+    res.status(404);
+    throw new Error("Request not found.");
+  }
+  const me = req.user._id.toString();
+  const isOwner = donation.donorId?.toString() === me;
+  const isParticipant =
+    isOwner ||
+    donation.receiverId?.toString() === me ||
+    (donation.requestedBy || []).some((id) => id.toString() === me);
+  if (!isParticipant) {
+    res.status(403);
+    throw new Error("You're not part of this request.");
+  }
+  res.json({
+    role: isOwner ? "owner" : "helper",
+    code: isOwner ? donation.pickupPIN : null, // only the poster sees the code
+    status: donation.status,
+    title: donation.title,
+  });
 });
 
 const getMyHistory = asyncHandler(async (req, res) => {
@@ -662,7 +692,7 @@ const relistDonation = asyncHandler(async (req, res) => {
     throw new Error("Only expired or fulfilled listings can be re-listed");
   }
 
-  const pickupPIN = Math.floor(1000 + Math.random() * 9000).toString();
+  const pickupPIN = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit completion code
 
   const relisted = await Donation.create({
     donorId:          original.donorId,
@@ -731,6 +761,7 @@ module.exports = {
   getMyHistory,
   deleteDonation,
   markFulfilled,
+  getHandshake,
   requestItem,
   approveRequest,
   acceptSOS,

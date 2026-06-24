@@ -19,6 +19,7 @@ const {
   sendThankYou,
   relistDonation,
   receiverConfirm,
+  getHandshake,
 } = require('../controllers/donationController');
 
 const { protect } = require('../middleware/authMiddleware');
@@ -30,6 +31,7 @@ router.route('/')
 
 router.get('/feed', protect, getNearbyFeed);
 router.get('/my-history', protect, getMyHistory);
+router.get('/:id/handshake', protect, getHandshake);
 router.patch('/:id/fulfill', protect, markFulfilled);
 router.delete('/:id', protect, deleteDonation);
 
