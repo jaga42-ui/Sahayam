@@ -26,7 +26,7 @@ const adminGuard = (req, res, next) => {
   if (req.user && req.user.isAdmin) {
     next();
   } else {
-    res.status(401).json({ message: 'SECURITY BREACH: Not authorized as Admin' });
+    res.status(401).json({ message: 'You don\'t have access to this area.' });
   }
 };
 

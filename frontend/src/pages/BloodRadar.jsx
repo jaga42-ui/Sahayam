@@ -289,7 +289,7 @@ const BloodRadar = () => {
           {!myLocation ? (
             <div className="h-full w-full flex flex-col items-center justify-center space-y-4">
               <div className="w-16 h-16 border-4 border-pine-teal/30 border-t-pine-teal rounded-full animate-spin"></div>
-              <p className="font-black tracking-[0.3em] uppercase text-[10px] text-pine-teal animate-pulse">Scanning Grid...</p>
+              <p className="font-black tracking-[0.3em] uppercase text-[10px] text-pine-teal animate-pulse">Finding donors near you…</p>
             </div>
           ) : (
             // 👉 THE MASTERPIECE: Light Mode Tactical Map

@@ -183,7 +183,7 @@ const Admin = () => {
       try {
         await api.delete(`/admin/listings/${id}`);
         setListings(listings.filter((l) => l._id !== id));
-        toast.success("Listing obliterated.");
+        toast.success("Listing removed.");
       } catch (error) {
         toast.error("Failed to delete listing");
       }
@@ -554,7 +554,7 @@ const Admin = () => {
                     <div className="flex flex-col items-center justify-center py-20 text-dusty-lavender opacity-80">
                       <FaCheckCircle className="text-6xl mb-4 text-pine-teal" />
                       <p className="font-bold tracking-widest uppercase text-xs">
-                        Grid is Secure. No active reports.
+                        All clear — no active reports.
                       </p>
                     </div>
                   ) : (
