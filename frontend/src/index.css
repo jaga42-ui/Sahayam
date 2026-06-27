@@ -414,6 +414,15 @@ input, textarea, select { user-select: auto; -webkit-user-select: auto; }
    REDUCE MOTION
 ════════════════════════════════════ */
 @media (prefers-reduced-motion: reduce) {
+  /* Honour the OS "reduce motion" setting EVERYWHERE — pings, pulses, spinners,
+     auroras, transitions. Critical for vestibular sensitivity and for keeping a
+     stressful emergency screen calm. */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
   .aurora-bg, .aurora-bg-subtle, .aurora-header::before,
   .sidebar-aurora::before, .sidebar-aurora::after,
   .float-gentle, .float-slow, .float-delay,
@@ -422,4 +431,15 @@ input, textarea, select { user-select: auto; -webkit-user-select: auto; }
   #app-splash .splash-mark, #app-splash .splash-bar {
     animation: none !important;
   }
+}
+
+/* ════════════════════════════════════
+   VISIBLE KEYBOARD FOCUS
+   Only shows for keyboard nav (:focus-visible), so mouse/touch users don't get
+   rings, but keyboard and screen-reader users can always see where they are.
+════════════════════════════════════ */
+:focus-visible {
+  outline: 2px solid var(--color-pine-teal);
+  outline-offset: 2px;
+  border-radius: 4px;
 }

@@ -2,6 +2,7 @@
 import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
+import { MotionConfig } from "framer-motion";
 import { AuthProvider } from "./context/AuthContext";
 import { HelmetProvider } from "react-helmet-async";
 
@@ -31,6 +32,8 @@ function App() {
   return (
     <HelmetProvider>
       <AuthProvider>
+        {/* Respect the OS "reduce motion" setting for all framer-motion animations. */}
+        <MotionConfig reducedMotion="user">
         <Router>
           {/* 👉 PREMIUM SAHAYAM TOAST ALERTS */}
           <Toaster
@@ -102,6 +105,7 @@ function App() {
             </Suspense>
           </ErrorBoundary>
         </Router>
+        </MotionConfig>
       </AuthProvider>
     </HelmetProvider>
   );
