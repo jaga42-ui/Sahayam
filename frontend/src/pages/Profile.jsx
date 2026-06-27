@@ -10,7 +10,7 @@ import {
   FaHistory, FaEdit, FaSave, FaTimes, FaPhone,
   FaLocationArrow, FaSpinner, FaStar, FaShieldAlt, FaSignOutAlt,
   FaShareAlt, FaCheckCircle, FaBell,
-  FaTrophy, FaHeart, FaUsers, FaPlus, FaTrash, FaPassport,
+  FaHeart, FaUsers, FaPlus, FaTrash, FaPassport,
   FaHeartbeat, FaCertificate, FaCalendarAlt, FaUserShield,
 } from "react-icons/fa";
 import toast from "react-hot-toast";
@@ -329,11 +329,12 @@ const Profile = () => {
   const inputCls = "w-full rounded-xl border border-pine-teal/12 bg-pearl-beige px-4 py-3.5 text-sm font-medium text-pine-teal placeholder-pine-teal/40 outline-none focus:border-blazing-flame/60 focus:ring-2 focus:ring-blazing-flame/10 transition-all";
   const livesHelped = Math.max(user.donationsCount || 0, stats.bloodDonations) * 3;
 
+  // Quiet impact, not a scoreboard — donations, the lives they may have touched
+  // (one donation can help up to 3 people), and open requests. No points.
   const statData = [
-    { icon: FaTint,    label: "Donated", value: loading ? "—" : (user.donationsCount || stats.bloodDonations), color: "text-dark-raspberry" },
-    { icon: FaHeart,   label: "Lives",   value: loading ? "—" : livesHelped,                                   color: "text-blazing-flame" },
-    { icon: FaTrophy,  label: "Points",  value: loading ? "—" : (user.points || 0),                           color: "text-pine-teal" },
-    { icon: FaHistory, label: "Active",  value: loading ? "—" : stats.activeListings,                         color: "text-dusty-lavender" },
+    { icon: FaTint,    label: "Donations",   value: loading ? "—" : (user.donationsCount || stats.bloodDonations), color: "text-dark-raspberry" },
+    { icon: FaHeart,   label: "Lives helped", value: loading ? "—" : livesHelped,                                  color: "text-blazing-flame" },
+    { icon: FaHistory, label: "Open",        value: loading ? "—" : stats.activeListings,                          color: "text-pine-teal" },
   ];
 
   const rarityText = rarity?.count !== undefined
@@ -444,9 +445,9 @@ const Profile = () => {
               <div>
                 <p className="text-[10px] font-black uppercase tracking-widest text-pine-teal/40 mb-1">Your blood group</p>
                 <p className="text-6xl font-black text-dark-raspberry tracking-tighter">{passport?.bloodGroup || user.bloodGroup || "—"}</p>
-                {user.rank && (
-                  <span className="inline-flex items-center gap-1 mt-1.5 rounded-full bg-pine-teal/8 border border-pine-teal/15 px-2.5 py-1 text-[10px] font-black text-pine-teal/70 uppercase tracking-widest">
-                    <FaTrophy className="text-[9px] text-yellow-500" /> {user.rank}
+                {user.kycStatus?.documentVerified && (
+                  <span className="inline-flex items-center gap-1 mt-1.5 rounded-full bg-pine-teal/8 border border-pine-teal/20 px-2.5 py-1 text-[10px] font-bold text-pine-teal uppercase tracking-widest">
+                    <FaCheckCircle className="text-[9px]" /> Verified donor
                   </span>
                 )}
               </div>
@@ -556,58 +557,37 @@ const Profile = () => {
             </div>
           )}
 
-          {/* ── POINTS REDEMPTION LADDER ── */}
-          {(() => {
-            const pts = user?.points || 0;
-            const tiers = [
-              { pts: 100,  label: "Bronze",   color: "from-amber-700 to-amber-500",   perk: "Community badge + profile verified" },
-              { pts: 250,  label: "Silver",   color: "from-slate-500 to-slate-300",   perk: "Priority matching in SOS alerts" },
-              { pts: 500,  label: "Gold",     color: "from-yellow-600 to-yellow-400", perk: "Gold donor badge + leaderboard" },
-              { pts: 1000, label: "Platinum", color: "from-purple-700 to-purple-400", perk: "Exclusive discounts — coming soon" },
-            ];
-            const currentTier = [...tiers].reverse().find((t) => pts >= t.pts);
-            return (
-              <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
-                <div className="px-5 py-4 border-b border-pine-teal/8">
-                  <h3 className="font-display text-[15px] font-semibold text-pine-teal">Points Ladder</h3>
-                  <p className="text-[11px] text-pine-teal/40 mt-0.5">You have <span className="font-black text-pine-teal">{pts}</span> points</p>
-                </div>
-                <div className="p-4 space-y-2.5">
-                  {tiers.map((t) => {
-                    const unlocked = pts >= t.pts;
-                    const isCurrent = currentTier?.label === t.label;
-                    return (
-                      <div key={t.label} className={`flex items-center gap-3 rounded-2xl border px-4 py-3.5 transition-all ${
-                        isCurrent
-                          ? "border-pine-teal/30 bg-pine-teal/8"
-                          : unlocked
-                          ? "border-pine-teal/12 bg-surface-2"
-                          : "border-pine-teal/6 bg-surface-2 opacity-50"
-                      }`}>
-                        <div className={`shrink-0 h-10 w-10 rounded-xl bg-gradient-to-br ${t.color} flex items-center justify-center shadow-sm`}>
-                          <FaTrophy className="text-white text-xs" />
+          {/* ── YOUR IMPACT (quiet recognition, not a scoreboard) ── */}
+          <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
+            <SectionHeader title="Your impact" />
+            <div className="p-5">
+              {(() => {
+                const donations = user?.donationsCount || stats.bloodDonations || 0;
+                const next = [1, 5, 10, 25, 50, 100].find((m) => m > donations);
+                return (
+                  <>
+                    <p className="text-[15px] leading-relaxed text-pine-teal/70">
+                      {donations === 0
+                        ? "Your first donation will be recognised here — no scores, no levels, just the people you help."
+                        : <>You've donated <span className="font-semibold text-pine-teal">{donations}</span> {donations === 1 ? "time" : "times"}, potentially helping up to <span className="font-semibold text-dark-raspberry">{donations * 3}</span> people. Thank you for showing up.</>}
+                    </p>
+                    {next && donations > 0 && (
+                      <div className="mt-4">
+                        <div className="flex items-center justify-between text-[12px] mb-1.5">
+                          <span className="text-pine-teal/50">Next recognition certificate</span>
+                          <span className="font-semibold text-pine-teal">{donations} / {next}</span>
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
-                            <p className="text-[13px] font-black text-pine-teal">{t.label}</p>
-                            {isCurrent && <span className="text-[9px] font-black uppercase tracking-widest text-pine-teal bg-pine-teal/15 rounded-full px-2 py-0.5">Current</span>}
-                          </div>
-                          <p className="text-[11px] text-pine-teal/45 mt-0.5">{t.perk}</p>
+                        <div className="h-1.5 w-full rounded-full bg-pine-teal/10 overflow-hidden">
+                          <div className="h-full rounded-full bg-pine-teal" style={{ width: `${Math.min((donations / next) * 100, 100)}%` }} />
                         </div>
-                        <div className="shrink-0 text-right">
-                          <p className="text-[11px] font-black text-pine-teal/60">{t.pts} pts</p>
-                          {unlocked
-                            ? <FaCheckCircle className="text-pine-teal text-sm ml-auto mt-0.5" />
-                            : <p className="text-[10px] text-pine-teal/30 font-semibold mt-0.5">+{t.pts - pts}</p>
-                          }
-                        </div>
+                        <p className="mt-2 text-[12px] text-pine-teal/45">{next - donations} more to your next donation certificate.</p>
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })()}
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+          </div>
 
           {/* ── THANKS RECEIVED ── */}
           {thanksReceived.length > 0 && (
@@ -1074,8 +1054,8 @@ const Profile = () => {
                     <div className="grid grid-cols-3 gap-3 mb-4">
                       {[
                         { label: "Donations", value: passport.donationsCount || 0 },
-                        { label: "Points", value: passport.points || 0 },
-                        { label: "Rank", value: passport.rank || "Novice" },
+                        { label: "Lives", value: (passport.donationsCount || 0) * 3 },
+                        { label: "Group", value: passport.bloodGroup || "—" },
                       ].map(({ label, value }) => (
                         <div key={label} className="rounded-xl bg-white/6 border border-white/8 px-3 py-2.5 text-center">
                           <p className="text-lg font-black text-white leading-none">{value}</p>
