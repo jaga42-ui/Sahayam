@@ -47,6 +47,14 @@ const SectionHeader = ({ title }) => (
   </div>
 );
 
+// Quiet zone divider so the long profile scans as grouped sections, not one
+// endless scroll.
+const GroupLabel = ({ children }) => (
+  <div className="px-1 pt-5 pb-0.5">
+    <p className="text-[11px] font-bold uppercase tracking-[0.18em] text-pine-teal/35">{children}</p>
+  </div>
+);
+
 const Profile = () => {
   const { user, login, logout, toggleAvailability, enableNotifications } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -478,6 +486,8 @@ const Profile = () => {
             </div>
           </div>
 
+          <GroupLabel>Your donations</GroupLabel>
+
           {/* ── LOG OFFLINE DONATION ── */}
           <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
             <SectionHeader title="Log Offline Donation" />
@@ -588,6 +598,8 @@ const Profile = () => {
               })()}
             </div>
           </div>
+
+          <GroupLabel>Your community</GroupLabel>
 
           {/* ── THANKS RECEIVED ── */}
           {thanksReceived.length > 0 && (
@@ -708,6 +720,8 @@ const Profile = () => {
               )}
             </AnimatePresence>
           </div>
+
+          <GroupLabel>Account &amp; settings</GroupLabel>
 
           {/* ── INFO / EDIT CARD ── */}
           <div className="rounded-3xl overflow-hidden bg-surface border border-pine-teal/8 shadow-sm">
