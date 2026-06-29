@@ -334,7 +334,7 @@ const Profile = () => {
 
   if (!user) return null;
 
-  const inputCls = "w-full rounded-xl border border-pine-teal/12 bg-pearl-beige px-4 py-3.5 text-sm font-medium text-pine-teal placeholder-pine-teal/40 outline-none focus:border-blazing-flame/60 focus:ring-2 focus:ring-blazing-flame/10 transition-all";
+  const inputCls = "w-full rounded-xl border border-pine-teal/15 bg-surface px-4 py-3.5 text-sm font-medium text-pine-teal placeholder-pine-teal/40 outline-none focus:border-blazing-flame/60 focus:ring-2 focus:ring-blazing-flame/10 transition-all";
   const livesHelped = Math.max(user.donationsCount || 0, stats.bloodDonations) * 3;
 
   // Quiet impact, not a scoreboard — donations, the lives they may have touched
@@ -674,9 +674,9 @@ const Profile = () => {
                 </motion.div>
               ) : (
                 <motion.div key="edit" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="p-4 bg-[#0a1f1a] space-y-3">
+                  className="p-4 bg-surface-2 space-y-3">
                   {draftContacts.map((c, i) => (
-                    <div key={i} className="rounded-2xl border border-pine-teal/10 bg-pearl-beige p-3 space-y-2">
+                    <div key={i} className="rounded-2xl border border-pine-teal/10 bg-surface-2 p-3 space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-[10px] font-black uppercase tracking-widest text-pine-teal/45">Contact {i + 1}</span>
                         <button onClick={() => setDraftContacts((p) => p.filter((_, idx) => idx !== i))}
@@ -685,17 +685,17 @@ const Profile = () => {
                         </button>
                       </div>
                       <input type="text" placeholder="Name" value={c.name || ""} onChange={(e) => setDraftContacts((p) => p.map((x, idx) => idx === i ? { ...x, name: e.target.value } : x))}
-                        className="w-full rounded-xl border border-pine-teal/12 bg-pearl-beige px-3 py-2.5 text-sm text-pine-teal placeholder-pine-teal/40 outline-none focus:border-blazing-flame/40" />
+                        className="w-full rounded-xl border border-pine-teal/15 bg-surface px-3 py-2.5 text-sm text-pine-teal placeholder-pine-teal/40 outline-none focus:border-blazing-flame/40" />
                       <div className="grid grid-cols-2 gap-2">
                         <select value={c.relation || ""} onChange={(e) => setDraftContacts((p) => p.map((x, idx) => idx === i ? { ...x, relation: e.target.value } : x))}
-                          className="rounded-xl border border-pine-teal/12 bg-pearl-beige px-3 py-2.5 text-sm text-pine-teal outline-none focus:border-blazing-flame/40 appearance-none cursor-pointer">
-                          <option value="" className="bg-[#0a1f1a]">Relation</option>
-                          {RELATIONS.map((r) => <option key={r} value={r} className="bg-[#0a1f1a]">{r}</option>)}
+                          className="rounded-xl border border-pine-teal/15 bg-surface px-3 py-2.5 text-sm text-pine-teal outline-none focus:border-blazing-flame/40 appearance-none cursor-pointer">
+                          <option value="">Relation</option>
+                          {RELATIONS.map((r) => <option key={r} value={r}>{r}</option>)}
                         </select>
                         <select value={c.bloodGroup || ""} onChange={(e) => setDraftContacts((p) => p.map((x, idx) => idx === i ? { ...x, bloodGroup: e.target.value } : x))}
-                          className="rounded-xl border border-pine-teal/12 bg-pearl-beige px-3 py-2.5 text-sm text-pine-teal outline-none focus:border-blazing-flame/40 appearance-none cursor-pointer">
-                          <option value="" className="bg-[#0a1f1a]">Blood Group</option>
-                          {BLOOD_GROUPS.map((g) => <option key={g} value={g} className="bg-[#0a1f1a]">{g}</option>)}
+                          className="rounded-xl border border-pine-teal/15 bg-surface px-3 py-2.5 text-sm text-pine-teal outline-none focus:border-blazing-flame/40 appearance-none cursor-pointer">
+                          <option value="">Blood Group</option>
+                          {BLOOD_GROUPS.map((g) => <option key={g} value={g}>{g}</option>)}
                         </select>
                       </div>
                     </div>
@@ -756,7 +756,7 @@ const Profile = () => {
               ) : (
                 <motion.form key="edit" onSubmit={handleUpdateProfile}
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-                  className="p-4 space-y-3 bg-[#0a1f1a]">
+                  className="p-4 space-y-3 bg-surface-2">
                   {/* Name */}
                   <div>
                     <label className="mb-1.5 block text-[10px] font-black uppercase tracking-widest text-pine-teal/45">Full Name</label>
@@ -792,8 +792,8 @@ const Profile = () => {
                     <select value={formData.bloodGroup}
                       onChange={(e) => setFormData((p) => ({ ...p, bloodGroup: e.target.value }))}
                       className={inputCls + " appearance-none cursor-pointer"}>
-                      <option value="" className="bg-[#0a1f1a]">Select</option>
-                      {BLOOD_GROUPS.map((g) => <option key={g} value={g} className="bg-[#0a1f1a]">{g}</option>)}
+                      <option value="">Select</option>
+                      {BLOOD_GROUPS.map((g) => <option key={g} value={g}>{g}</option>)}
                     </select>
                   </div>
                   <div>
