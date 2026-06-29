@@ -8,6 +8,24 @@ cloudinary.config({
 });
 
 const storage = multer.memoryStorage();
-const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } }); // 5 MB max
 
-module.exports = { upload, cloudinary };
+// Uploads (profile pics, donation images, KYC documents) must be images — never
+// arbitrary files. Reject anything else up front with a 400.
+const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+const imageFileFilter = (req, file, cb) => {
+  if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    const err = new Error("Only image files (JPEG, PNG, WebP, GIF) are allowed.");
+    err.status = 400;
+    cb(err);
+  }
+};
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB max
+  fileFilter: imageFileFilter,
+});
+
+module.exports = { upload, cloudinary, imageFileFilter, ALLOWED_IMAGE_TYPES };
