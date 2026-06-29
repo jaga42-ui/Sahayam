@@ -15,8 +15,26 @@ function median(values) {
  * escalation ladder has to go. Powers the admin dashboard.
  */
 const getEngineMetrics = asyncHandler(async (req, res) => {
+  // Legacy blasts predate the `status` state machine and only carry the old
+  // `active`/`responses` mirrors. Derive a truthful status for them so they
+  // land in a real lifecycle bucket instead of a meaningless "unknown" pile:
+  // a blast someone responded to was effectively fulfilled, otherwise it has
+  // long since expired.
+  const derivedStatus = {
+    $ifNull: [
+      "$status",
+      {
+        $cond: [
+          { $gt: [{ $size: { $ifNull: ["$responses", []] } }, 0] },
+          "fulfilled",
+          "expired",
+        ],
+      },
+    ],
+  };
+
   const [statusCounts, levelCounts, responded] = await Promise.all([
-    Blast.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
+    Blast.aggregate([{ $group: { _id: derivedStatus, count: { $sum: 1 } } }]),
     Blast.aggregate([{ $group: { _id: "$escalationLevel", count: { $sum: 1 } } }]),
     Blast.find({ firstResponseAt: { $ne: null } })
       .select("createdAt firstResponseAt")
