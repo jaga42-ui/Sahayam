@@ -52,7 +52,7 @@ async function run() {
       name: `Donor ${i + 1}`,
       email: `donor${i + 1}${SEED_DOMAIN}`,
       password: "SeedPass123!", // hashed by the User pre-save hook
-      phone: `9${Math.floor(100000000 + Math.random() * 899999999)}`,
+      phone: `+919${Math.floor(100000000 + Math.random() * 899999999)}`,
       activeRole: "donor",
       bloodGroup: rand(ALL_GROUPS),
       isAvailable: Math.random() < 0.85,
