@@ -44,7 +44,6 @@ const createDonation = asyncHandler(async (req, res) => {
     bloodGroup,
     lat,
     lng,
-    severityLevel,
     donationWindow,
   } = req.body;
 
@@ -75,10 +74,37 @@ const createDonation = asyncHandler(async (req, res) => {
 
   const pickupPIN = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit completion code
 
-  const parsedLat = parseFloat(lat) || 0;
-  const parsedLng = parseFloat(lng) || 0;
+  const rawLat = parseFloat(lat);
+  const rawLng = parseFloat(lng);
+  const parsedLat = Number.isFinite(rawLat) ? rawLat : 0;
+  const parsedLng = Number.isFinite(rawLng) ? rawLng : 0;
 
   const isCriticalEmergency = isEmergency === "true" || isEmergency === true;
+
+  // An emergency SOS fans out push + email to real donors, so it has to be real.
+  // Reject garbage up front instead of broadcasting it: a valid blood group, a
+  // genuinely pinned location (not the [0,0] default a missing GPS pin falls
+  // back to), and basic content.
+  if (isCriticalEmergency) {
+    const VALID_BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+    const hasRealCoords =
+      Number.isFinite(rawLat) && Number.isFinite(rawLng) &&
+      Math.abs(rawLat) <= 90 && Math.abs(rawLng) <= 180 &&
+      !(rawLat === 0 && rawLng === 0);
+    const units = parseInt(quantity, 10);
+
+    const missing = [];
+    if (!VALID_BLOOD_GROUPS.includes(String(bloodGroup || "").toUpperCase())) missing.push("a valid blood group");
+    if (!hasRealCoords) missing.push("a pinned location");
+    if (!String(title || "").trim()) missing.push("a title");
+    if (!String(addressText || "").trim()) missing.push("a location name");
+    if (!Number.isInteger(units) || units < 1 || units > 20) missing.push("a unit count between 1 and 20");
+
+    if (missing.length) {
+      res.status(400);
+      throw new Error(`This SOS can't be broadcast — it needs ${missing.join(", ")}.`);
+    }
+  }
 
   // Prevent SOS spam: reject if user already has an active emergency post in the last 30 minutes
   if (isCriticalEmergency) {
@@ -116,7 +142,6 @@ const createDonation = asyncHandler(async (req, res) => {
       coordinates: [parsedLng, parsedLat],
       addressText,
     },
-    severityLevel: severityLevel || (isCriticalEmergency ? "Code Yellow" : "Unverified"),
     verifiedByInstitution: req.user.activeRole === "ngo" ? req.user._id : null,
   });
 

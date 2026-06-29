@@ -97,6 +97,7 @@ const Dashboard = () => {
   const [hasMore,        setHasMore]        = useState(false);
   const [loadingMore,    setLoadingMore]    = useState(false);
   const [showSOS,        setShowSOS]        = useState(false);
+  const [sosConfirm,     setSosConfirm]     = useState(false);
   const [isSubmitting,   setIsSubmitting]   = useState(false);
   const [approvingId,    setApprovingId]    = useState(null);
   const [requestsModal,  setRequestsModal]  = useState({ isOpen: false, donation: null });
@@ -265,21 +266,32 @@ const Dashboard = () => {
     r.start();
   };
 
-  const handleSOSSubmit = async (e) => {
+  // Step 1: validate locally, then move to the review screen. The location must
+  // resolve to real coordinates (not just typed text) so donors can be matched —
+  // this is what the locate button / suggestions set.
+  const handleSOSReview = (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const tid = toast.loading("Analyzing emergency…");
-      await new Promise((res) => setTimeout(res, 1800));
-      const text = (sosData.description + " " + sosData.title).toLowerCase();
-      const sev  = ["critical","urgent","accident","dying","icu"].some((w) => text.includes(w)) ? "Code Red" : "Code Yellow";
-      toast.success(`Classified as ${sev}. Broadcasting…`, { id: tid });
+    if (!sosData.lat || !sosData.lng) {
+      toast.error("Pin the location — tap the locate button or pick a suggestion so donors can be matched.");
+      return;
+    }
+    const units = parseInt(sosData.quantity, 10);
+    if (!Number.isInteger(units) || units < 1 || units > 20) {
+      toast.error("Enter how many units are needed (1–20).");
+      return;
+    }
+    setSosConfirm(true);
+  };
 
+  // Step 2: the actual broadcast, only after the user confirms the details.
+  const handleSOSConfirm = async () => {
+    setIsSubmitting(true);
+    const tid = toast.loading("Broadcasting SOS…");
+    try {
       const fd = new FormData();
       fd.append("listingType",  "request");
       fd.append("category",     "blood");
       fd.append("isEmergency",  "true");
-      fd.append("severityLevel", sev);
       fd.append("bloodGroup",   sosData.bloodGroup);
       fd.append("quantity",     `${sosData.quantity} Units`);
       fd.append("title",        `URGENT: ${sosData.bloodGroup} Needed!`);
@@ -287,17 +299,18 @@ const Dashboard = () => {
       fd.append("addressText",  `${sosData.hospital}, ${sosData.addressText}`);
       if (sosData.roomNumber) fd.append("hospitalRoomNumber", sosData.roomNumber);
       fd.append("patientDetails", JSON.stringify({ name: sosData.patientName, age: sosData.patientAge ? +sosData.patientAge : undefined }));
-      fd.append("criticalDeadline", new Date(Date.now() + (sev === "Code Red" ? 4 : 12) * 3600000).toISOString());
-      if (sosData.lat) fd.append("lat", sosData.lat);
-      if (sosData.lng) fd.append("lng", sosData.lng);
+      fd.append("criticalDeadline", new Date(Date.now() + 12 * 3600000).toISOString());
+      fd.append("lat", sosData.lat);
+      fd.append("lng", sosData.lng);
 
       const { data } = await api.post("/donations", fd);
       setFeed((p) => [data, ...p]);
       setShowSOS(false);
+      setSosConfirm(false);
       setSosData({ bloodGroup:"", quantity:"", hospital:"", roomNumber:"", patientName:"", patientAge:"", addressText:"", description:"", lat:null, lng:null });
-      toast.success("SOS broadcast sent!");
-    } catch {
-      toast.error("Failed to broadcast SOS.");
+      toast.success("SOS broadcast sent!", { id: tid });
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to broadcast SOS.", { id: tid });
     } finally {
       setIsSubmitting(false);
     }
@@ -766,7 +779,7 @@ const Dashboard = () => {
         {showSOS && (
           <motion.div className="fixed inset-0 z-[100] flex flex-col justify-end">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              onClick={() => setShowSOS(false)}
+              onClick={() => { setShowSOS(false); setSosConfirm(false); }}
               className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
 
             <motion.div
@@ -783,7 +796,7 @@ const Dashboard = () => {
                     </h2>
                     <p className="text-[11px] text-white/40 mt-0.5">Broadcast to nearby donors instantly</p>
                   </div>
-                  <motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1 }} onClick={() => setShowSOS(false)}
+                  <motion.button whileTap={{ scale: 0.9 }} whileHover={{ scale: 1.1 }} onClick={() => { setShowSOS(false); setSosConfirm(false); }}
                     className="h-9 w-9 flex items-center justify-center rounded-full border border-white/10 bg-white/6 text-white/60 transition-all hover:border-white/25 hover:bg-white/12 hover:text-white">
                     <FaTimes className="text-sm" />
                   </motion.button>
@@ -792,7 +805,8 @@ const Dashboard = () => {
 
               <div className="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 h-48 w-48 rounded-full bg-[#d6453f]/20 blur-3xl" />
 
-              <form onSubmit={handleSOSSubmit} className="relative px-5 pt-4 pb-10 space-y-3.5">
+              {!sosConfirm ? (
+              <form onSubmit={handleSOSReview} className="relative px-5 pt-4 pb-10 space-y-3.5">
                 <motion.button type="button" whileTap={{ scale: 0.97 }} whileHover={{ scale: 1.01 }} onClick={startVoiceRecognition}
                   className={`w-full flex items-center justify-center gap-2.5 rounded-2xl py-3.5 text-sm font-semibold transition-all ${
                     isListening
@@ -887,11 +901,52 @@ const Dashboard = () => {
                     placeholder="Describe the emergency…" required className={sosField + " resize-none"} />
                 </div>
 
-                <motion.button type="submit" whileTap={{ scale: 0.97 }} whileHover={{ scale: 1.02, y: -1 }} disabled={isSubmitting}
-                  className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-[#d6453f] py-4 text-sm font-semibold text-white shadow-[0_4px_24px_-6px_rgba(214,69,63,0.65)] transition-shadow hover:shadow-[0_8px_32px_-6px_rgba(214,69,63,0.85)] disabled:opacity-60 disabled:shadow-none">
-                  {isSubmitting ? <FaSpinner className="animate-spin" /> : <><FaHeartbeat className="animate-pulse" /> Broadcast SOS</>}
+                <motion.button type="submit" whileTap={{ scale: 0.97 }} whileHover={{ scale: 1.02, y: -1 }}
+                  className="w-full flex items-center justify-center gap-2.5 rounded-2xl bg-[#d6453f] py-4 text-sm font-semibold text-white shadow-[0_4px_24px_-6px_rgba(214,69,63,0.65)] transition-shadow hover:shadow-[0_8px_32px_-6px_rgba(214,69,63,0.85)]">
+                  <FaArrowRight className="text-xs" /> Review SOS
                 </motion.button>
               </form>
+              ) : (
+              <div className="relative px-5 pt-5 pb-10 space-y-4">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 space-y-2.5">
+                  {[
+                    ["Blood group", sosData.bloodGroup],
+                    ["Units", `${sosData.quantity} unit${sosData.quantity === "1" ? "" : "s"}`],
+                    ["Hospital", sosData.hospital],
+                    ["Location", sosData.addressText],
+                    sosData.patientName && ["Patient", `${sosData.patientName}${sosData.patientAge ? `, ${sosData.patientAge}` : ""}`],
+                    sosData.roomNumber && ["Room", sosData.roomNumber],
+                  ].filter(Boolean).map(([k, v]) => (
+                    <div key={k} className="flex items-start justify-between gap-3">
+                      <span className="shrink-0 text-[11px] font-medium uppercase tracking-wide text-white/40">{k}</span>
+                      <span className="text-right text-[13px] font-semibold text-white break-words">{v}</span>
+                    </div>
+                  ))}
+                </div>
+
+                {sosData.description && (
+                  <p className="text-[13px] leading-relaxed text-white/70">"{sosData.description}"</p>
+                )}
+
+                <div className="flex items-start gap-2.5 rounded-2xl border border-[#d6453f]/30 bg-[#d6453f]/10 px-4 py-3">
+                  <FaBell className="mt-0.5 shrink-0 text-sm text-[#ff6b5e]" />
+                  <p className="text-[12px] leading-relaxed text-white/70">
+                    This alerts compatible donors within 50 km by push and email. Check the details — an alert can't be unsent.
+                  </p>
+                </div>
+
+                <div className="flex gap-2.5">
+                  <motion.button type="button" whileTap={{ scale: 0.97 }} onClick={() => setSosConfirm(false)}
+                    className="shrink-0 rounded-2xl border border-white/12 bg-white/6 px-5 py-4 text-sm font-semibold text-white/70 transition-colors hover:text-white">
+                    Edit
+                  </motion.button>
+                  <motion.button type="button" whileTap={{ scale: 0.97 }} whileHover={{ scale: 1.02, y: -1 }} onClick={handleSOSConfirm} disabled={isSubmitting}
+                    className="flex-1 flex items-center justify-center gap-2.5 rounded-2xl bg-[#d6453f] py-4 text-sm font-semibold text-white shadow-[0_4px_24px_-6px_rgba(214,69,63,0.65)] transition-shadow hover:shadow-[0_8px_32px_-6px_rgba(214,69,63,0.85)] disabled:opacity-60 disabled:shadow-none">
+                    {isSubmitting ? <FaSpinner className="animate-spin" /> : <><FaHeartbeat className="animate-pulse" /> Confirm & Broadcast</>}
+                  </motion.button>
+                </div>
+              </div>
+              )}
             </motion.div>
           </motion.div>
         )}
