@@ -17,9 +17,6 @@ import {
   FaRunning,
   FaHandsHelping,
   FaShareAlt,
-  FaUtensils,
-  FaTshirt,
-  FaBook,
   FaBell,
   FaShieldAlt,
   FaMicrophone,
@@ -45,16 +42,6 @@ const FILTER_OPTIONS = [
 ];
 
 const BLOOD_GROUPS = ["All", "O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-"];
-
-const CATEGORY_META = {
-  blood:   { label: "Blood",   icon: FaHeartbeat,   soft: "bg-dark-raspberry/8 text-dark-raspberry border-dark-raspberry/20" },
-  food:    { label: "Food",    icon: FaUtensils,    soft: "bg-pine-teal/8 text-pine-teal border-pine-teal/20" },
-  clothes: { label: "Clothes", icon: FaTshirt,      soft: "bg-dark-raspberry/8 text-dark-raspberry border-dark-raspberry/20" },
-  book:    { label: "Book",    icon: FaBook,        soft: "bg-dusty-lavender/10 text-dusty-lavender border-dusty-lavender/25" },
-  general: { label: "General", icon: FaHandsHelping, soft: "bg-pine-teal/8 text-pine-teal border-pine-teal/20" },
-};
-
-const getCategoryMeta = (c) => CATEGORY_META[c?.toLowerCase()] || CATEGORY_META.general;
 
 const optimizeImageUrl = (url) => {
   if (!url) return "";
@@ -573,9 +560,6 @@ const Dashboard = () => {
                     const isMine     = donorId === user._id;
                     const alreadyReq = item.requestedBy?.some((r) => (r._id || r) === user._id);
                     const isApproved = item.status === "pending" && receiverId === user._id;
-                    const meta       = getCategoryMeta(item.category);
-                    const CategoryIcon = meta.icon;
-                    const isBlood    = item.category?.toLowerCase() === "blood";
                     const place      = item.addressText || item.location?.addressText;
                     const dateStr    = item.createdAt
                       ? new Date(item.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
@@ -718,7 +702,7 @@ const Dashboard = () => {
                         <div className="flex items-center gap-3 px-4 py-3.5">
                           {/* Blood group pill */}
                           <div className="shrink-0 h-10 w-10 rounded-xl bg-gradient-to-br from-dark-raspberry to-[#523a7d] flex flex-col items-center justify-center shadow-sm">
-                            <span className="text-[11px] font-black text-white leading-none">{item.bloodGroup || <CategoryIcon className="text-sm" />}</span>
+                            <span className="text-[11px] font-black text-white leading-none">{item.bloodGroup || <FaTint className="text-sm" />}</span>
                           </div>
 
                           {/* Content */}
