@@ -46,6 +46,12 @@ const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
 };
 
+// A donor sitting at the default [0,0] (never shared GPS) can't be geo-matched
+// to nearby emergencies. Surface this so the client can nudge them to fix it.
+const hasRealLocation = (user) =>
+  !!(user?.location?.coordinates &&
+    (user.location.coordinates[0] !== 0 || user.location.coordinates[1] !== 0));
+
 const normalizePhone = (raw) => {
   if (!raw || raw === "Not Provided") return raw;
   const digits = raw.replace(/\D/g, "");
@@ -124,6 +130,7 @@ const registerUser = asyncHandler(async (req, res) => {
       profilePic: user.profilePic,
       addressText: user.addressText,
       referralCode: user.referralCode,
+      hasLocation: hasRealLocation(user),
       token: generateToken(user._id),
     });
   } else {
@@ -162,6 +169,7 @@ const loginUser = asyncHandler(async (req, res) => {
       bloodGroup: user.bloodGroup,
       addressText: user.addressText,
       referralCode: user.referralCode,
+      hasLocation: hasRealLocation(user),
       token: generateToken(user._id),
     });
   } else {
@@ -250,6 +258,7 @@ const googleLogin = asyncHandler(async (req, res) => {
       bloodGroup: user.bloodGroup,
       addressText: user.addressText,
       points: user.points,
+      hasLocation: hasRealLocation(user),
       token: generateToken(user._id),
     });
   } catch (error) {
@@ -323,17 +332,29 @@ const getMe = asyncHandler(async (req, res) => {
 
 const updateLocation = asyncHandler(async (req, res) => {
   const { lat, lng, addressText } = req.body;
-  const user = await User.findById(req.user._id);
 
-  if (user) {
-    user.location = { type: "Point", coordinates: [lng, lat] };
-    if (addressText) user.addressText = addressText;
-    await user.save();
-    res.json({ message: "Live location locked in." });
-  } else {
+  // Reject garbage / the [0,0] Null Island default — a saved location must be real.
+  const nLat = Number(lat);
+  const nLng = Number(lng);
+  const valid =
+    Number.isFinite(nLat) && Number.isFinite(nLng) &&
+    Math.abs(nLat) <= 90 && Math.abs(nLng) <= 180 &&
+    !(nLat === 0 && nLng === 0);
+  if (!valid) {
+    res.status(400);
+    throw new Error("A valid location is required.");
+  }
+
+  const user = await User.findById(req.user._id);
+  if (!user) {
     res.status(404);
     throw new Error("User not found");
   }
+
+  user.location = { type: "Point", coordinates: [nLng, nLat] };
+  if (addressText) user.addressText = addressText;
+  await user.save();
+  res.json({ message: "Live location locked in.", hasLocation: true });
 });
 
 const getNearbyDonors = asyncHandler(async (req, res) => {

@@ -81,7 +81,7 @@ const SkeletonCard = () => (
 );
 
 const Dashboard = () => {
-  const { user, socket, enableNotifications, isDarkMode, toggleDarkMode, thankYouPrompt, setThankYouPrompt } = useContext(AuthContext);
+  const { user, setUser, socket, enableNotifications, isDarkMode, toggleDarkMode, thankYouPrompt, setThankYouPrompt } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [localRole,      setLocalRole]      = useState(user?.activeRole || "donor");
@@ -103,6 +103,7 @@ const Dashboard = () => {
   const [requestsModal,  setRequestsModal]  = useState({ isOpen: false, donation: null });
   const [suggestions,    setSuggestions]    = useState([]);
   const [isFetchingLoc,  setFetchingLoc]    = useState(false);
+  const [enablingLoc,    setEnablingLoc]    = useState(false);
   const [typingTimeout,  setTypingTimeout]  = useState(null);
   const [isListening,    setIsListening]    = useState(false);
   const [thankYouMsg,    setThankYouMsg]    = useState("");
@@ -212,6 +213,31 @@ const Dashboard = () => {
     } finally {
       setLoadingMore(false);
     }
+  };
+
+  // A donor with no shared GPS sits at [0,0] and can't be geo-matched to nearby
+  // emergencies. One tap captures their real location so the engine can reach them.
+  const enableLocation = () => {
+    if (!navigator.geolocation) return toast.error("Your device doesn't support location.");
+    setEnablingLoc(true);
+    const tid = toast.loading("Getting your location…");
+    navigator.geolocation.getCurrentPosition(
+      async ({ coords: { latitude, longitude } }) => {
+        try {
+          await api.put("/auth/location", { lat: latitude, lng: longitude });
+          const updated = { ...user, hasLocation: true };
+          setUser(updated);
+          localStorage.setItem("user", JSON.stringify(updated));
+          toast.success("Location set — nearby emergencies can reach you now.", { id: tid });
+        } catch (err) {
+          toast.error(err.response?.data?.message || "Couldn't save your location.", { id: tid });
+        } finally {
+          setEnablingLoc(false);
+        }
+      },
+      () => { setEnablingLoc(false); toast.error("Location permission denied.", { id: tid }); },
+      { enableHighAccuracy: true, timeout: 20000 },
+    );
   };
 
   const handleGetLocation = async () => {
@@ -452,6 +478,22 @@ const Dashboard = () => {
               className="mt-3 w-full flex items-center justify-center gap-2.5 rounded-xl bg-dark-raspberry py-3.5 text-[13.5px] font-semibold text-white shadow-[0_4px_20px_-6px_rgba(107,50,140,0.5)] transition-shadow hover:shadow-[0_6px_28px_-6px_rgba(107,50,140,0.7)]">
               <FaPlus className="text-[11px]" /> Raise an SOS
             </motion.button>
+
+            {/* Location nudge — a donor at [0,0] can't be matched to nearby SOS */}
+            {user?.activeRole === "donor" && user?.hasLocation === false && (
+              <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }}
+                className="mt-2.5 flex items-center gap-3 rounded-xl border border-blazing-flame/25 bg-blazing-flame/8 px-3.5 py-3">
+                <FaMapMarkerAlt className="shrink-0 text-blazing-flame" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[12.5px] font-semibold leading-snug text-pine-teal">Share your location</p>
+                  <p className="mt-0.5 text-[11px] leading-snug text-pine-teal/55">Without it, nearby emergencies can't match you.</p>
+                </div>
+                <motion.button whileTap={{ scale: 0.95 }} onClick={enableLocation} disabled={enablingLoc}
+                  className="shrink-0 flex items-center gap-1.5 rounded-lg bg-blazing-flame px-3 py-2 text-[11px] font-bold text-white disabled:opacity-60">
+                  {enablingLoc ? <FaSpinner className="animate-spin text-[10px]" /> : <><FaLocationArrow className="text-[10px]" /> Enable</>}
+                </motion.button>
+              </motion.div>
+            )}
 
             {/* Critical infrastructure strip */}
             {donorRarity?.bloodGroup && (
