@@ -259,6 +259,6 @@ VITE_MAPBOX_TOKEN=your_mapbox_token   # optional — labels your city on the rad
 
 Built with 🩸 to make blood reach people in time.
 
-**License:** ISC
+**License:** [MIT](LICENSE)
 
 </div>
