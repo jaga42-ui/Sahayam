@@ -81,6 +81,29 @@ An SOS is **not** a fixed broadcast. It's a timeout-driven **state machine** tha
 - **Escalation** — if nobody responds at a level, a cron tick widens the radius and pings a **fresh** ring of donors. Guarded by a distributed **`CronLock`** so it stays correct across horizontally-scaled instances.
 - **Observability** — `GET /api/admin/engine-metrics` reports fill rate, median time-to-first-response, and escalation-depth distribution.
 
+**The candidate filter**, in the order the aggregation applies it — geography first, so
+the expensive predicates only ever run against a small, already-sorted set:
+
+```mermaid
+flowchart LR
+    A["$geoNear<br/>sorted by distance"] --> B{"within<br/>current radius?"}
+    B -- no --> X["drop"]
+    B -- yes --> C{"compatible<br/>blood group?"}
+    C -- no --> X
+    C -- yes --> D{"eligible?<br/>past cooldown"}
+    D -- no --> X
+    D -- yes --> E{"available?"}
+    E -- no --> X
+    E -- yes --> F{"already pinged<br/>this SOS?"}
+    F -- yes --> X
+    F -- no --> G["ping this ring"]
+    G -.->|"no response<br/>before timeout"| H["cron widens radius<br/>fresh ring only"]
+    H --> A
+```
+
+Because already-pinged donors are excluded, each escalation reaches a **new** ring rather
+than re-spamming the people who did not answer the first time.
+
 ```bash
 # See the radar & escalation end-to-end with 200 synthetic donors:
 node scripts/seedDonors.js      # ~20% on cooldown, varied blood groups
@@ -91,18 +114,16 @@ node scripts/seedDonors.js --clear
 
 ## 🏗️ Architecture
 
-```
-┌──────────────────────┐        REST + WebSocket        ┌──────────────────────┐
-│   React SPA (Vite)    │  ───────────────────────────▶ │   Express API         │
-│   maps · chat · dash  │ ◀───────────────────────────  │   JWT · business logic │
-└──────────────────────┘                                └───────────┬──────────┘
-                                                                     │
-                  ┌──────────────────────────────────────┬──────────┼───────────────┐
-                  ▼                                        ▼          ▼               ▼
-            ┌───────────┐                          ┌────────────┐ ┌────────┐  ┌──────────────┐
-            │  MongoDB  │                          │  node-cron │ │ Gemini │  │ Cloudinary    │
-            │ (geo + ttl)│                         │ escalation │ │  AI    │  │ media uploads │
-            └───────────┘                          └────────────┘ └────────┘  └──────────────┘
+```mermaid
+flowchart TB
+    SPA["React SPA · Vite<br/>maps · chat · dashboards"]
+    API["Express API<br/>JWT · business logic"]
+    SPA <-->|"REST + WebSocket"| API
+    API --> DB[("MongoDB<br/>geo indexes + TTL")]
+    API --> CRON["node-cron<br/>escalation · CronLock"]
+    API --> AI["Gemini AI"]
+    API --> CDN["Cloudinary<br/>media uploads"]
+    CRON --> DB
 ```
 
 - **Frontend (SPA)** — Vite + React, handling maps, real-time chat, and dashboards over REST + WebSocket.
